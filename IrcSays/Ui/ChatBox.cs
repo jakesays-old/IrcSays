@@ -25,7 +25,7 @@ namespace IrcSays.Ui
 		{
 			base.OnApplyTemplate();
 
-			_presenter = base.GetTemplateChild("PART_ChatPresenter") as ChatPresenter;
+			_presenter = GetTemplateChild("PART_ChatPresenter") as ChatPresenter;
 			if (_presenter == null)
 			{
 				throw new Exception("Missing template part.");

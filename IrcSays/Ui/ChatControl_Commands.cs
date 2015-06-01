@@ -242,7 +242,7 @@ namespace IrcSays.Ui
 						Session.Mode(Target.Name, modes);
 					}
 					return true;
-				}, IrcCode.RPL_USERHOST));
+				}, IrcCode.RplUserHost));
 				var chunk = nicks.Skip(i).Take(3).ToArray();
 				Session.UserHost(chunk);
 			}

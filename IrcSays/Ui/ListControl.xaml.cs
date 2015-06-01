@@ -69,7 +69,7 @@ namespace IrcSays.Ui
 		{
 			switch (e.Code)
 			{
-				case IrcCode.RPL_LIST:
+				case IrcCode.RplList:
 					int count;
 					if (e.Message.Parameters.Count == 4 &&
 						int.TryParse(e.Message.Parameters[2], out count))
@@ -78,7 +78,7 @@ namespace IrcSays.Ui
 						this.Count++;
 					}
 					break;
-				case IrcCode.RPL_LISTEND:
+				case IrcCode.RplListEnd:
 					this.IsCloseable = true;
 					this.Session.InfoReceived -= new EventHandler<IrcInfoEventArgs>(Session_InfoReceived);
 					_channels.Sort();

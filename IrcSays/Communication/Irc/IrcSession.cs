@@ -779,7 +779,7 @@ namespace IrcSays.Communication.Irc
 						}
 					}
 					return true;
-				}, IrcCode.RPL_USERHOST));
+				}, IrcCode.RplUserHost));
 				UserHost(Nickname);
 			}
 
@@ -1009,7 +1009,7 @@ namespace IrcSays.Communication.Irc
 			if (int.TryParse(message.Command, out code))
 			{
 				var e = new IrcInfoEventArgs(message);
-				if (e.Code == IrcCode.RPL_WELCOME)
+				if (e.Code == IrcCode.RplWelcome)
 				{
 					if (e.Text.StartsWith("Welcome to the "))
 					{

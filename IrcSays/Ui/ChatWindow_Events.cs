@@ -214,7 +214,7 @@ namespace IrcSays.Ui
 			var session = sender as IrcSession;
 			switch (e.Code)
 			{
-				case IrcCode.RPL_LISTSTART:
+				case IrcCode.RplListStart:
 					App.Create(session, new ListControl(session), true);
 					break;
 			}

@@ -9,7 +9,7 @@ using System.Windows.Threading;
 
 namespace IrcSays.Ui
 {
-	public partial class ChatPresenter : ChatBoxBase, IScrollInfo
+	public partial class ChatPresenter
 	{
 		private const double SeparatorPadding = 6.0;
 		private const int TextProcessingBatchSize = 50;
@@ -180,7 +180,7 @@ namespace IrcSays.Ui
 
 			b.Text = formatter.Format(b.Source.Text, b.Source, ViewportWidth - b.TextX, b.Foreground,
 				Background, TextWrapping.Wrap).ToArray();
-			b.Height = b.Text.Sum((t) => t.Height);
+			b.Height = b.Text.Sum(t => t.Height);
 		}
 
 		private void InvalidateAll(bool styleChanged)

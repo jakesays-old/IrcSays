@@ -159,7 +159,7 @@ namespace IrcSays.Ui
 		{
 			switch (e.Code)
 			{
-				case IrcCode.ERR_NICKNAMEINUSE:
+				case IrcCode.ErrNicknameInUse:
 					if (IsServer && Session.State == IrcSessionState.Connecting)
 					{
 						if (_usingAlternateNick || string.IsNullOrEmpty(App.Settings.Current.User.AlternateNickname))
@@ -173,7 +173,7 @@ namespace IrcSays.Ui
 						}
 					}
 					break;
-				case IrcCode.RPL_TOPIC:
+				case IrcCode.RplTopic:
 					if (e.Message.Parameters.Count == 3 &&
 						!IsServer &&
 						Target.Equals(new IrcTarget(e.Message.Parameters[1])))
@@ -183,7 +183,7 @@ namespace IrcSays.Ui
 						Write("Topic", string.Format("Topic is: {0}", _topic));
 					}
 					return;
-				case IrcCode.RPL_TOPICSETBY:
+				case IrcCode.RplTopicSetBy:
 					if (e.Message.Parameters.Count == 4 &&
 						!IsServer &&
 						Target.Equals(new IrcTarget(e.Message.Parameters[1])))
@@ -192,7 +192,7 @@ namespace IrcSays.Ui
 							FormatTime(e.Message.Parameters[3])));
 					}
 					return;
-				case IrcCode.RPL_CHANNELCREATEDON:
+				case IrcCode.RplChannelCreatedOn:
 					if (e.Message.Parameters.Count == 3 &&
 						!IsServer &&
 						Target.Equals(new IrcTarget(e.Message.Parameters[1])))
@@ -200,17 +200,17 @@ namespace IrcSays.Ui
 						//this.Write("ServerInfo", string.Format("* Channel created on {0}", this.FormatTime(e.Message.Parameters[2])));
 					}
 					return;
-				case IrcCode.RPL_WHOISUSER:
-				case IrcCode.RPL_WHOWASUSER:
+				case IrcCode.RplWhoisUser:
+				case IrcCode.RplWhoWasUser:
 					if (e.Message.Parameters.Count == 6 && IsDefault)
 					{
 						Write("ServerInfo",
-							string.Format("{1} " + (e.Code == IrcCode.RPL_WHOWASUSER ? "was" : "is") + " {2}@{3} {4} {5}",
+							string.Format("{1} " + (e.Code == IrcCode.RplWhoWasUser ? "was" : "is") + " {2}@{3} {4} {5}",
 								(object[]) e.Message.Parameters));
 						return;
 					}
 					break;
-				case IrcCode.RPL_WHOISCHANNELS:
+				case IrcCode.RplWhoisChannels:
 					if (e.Message.Parameters.Count == 3 && IsDefault)
 					{
 						Write("ServerInfo", string.Format("{1} is on {2}",
@@ -218,7 +218,7 @@ namespace IrcSays.Ui
 						return;
 					}
 					break;
-				case IrcCode.RPL_WHOISSERVER:
+				case IrcCode.RplWhoisServer:
 					if (e.Message.Parameters.Count == 4 && IsDefault)
 					{
 						Write("ServerInfo", string.Format("{1} using {2} {3}",
@@ -226,7 +226,7 @@ namespace IrcSays.Ui
 						return;
 					}
 					break;
-				case IrcCode.RPL_WHOISIDLE:
+				case IrcCode.RplWhoisIdle:
 					if (e.Message.Parameters.Count == 5 && IsDefault)
 					{
 						Write("ServerInfo", string.Format("{0} has been idle {1}, signed on {2}",
@@ -235,7 +235,7 @@ namespace IrcSays.Ui
 						return;
 					}
 					break;
-				case IrcCode.RPL_INVITING:
+				case IrcCode.RplInviting:
 					if (e.Message.Parameters.Count == 3 && IsDefault)
 					{
 						Write("ServerInfo", string.Format("Invited {0} to channel {1}",
@@ -243,9 +243,9 @@ namespace IrcSays.Ui
 						return;
 					}
 					break;
-				case IrcCode.RPL_LIST:
-				case IrcCode.RPL_LISTSTART:
-				case IrcCode.RPL_LISTEND:
+				case IrcCode.RplList:
+				case IrcCode.RplListStart:
+				case IrcCode.RplListEnd:
 					e.Handled = true;
 					break;
 			}

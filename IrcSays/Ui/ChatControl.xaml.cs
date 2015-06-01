@@ -85,7 +85,7 @@ namespace IrcSays.Ui
 						}
 						e.Handled = true;
 						return true;
-					}, IrcCode.RPL_CHANNELMODEIS));
+					}, IrcCode.RplChannelModeIs));
 					Session.Mode(Target);
 					splitter.IsEnabled = true;
 
@@ -102,14 +102,14 @@ namespace IrcSays.Ui
 						}
 						e.Handled = true;
 						return false;
-					}, IrcCode.RPL_NAMEREPLY);
+					}, IrcCode.RplNameReply);
 					Session.AddHandler(nameHandler);
 					Session.AddHandler(new IrcCodeHandler(e =>
 					{
 						Session.RemoveHandler(nameHandler);
 						e.Handled = true;
 						return true;
-					}, IrcCode.RPL_ENDOFNAMES));
+					}, IrcCode.RplEndOfNames));
 				}
 				else if (IsNickname)
 				{

@@ -17,7 +17,7 @@
     <ProjectTypeGuids>{60dc8134-eba5-43b8-bcc9-bb4bc16c2548};{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}</ProjectTypeGuids>
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
-  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|x86' ">
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <PlatformTarget>AnyCPU</PlatformTarget>
     <DebugSymbols>true</DebugSymbols>
     <DebugType>full</DebugType>
@@ -28,8 +28,8 @@
     <WarningLevel>4</WarningLevel>
     <Prefer32Bit>false</Prefer32Bit>
   </PropertyGroup>
-  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|x86' ">
-    <PlatformTarget>x86</PlatformTarget>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <PlatformTarget>AnyCPU</PlatformTarget>
     <DebugType>pdbonly</DebugType>
     <Optimize>true</Optimize>
     <OutputPath>bin\Release\</OutputPath>
@@ -75,6 +75,7 @@
     <Compile Include="Application\App_Sounds.cs" />
     <Compile Include="Application\IgnoreActions.cs" />
     <Compile Include="Application\LogFileHandle.cs" />
+    <Compile Include="Communication\Irc\IrcCommands.cs" />
     <Compile Include="Ui\ChannelWindow.xaml.cs">
       <DependentUpon>ChannelWindow.xaml</DependentUpon>
     </Compile>
@@ -159,7 +160,6 @@
     <Compile Include="Communication\Network\SocksTcpClient.cs" />
     <Compile Include="Communication\Network\StunException.cs" />
     <Compile Include="Communication\Network\StunUdpClient.cs" />
-    <Compile Include="Communication\Rtp\RtpClient.cs" />
     <Compile Include="Configuration\BufferElement.cs" />
     <Compile Include="Configuration\ChannelStateElement.cs" />
     <Compile Include="Configuration\ChatPalette.cs" />
