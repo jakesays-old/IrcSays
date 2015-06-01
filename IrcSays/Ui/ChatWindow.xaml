@@ -1,0 +1,382 @@
+﻿<Window x:Class="IrcSays.Ui.ChatWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="{Binding ElementName=tabsChat, Path=SelectedContent.Title}" Height="399" Width="722"
+        xmlns:sys="clr-namespace:System;assembly=mscorlib"
+        xmlns:local="clr-namespace:IrcSays.Application"
+        xmlns:ui="clr-namespace:IrcSays.Ui"
+        MinWidth="300"  MinHeight="250" WindowStyle="None" ResizeMode="CanResize" AllowsTransparency="True"
+		Background="Transparent" Icon="{Binding Source={x:Static local:App.ApplicationImage}}" x:Name="window">
+	<Window.InputBindings>
+		<KeyBinding Command="ui:ChatWindow.PreviousTabCommand" Gesture="Alt+Left"/>
+		<KeyBinding Command="ui:ChatWindow.NextTabCommand" Gesture="Alt+Right"/>
+        <KeyBinding Command="ui:ChatWindow.CloseTabCommand" Gesture="Ctrl+F4" CommandParameter="{Binding ElementName=tabsChat, Path=SelectedItem.Page}"/>
+        <KeyBinding Command="ui:ChatWindow.CloseTabCommand" Gesture="Ctrl+W" CommandParameter="{Binding ElementName=tabsChat, Path=SelectedItem.Page}"/>
+    </Window.InputBindings>
+	<Window.CommandBindings>
+		<CommandBinding Command="ui:ChatWindow.ChatCommand" Executed="ExecuteChat"/>
+		<CommandBinding Command="ui:ChatWindow.CloseTabCommand" Executed="ExecuteCloseTab" CanExecute="CanExecuteCloseTab"/>
+		<CommandBinding Command="ui:ChatWindow.NewTabCommand" Executed="ExecuteNewTab"/>
+		<CommandBinding Command="ui:ChatWindow.DetachCommand" Executed="ExecuteDetach"/>
+		<CommandBinding Command="ui:ChatWindow.PreviousTabCommand" Executed="ExecutePreviousTab" CanExecute="CanExecutePreviousTab"/>
+		<CommandBinding Command="ui:ChatWindow.NextTabCommand" Executed="ExecuteNextTab" CanExecute="CanExecuteNextTab"/>
+		<CommandBinding Command="ui:ChatWindow.SettingsCommand" Executed="ExecuteSettings"/>
+		<CommandBinding Command="ui:ChatWindow.MinimizeCommand" Executed="ExecuteMinimize"/>
+		<CommandBinding Command="ui:ChatWindow.MaximizeCommand" Executed="ExecuteMaximize"/>
+		<CommandBinding Command="ui:ChatWindow.CloseCommand" Executed="ExecuteClose"/>
+	</Window.CommandBindings>
+	<Window.Resources>
+		<ContextMenu Placement="MousePoint" x:Key="NotifyMenu">
+			<MenuItem Click="NotifyQuit_Click" Header="Quit"/>
+		</ContextMenu>
+
+		<LinearGradientBrush x:Key="winTabSep" StartPoint="0,0" EndPoint="0,1">
+			<GradientStop Offset="0" Color="{Binding Source={StaticResource winFGx0}, Converter={StaticResource brushToColor}}"/>
+			<GradientStop Offset="0.5" Color="{Binding Source={StaticResource winFG}, Converter={StaticResource brushToColor}}"/>
+			<GradientStop Offset="1" Color="{Binding Source={StaticResource winFGx0}, Converter={StaticResource brushToColor}}"/>
+		</LinearGradientBrush>
+
+		<Geometry x:Key="closeTabButtonGeometry">M0,0 L6,6 M0,6 L6,0</Geometry>
+		<Geometry x:Key="minimizeButtonGeometry">M0,8 L8,8</Geometry>
+		<Geometry x:Key="maximizeButtonGeometry">M0,0 L8,0 L8,8 L0,8 L0,0 M0,1 L8,1</Geometry>
+		<Geometry x:Key="settingsButtonGeometry">M3,4 L6,8 L10,0</Geometry>
+		<Geometry x:Key="leftArrowGeometry">M0,4 L8,8 8,0Z</Geometry>
+		<Geometry x:Key="rightArrowGeometry">M0,0 L8,4 L0,8Z</Geometry>
+		<Geometry x:Key="downArrowGeometry">M0,0 L8,0 M0,2 L4,8 L8,2</Geometry>
+		<Path x:Key="leftArrowPath" Data="{StaticResource leftArrowGeometry}"
+			  Stroke="{StaticResource winFG}" Fill="{StaticResource winFG}" VerticalAlignment="Center" HorizontalAlignment="Center"/>
+		<Path x:Key="rightArrowPath" Data="{StaticResource rightArrowGeometry}"
+			  Stroke="{StaticResource winFG}" Fill="{StaticResource winFG}" VerticalAlignment="Center" HorizontalAlignment="Center"/>
+		<Path x:Key="downArrowPath" Data="{StaticResource downArrowGeometry}"
+			  Stroke="{StaticResource winFG}" Margin="2,0,2,0" Fill="{StaticResource winFG}" VerticalAlignment="Center" HorizontalAlignment="Center"/>
+
+		<Style x:Key="tabCloseButtonStyle" TargetType="Button">
+			<Setter Property="OverridesDefaultStyle" Value="True"/>
+			<Setter Property="Focusable" Value="False"/>
+			<Setter Property="Template">
+				<Setter.Value>
+					<ControlTemplate TargetType="Button">
+						<Border x:Name="border" CornerRadius="2" BorderThickness="1"
+								Background="Transparent"
+								BorderBrush="Transparent">
+							<Grid>
+								<Path x:Name="buttonPath" Margin="2"
+									  Data="{StaticResource closeTabButtonGeometry}"
+									  Stroke="{StaticResource winFG}"
+									  StrokeThickness="2"
+									  StrokeStartLineCap="Round"
+									  StrokeEndLineCap="Round"
+									  Stretch="Uniform"
+									  VerticalAlignment="Center"
+									  HorizontalAlignment="Center"/>
+							</Grid>
+						</Border>
+						<ControlTemplate.Triggers>
+							<Trigger Property="IsEnabled" Value="False">
+								<Setter Property="Visibility" Value="Collapsed"/>
+							</Trigger>
+							<Trigger Property="IsMouseOver" Value="True">
+								<Setter TargetName="border" Property="BorderBrush" Value="{StaticResource winFG}"/>
+								<Setter TargetName="border" Property="Background" Value="{StaticResource winFGx40}"/>
+							</Trigger>
+							<Trigger Property="IsPressed" Value="True">
+								<Setter TargetName="border" Property="Background" Value="{StaticResource winFGx80}"/>
+							</Trigger>
+						</ControlTemplate.Triggers>
+					</ControlTemplate>
+				</Setter.Value>
+			</Setter>
+		</Style>
+	</Window.Resources>
+	
+	<Window.Style>
+		<Style TargetType="Window">
+			<Setter Property="ui:ChatWindow.UIBackground">
+				<Setter.Value>
+					<MultiBinding Converter="{StaticResource opacityConverter}">
+						<Binding Source="{StaticResource winBG}"/>
+						<Binding Source="{x:Static local:App.Settings}" Path="Current.Windows.ChromeOpacity"/>
+					</MultiBinding>
+				</Setter.Value>
+			</Setter>
+			<Setter Property="Opacity" Value="{Binding Source={x:Static local:App.Settings}, Path=Current.Windows.ActiveOpacity}"/>
+			<Style.Triggers>
+				<Trigger Property="IsActive" Value="False">
+					<Setter Property="ui:ChatWindow.UIBackground">
+						<Setter.Value>
+							<MultiBinding Converter="{StaticResource opacityConverter}">
+								<Binding Source="{StaticResource winBG}" Converter="{StaticResource modifySaturation}">
+									<Binding.ConverterParameter>
+										<sys:Double>0.5</sys:Double>
+									</Binding.ConverterParameter>
+								</Binding>
+								<Binding Source="{x:Static local:App.Settings}" Path="Current.Windows.ChromeOpacity"/>
+								</MultiBinding>
+						</Setter.Value>
+					</Setter>
+					<Setter Property="Opacity" Value="{Binding Source={x:Static local:App.Settings}, Path=Current.Windows.InactiveOpacity}"/>
+				</Trigger>
+			</Style.Triggers>
+		</Style>
+	</Window.Style>
+
+	<Border CornerRadius="8" BorderBrush="{Binding ElementName=window, Path=UIBackground}" BorderThickness="4,3,4,4">
+		<Grid x:Name="grdRoot">
+			<Grid.RowDefinitions>
+				<RowDefinition Height="25"/>
+				<RowDefinition Height="*"/>
+			</Grid.RowDefinitions>
+			<Grid.ColumnDefinitions>
+				<ColumnDefinition Width="*"/>
+				<ColumnDefinition Width="Auto"/>
+			</Grid.ColumnDefinitions>
+
+			<Border Background="{Binding ElementName=window, Path=UIBackground}" Grid.Row="0" Grid.Column="0">
+				<TextBlock Margin="4,0,10,0" Text="{Binding Title}" Foreground="{StaticResource winFG}" VerticalAlignment="Center"/>
+			</Border>
+			<StackPanel Background="{Binding ElementName=window, Path=UIBackground}" Grid.Row="0" Grid.Column="1" Orientation="Horizontal">
+				<Button x:Name="btnSettings" VerticalAlignment="Top" Focusable="False" Height="18" Width="18" Style="{StaticResource uiButtonStyle}" Margin="0,2,2,0" Padding="0" Command="ui:ChatWindow.SettingsCommand">
+					<Path Margin="2" SnapsToDevicePixels="True"
+						Data="{StaticResource settingsButtonGeometry}"
+						Stroke="{StaticResource winFG}"
+						StrokeThickness="2"
+						StrokeStartLineCap="Round"
+						StrokeEndLineCap="Round"
+						Stretch="Uniform"
+						HorizontalAlignment="Center" VerticalAlignment="Top">
+					</Path>
+					<Button.ToolTip>
+						<ToolTip Content="Settings"/>
+					</Button.ToolTip>
+				</Button>
+				<Button x:Name="btnMinimize" VerticalAlignment="Top" Focusable="False" Height="18" Width="18" Style="{StaticResource uiButtonStyle}" Margin="0,2,2,0" Padding="0" Command="ui:ChatWindow.MinimizeCommand">
+					<Path Margin="2,10,2,2" SnapsToDevicePixels="True"
+						Data="{StaticResource minimizeButtonGeometry}"
+						Stroke="{StaticResource winFG}"
+						StrokeThickness="2"
+						StrokeStartLineCap="Round"
+						StrokeEndLineCap="Round"
+						Stretch="Uniform"
+						HorizontalAlignment="Center" VerticalAlignment="Top"/>
+				</Button>
+				<Button x:Name="btnMaximize" VerticalAlignment="Top" Focusable="False" Height="18" Width="18" Style="{StaticResource uiButtonStyle}" Margin="0,2,2,0" Command="ui:ChatWindow.MaximizeCommand">
+					<Path Margin="2" SnapsToDevicePixels="True"
+						Data="{StaticResource maximizeButtonGeometry}"
+						Stroke="{StaticResource winFG}"
+						StrokeThickness="2"
+						StrokeStartLineCap="Round"
+						StrokeEndLineCap="Round"
+						Stretch="Uniform"
+						VerticalAlignment="Top"
+						HorizontalAlignment="Center"/>
+				</Button>
+				<Button x:Name="btnClose" VerticalAlignment="Top" Focusable="False" Height="18" Width="18" Style="{StaticResource uiButtonStyle}" Margin="0,2,6,0" Command="ui:ChatWindow.CloseCommand">
+					<Path Margin="2" SnapsToDevicePixels="True"
+						Data="{StaticResource closeButtonGeometry}"
+						Stroke="{StaticResource winFG}"
+						StrokeThickness="2"
+						StrokeStartLineCap="Round"
+						StrokeEndLineCap="Round"
+						Stretch="Uniform"
+						VerticalAlignment="Top"
+						HorizontalAlignment="Center"/>
+				</Button>
+			</StackPanel>
+			<TabControl Grid.Row="2" Grid.ColumnSpan="2" Name="tabsChat" ItemsSource="{Binding Items}" TabStripPlacement="Bottom"
+					FontFamily="Segoe UI" FontSize="14" SnapsToDevicePixels="True">
+				<TabControl.Template>
+					<ControlTemplate TargetType="TabControl">
+						<DockPanel>
+							<Border Background="{Binding ElementName=window, Path=UIBackground}" BorderBrush="{StaticResource winFG}">
+								<Border.Style>
+									<Style TargetType="Border">
+										<Style.Triggers>
+											<DataTrigger Binding="{Binding Source={x:Static local:App.Settings}, Path=Current.Windows.TabStripPosition}" Value="Top">
+												<Setter Property="DockPanel.Dock" Value="Top"/>
+												<Setter Property="BorderThickness" Value="0,0,0,1"/>
+											</DataTrigger>
+										</Style.Triggers>
+										<Setter Property="DockPanel.Dock" Value="Bottom"/>
+									</Style>
+								</Border.Style>
+								<ScrollViewer Name="scrollViewer" Focusable="False"
+								  HorizontalScrollBarVisibility="Hidden" VerticalScrollBarVisibility="Disabled">
+
+								<ScrollViewer.Template>
+									<ControlTemplate TargetType="ScrollViewer">
+										<Grid>
+											<Grid.ColumnDefinitions>
+												<ColumnDefinition Width="*"/>
+												<ColumnDefinition Width="Auto"/>
+											</Grid.ColumnDefinitions>
+											<ScrollContentPresenter x:Name="PART_ScrollContentPresenter"
+															Grid.Column="0"
+															VirtualizingStackPanel.IsVirtualizing="False"
+															Content="{TemplateBinding ScrollViewer.Content}">
+												<ScrollContentPresenter.ContextMenu>
+													<ContextMenu>
+														<MenuItem Command="ui:ChatWindow.NewTabCommand" CommandTarget="{Binding RelativeSource={RelativeSource TemplatedParent}}"/>
+													</ContextMenu>
+												</ScrollContentPresenter.ContextMenu>
+											</ScrollContentPresenter>
+											<StackPanel Grid.Column="1"
+												Orientation="Horizontal">
+												<RepeatButton Focusable="False" Command="ui:ChatWindow.PreviousTabCommand" Style="{StaticResource uiRepeatButtonStyle}"
+													  Padding="2,5,2,5" Margin="5,0,0,0" VerticalAlignment="Center"
+													  Content="{StaticResource leftArrowPath}"/>
+												<RepeatButton Focusable="False" Command="ui:ChatWindow.NextTabCommand" Style="{StaticResource uiRepeatButtonStyle}"
+													  Padding="2,5,2,5" VerticalAlignment="Center"
+													  Content="{StaticResource rightArrowPath}"/>
+												<Menu VerticalAlignment="Center" Background="Transparent" BorderBrush="Transparent" Focusable="False">
+													<MenuItem Padding="2,5,2,5" Background="{StaticResource winBG}" BorderThickness="0" Margin="0,0,5,0"
+													  Header="{StaticResource downArrowPath}" Style="{StaticResource uiMenuButtonStyle}"
+													  ItemsSource="{Binding RelativeSource={RelativeSource AncestorType=TabControl}, Path=Items}">
+														<MenuItem.ItemContainerStyle>
+															<Style TargetType="MenuItem">
+																<Setter Property="Header" Value="{Binding Path=Content.Header}"/>
+																<Setter Property="IsCheckable" Value="True" />
+																<Setter Property="IsChecked" Value="{Binding Path=IsSelected, Mode=TwoWay}" />
+																<Setter Property="Template" Value="{StaticResource {x:Static MenuItem.SubmenuItemTemplateKey}}"/>
+															</Style>
+														</MenuItem.ItemContainerStyle>
+													</MenuItem>
+												</Menu>
+											</StackPanel>
+										</Grid>
+									</ControlTemplate>
+								</ScrollViewer.Template>
+								<StackPanel IsItemsHost="True" Orientation="Horizontal" Height="25" Background="Transparent"/>
+							</ScrollViewer>
+							</Border>
+							<ContentPresenter ContentSource="SelectedContent" Margin="0"/>
+						</DockPanel>
+					</ControlTemplate>
+				</TabControl.Template>
+				<TabControl.ItemContainerStyle>
+					<Style TargetType="TabItem">
+						<Style.Triggers>
+							<DataTrigger Binding="{Binding RelativeSource={RelativeSource Self}, Path=Page.IsServer}" Value="False">
+								<Setter Property="ContextMenu">
+									<Setter.Value>
+										<ContextMenu>
+											<MenuItem Command="ui:ChatWindow.DetachCommand" CommandParameter="{Binding RelativeSource={RelativeSource Self}, Path=Parent.PlacementTarget}" CommandTarget="{Binding RelativeSource={RelativeSource TemplatedParent}}"/>
+										</ContextMenu>
+									</Setter.Value>
+								</Setter>
+							</DataTrigger>
+						</Style.Triggers>
+						<Setter Property="Header" Value="{Binding RelativeSource={RelativeSource Self}, Path=Page.Header}"/>
+						<Setter Property="Content" Value="{Binding Content}"/>
+						<Setter Property="Foreground" Value="{StaticResource winFG}"/>
+						<Setter Property="FocusVisualStyle" Value="{x:Null}"/>
+						<Setter Property="Template">
+							<Setter.Value>
+								<ControlTemplate TargetType="TabItem">
+									<Grid>
+										<Grid HorizontalAlignment="Stretch">
+											<Grid.ColumnDefinitions>
+												<ColumnDefinition>
+													<ColumnDefinition.Width>
+														<MultiBinding Converter="{StaticResource multiplyConverter}">
+															<Binding ElementName="border0" Path="ActualWidth"/>
+															<Binding RelativeSource="{RelativeSource TemplatedParent}" Path="Page.Progress"/>
+														</MultiBinding>
+													</ColumnDefinition.Width>
+												</ColumnDefinition>
+												<ColumnDefinition Width="*"/>
+											</Grid.ColumnDefinitions>
+											<Grid.RowDefinitions>
+												<RowDefinition/>
+											</Grid.RowDefinitions>
+											<Border Grid.Row="0" Grid.Column="0" Background="{StaticResource winFGx20}"/>
+										</Grid>
+									<Border x:Name="border0" Background="Transparent">
+										<Border x:Name="border1">
+											<Border x:Name="border2" BorderThickness="0,0,1,0" BorderBrush="{StaticResource winTabSep}">
+												<Grid Height="25" HorizontalAlignment="Center" MinWidth="{Binding Source={x:Static local:App.Settings}, Path=Current.Windows.MinTabWidth}">
+													<Grid.RowDefinitions>
+														<RowDefinition x:Name="row1" Height="7"/>
+														<RowDefinition x:Name="row2" Height="*"/>
+													</Grid.RowDefinitions>
+													<Grid.ColumnDefinitions>
+														<ColumnDefinition/>
+														<ColumnDefinition Width="*"/>
+														<ColumnDefinition/>
+													</Grid.ColumnDefinitions>
+													<Polygon x:Name="arrow" Grid.ColumnSpan="3" Grid.Row="0" HorizontalAlignment="Center" VerticalAlignment="Top" Points="0,0 10,6, 20,0"
+														 Stroke="{StaticResource winFG}" Fill="{StaticResource winFG}" Visibility="Hidden"/>
+													<ContentPresenter Grid.Column="0" Grid.Row="1" Margin="5,0,10,0" x:Name="ContentSite" VerticalAlignment="Bottom" HorizontalAlignment="Center"
+																  ContentSource="Header" RecognizesAccessKey="False"/>
+													<Button x:Name="btnTabClose" Margin="0,0,4,0" Style="{StaticResource tabCloseButtonStyle}"
+														Command="ui:ChatWindow.CloseTabCommand" Grid.Column="2" Grid.Row="1"
+														Height="Auto" VerticalAlignment="Bottom"
+														CommandParameter="{Binding RelativeSource={RelativeSource AncestorType=TabItem}, Path=Page}"/>
+												</Grid>
+											</Border>
+										</Border>
+									</Border>
+									</Grid>
+									<ControlTemplate.Triggers>
+										<DataTrigger Binding="{Binding Source={x:Static local:App.Settings}, Path=Current.Windows.TabStripPosition}" Value="Top">
+											<Setter Property="Grid.Row" TargetName="arrow" Value="1"/>
+											<Setter Property="Grid.Row" TargetName="ContentSite" Value="0"/>
+											<Setter Property="Grid.Row" TargetName="btnTabClose" Value="0"/>
+											<Setter Property="Height" TargetName="row1" Value="*"/>
+											<Setter Property="Height" TargetName="row2" Value="7"/>
+											<Setter Property="Points" TargetName="arrow" Value="0,6 10,0 20,6"/>
+										</DataTrigger>
+										<Trigger Property="IsSelected" Value="True">
+											<Setter Property="Visibility" TargetName="arrow" Value="Visible"/>
+										</Trigger>
+										<MultiTrigger>
+											<MultiTrigger.Conditions>
+												<Condition SourceName="border0" Property="Border.IsMouseOver" Value="True"/>
+												<Condition Property="IsSelected" Value="False"/>
+											</MultiTrigger.Conditions>
+											<Setter Property="Background" TargetName="border1" Value="{StaticResource winFGdownGrad}"/>
+										</MultiTrigger>
+										<DataTrigger Binding="{Binding RelativeSource={RelativeSource Self}, Path=Page.NotifyState}" Value="NoiseActivity">
+											<DataTrigger.Setters>
+												<Setter TargetName="arrow" Property="Fill" Value="{StaticResource noiseBrush}"/>
+												<Setter TargetName="arrow" Property="Stroke" Value="{StaticResource noiseBrush}"/>
+												<Setter TargetName="arrow" Property="Visibility" Value="Visible"/>
+											</DataTrigger.Setters>
+										</DataTrigger>
+										<DataTrigger Binding="{Binding RelativeSource={RelativeSource Self}, Path=Page.NotifyState}" Value="ChatActivity">
+											<DataTrigger.Setters>
+												<Setter TargetName="arrow" Property="Fill" Value="{StaticResource chatBrush}"/>
+												<Setter TargetName="arrow" Property="Stroke" Value="{StaticResource chatBrush}"/>
+												<Setter TargetName="arrow" Property="Visibility" Value="Visible"/>
+											</DataTrigger.Setters>
+										</DataTrigger>
+										<DataTrigger Binding="{Binding RelativeSource={RelativeSource Self}, Path=Page.NotifyState}" Value="Alert">
+											<DataTrigger.Setters>
+												<Setter TargetName="arrow" Property="Fill" Value="{StaticResource alertBrush}"/>
+												<Setter TargetName="arrow" Property="Stroke" Value="{StaticResource alertBrush}"/>
+											</DataTrigger.Setters>
+											<DataTrigger.EnterActions>
+												<BeginStoryboard x:Name="animAlert">
+													<BeginStoryboard.Storyboard>
+														<Storyboard RepeatBehavior="Forever" AutoReverse="True" Storyboard.TargetName="arrow" Storyboard.TargetProperty="Visibility">
+															<ObjectAnimationUsingKeyFrames Duration="0:0:1" RepeatBehavior="Forever">
+																<DiscreteObjectKeyFrame KeyTime="0:0:0" Value="{x:Static Visibility.Visible}"/>
+																<DiscreteObjectKeyFrame KeyTime="0:0:0.5" Value="{x:Static Visibility.Hidden}"/>
+															</ObjectAnimationUsingKeyFrames>
+														</Storyboard>
+													</BeginStoryboard.Storyboard>
+												</BeginStoryboard>
+											</DataTrigger.EnterActions>
+											<DataTrigger.ExitActions>
+												<RemoveStoryboard BeginStoryboardName="animAlert"/>
+											</DataTrigger.ExitActions>
+										</DataTrigger>
+									</ControlTemplate.Triggers>
+								</ControlTemplate>
+							</Setter.Value>
+						</Setter>
+					</Style>
+				</TabControl.ItemContainerStyle>
+			</TabControl>
+		</Grid>
+	</Border>
+</Window>

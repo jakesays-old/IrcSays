@@ -1,0 +1,340 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="12.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">x86</Platform>
+    <ProductVersion>8.0.30703</ProductVersion>
+    <SchemaVersion>2.0</SchemaVersion>
+    <ProjectGuid>{AC54B841-CB6D-44A0-88C0-EC6ECC0E190C}</ProjectGuid>
+    <OutputType>WinExe</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RootNamespace>IrcSays</RootNamespace>
+    <AssemblyName>IrcSays</AssemblyName>
+    <TargetFrameworkVersion>v4.5.1</TargetFrameworkVersion>
+    <TargetFrameworkProfile>
+    </TargetFrameworkProfile>
+    <FileAlignment>512</FileAlignment>
+    <ProjectTypeGuids>{60dc8134-eba5-43b8-bcc9-bb4bc16c2548};{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}</ProjectTypeGuids>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|x86' ">
+    <PlatformTarget>AnyCPU</PlatformTarget>
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+    <Prefer32Bit>false</Prefer32Bit>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|x86' ">
+    <PlatformTarget>x86</PlatformTarget>
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+    <Prefer32Bit>false</Prefer32Bit>
+  </PropertyGroup>
+  <PropertyGroup>
+    <SignAssembly>false</SignAssembly>
+  </PropertyGroup>
+  <PropertyGroup>
+    <AssemblyOriginatorKeyFile>..\Floe.snk</AssemblyOriginatorKeyFile>
+  </PropertyGroup>
+  <PropertyGroup>
+    <ApplicationIcon>Resources\App.ico</ApplicationIcon>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="PresentationFramework.Aero" />
+    <Reference Include="System" />
+    <Reference Include="System.configuration" />
+    <Reference Include="System.Data" />
+    <Reference Include="System.Drawing" />
+    <Reference Include="System.Xaml" />
+    <Reference Include="System.Xml" />
+    <Reference Include="System.Core" />
+    <Reference Include="System.Xml.Linq" />
+    <Reference Include="System.Data.DataSetExtensions" />
+    <Reference Include="WindowsBase" />
+    <Reference Include="PresentationCore" />
+    <Reference Include="PresentationFramework" />
+  </ItemGroup>
+  <ItemGroup>
+    <ApplicationDefinition Include="Application\App.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </ApplicationDefinition>
+    <Compile Include="Application\App_Ignore.cs" />
+    <Compile Include="Application\App_Interface.cs" />
+    <Compile Include="Application\App_Logging.cs" />
+    <Compile Include="Application\App_Patterns.cs" />
+    <Compile Include="Application\App_Resources.cs" />
+    <Compile Include="Application\App_Sounds.cs" />
+    <Compile Include="Application\IgnoreActions.cs" />
+    <Compile Include="Application\LogFileHandle.cs" />
+    <Compile Include="Ui\ChannelWindow.xaml.cs">
+      <DependentUpon>ChannelWindow.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Ui\ChannelWindow_Commands.cs" />
+    <Compile Include="Ui\ChannelWindow_WndProc.cs" />
+    <Compile Include="Ui\ChatBox.cs" />
+    <Compile Include="Ui\ChatBoxBase.cs" />
+    <Compile Include="Ui\ChatMarker.cs" />
+    <Compile Include="Ui\ChatFormatter.cs" />
+    <Compile Include="Ui\ChatLine.cs" />
+    <Compile Include="Ui\ChatLink.cs" />
+    <Compile Include="Ui\ChatPresenter.cs" />
+    <Compile Include="Ui\ChatPresenter_Rendering.cs" />
+    <Compile Include="Ui\ChatPresenter_Scrolling.cs" />
+    <Compile Include="Ui\ChatPresenter_Searching.cs" />
+    <Compile Include="Ui\ChatPresenter_Selecting.cs" />
+    <Compile Include="Ui\ChatSpan.cs" />
+    <Compile Include="Ui\ChatSpanFlags.cs" />
+    <Compile Include="Ui\Constants.cs" />
+    <Compile Include="Ui\SearchDirection.cs" />
+    <Compile Include="Ui\IChatSpanProvider.cs" />
+    <Compile Include="Ui\SearchOptions.cs" />
+    <Compile Include="Ui\ChannelLevel.cs" />
+    <Compile Include="Ui\ChatControl.xaml.cs">
+      <DependentUpon>ChatControl.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Ui\ChatControl_Commands.cs" />
+    <Compile Include="Ui\ChatControl_Dcc.cs" />
+    <Compile Include="Ui\ChatControl_Events.cs" />
+    <Compile Include="Ui\ChatControl_NickList.cs" />
+    <Compile Include="Ui\ChatControl_Slap.cs" />
+    <Compile Include="Ui\NicknameItem.cs" />
+    <Compile Include="Ui\NicknameList.cs" />
+    <Compile Include="Ui\NotifyState.cs" />
+    <Compile Include="Ui\ChatPage.cs" />
+    <Compile Include="Ui\ChatPageType.cs" />
+    <Compile Include="Ui\ChatTabItem.cs" />
+    <Compile Include="Ui\ChatWindow_Commands.cs" />
+    <Compile Include="Ui\ChatWindow_Dcc.cs" />
+    <Compile Include="Ui\ChatWindow_Events.cs" />
+    <Compile Include="Ui\ChatWindow.xaml.cs">
+      <DependentUpon>ChatWindow.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Ui\ChatWindow_WndProc.cs" />
+    <Compile Include="Communication\CtcpCommand.cs" />
+    <Compile Include="Communication\Dcc\DccChat.cs" />
+    <Compile Include="Communication\Dcc\DccChatEventArgs.cs" />
+    <Compile Include="Communication\Dcc\DccOperation.cs" />
+    <Compile Include="Communication\Dcc\DccSendReceiver.cs" />
+    <Compile Include="Communication\Dcc\DccSendSender.cs" />
+    <Compile Include="Communication\Dcc\DccXmitReceiver.cs" />
+    <Compile Include="Communication\Dcc\DccXmitSender.cs" />
+    <Compile Include="Communication\Irc\CtcpEventArgs.cs" />
+    <Compile Include="Communication\Irc\ErrorEventArgs.cs" />
+    <Compile Include="Communication\Irc\IrcChannelMode.cs" />
+    <Compile Include="Communication\Irc\IrcChannelModeEventArgs.cs" />
+    <Compile Include="Communication\Irc\IrcCode.cs" />
+    <Compile Include="Communication\Irc\IrcCodeHandler.cs" />
+    <Compile Include="Communication\Irc\IrcConnection.cs" />
+    <Compile Include="Communication\Irc\IrcEventArgs.cs" />
+    <Compile Include="Communication\Irc\IrcInfoEventArgs.cs" />
+    <Compile Include="Communication\Irc\IrcInviteEventArgs.cs" />
+    <Compile Include="Communication\Irc\IrcJoinEventArgs.cs" />
+    <Compile Include="Communication\Irc\IrcKickEventArgs.cs" />
+    <Compile Include="Communication\Irc\IrcMessage.cs" />
+    <Compile Include="Communication\Irc\IrcMessageEventArgs.cs" />
+    <Compile Include="Communication\Irc\IrcNickEventArgs.cs" />
+    <Compile Include="Communication\Irc\IrcPartEventArgs.cs" />
+    <Compile Include="Communication\Irc\IrcPeer.cs" />
+    <Compile Include="Communication\Irc\IrcPrefix.cs" />
+    <Compile Include="Communication\Irc\IrcQuitEventArgs.cs" />
+    <Compile Include="Communication\Irc\IrcServer.cs" />
+    <Compile Include="Communication\Irc\IrcSession.cs" />
+    <Compile Include="Communication\Irc\IrcSessionState.cs" />
+    <Compile Include="Communication\Irc\IrcTarget.cs" />
+    <Compile Include="Communication\Irc\IrcTopicEventArgs.cs" />
+    <Compile Include="Communication\Irc\IrcUserMode.cs" />
+    <Compile Include="Communication\Irc\IrcUserModeEventArgs.cs" />
+    <Compile Include="Communication\Network\NatHelper.cs" />
+    <Compile Include="Communication\Network\ProxyInfo.cs" />
+    <Compile Include="Communication\Network\SocksException.cs" />
+    <Compile Include="Communication\Network\SocksTcpClient.cs" />
+    <Compile Include="Communication\Network\StunException.cs" />
+    <Compile Include="Communication\Network\StunUdpClient.cs" />
+    <Compile Include="Communication\Rtp\RtpClient.cs" />
+    <Compile Include="Configuration\BufferElement.cs" />
+    <Compile Include="Configuration\ChannelStateElement.cs" />
+    <Compile Include="Configuration\ChatPalette.cs" />
+    <Compile Include="Configuration\ColorsElement.cs" />
+    <Compile Include="Configuration\DccElement.cs" />
+    <Compile Include="Configuration\FormattingElement.cs" />
+    <Compile Include="Configuration\NetworkElement.cs" />
+    <Compile Include="Configuration\PersistentSettings.cs" />
+    <Compile Include="Configuration\ServerElement.cs" />
+    <Compile Include="Configuration\SettingsSection.cs" />
+    <Compile Include="Configuration\SoundsElement.cs" />
+    <Compile Include="Configuration\TabStripPosition.cs" />
+    <Compile Include="Configuration\UserElement.cs" />
+    <Compile Include="Configuration\VoiceElement.cs" />
+    <Compile Include="Configuration\WindowsElement.cs" />
+    <Compile Include="Converters.cs" />
+    <Compile Include="Ui\ConfirmDialog.xaml.cs">
+      <DependentUpon>ConfirmDialog.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="FileControl\DccMethod.cs" />
+    <Compile Include="FileControl\FileStatus.cs" />
+    <Compile Include="FileControl\FileControl.xaml.cs">
+      <DependentUpon>FileControl.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="FileControl\FileControl_Properties.cs" />
+    <Compile Include="HsvColor.cs" />
+    <Compile Include="Interop\ColorPicker.cs" />
+    <Compile Include="Interop\FolderBrowser.cs" />
+    <Compile Include="Interop\NotifyIcon.cs" />
+    <Compile Include="Interop\WindowConstants.cs" />
+    <Compile Include="Interop\WindowHelper.cs" />
+    <Compile Include="Ui\ListControl.xaml.cs">
+      <DependentUpon>ListControl.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Settings\BufferSettingsControl.xaml.cs">
+      <DependentUpon>BufferSettingsControl.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Settings\ColorsSettingsControl.xaml.cs">
+      <DependentUpon>ColorsSettingsControl.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Settings\NetworkSettingsControl.xaml.cs">
+      <DependentUpon>NetworkSettingsControl.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Settings\SoundSettingsControl.xaml.cs">
+      <DependentUpon>SoundSettingsControl.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Settings\DccSettingsControl.xaml.cs">
+      <DependentUpon>DccSettingsControl.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Settings\WindowSettingsControl.xaml.cs">
+      <DependentUpon>WindowSettingsControl.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Settings\FormattingSettingsControl.xaml.cs">
+      <DependentUpon>FormattingSettingsControl.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Settings\ServerSettingsControl.xaml.cs">
+      <DependentUpon>ServerSettingsControl.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Settings\SettingsWindow.xaml.cs">
+      <DependentUpon>SettingsWindow.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Settings\UserSettingsControl.xaml.cs">
+      <DependentUpon>UserSettingsControl.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Application\App.xaml.cs">
+      <DependentUpon>App.xaml</DependentUpon>
+      <SubType>Code</SubType>
+    </Compile>
+    <Page Include="Ui\ChannelWindow.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Ui\ChatControl.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Ui\ChatWindow.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Ui\ConfirmDialog.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="FileControl\FileControl.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Ui\ListControl.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Settings\BufferSettingsControl.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Settings\ColorsSettingsControl.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="Settings\NetworkSettingsControl.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="Settings\SoundSettingsControl.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="Settings\DccSettingsControl.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Settings\WindowSettingsControl.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="Settings\FormattingSettingsControl.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="Settings\ServerSettingsControl.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Settings\SettingsWindow.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Settings\UserSettingsControl.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Themes\Generic.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="Properties\AssemblyInfo.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Properties\Resources.Designer.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>Resources.resx</DependentUpon>
+    </Compile>
+    <Compile Include="Properties\Settings.Designer.cs">
+      <AutoGen>True</AutoGen>
+      <DependentUpon>Settings.settings</DependentUpon>
+      <DesignTimeSharedInput>True</DesignTimeSharedInput>
+    </Compile>
+    <EmbeddedResource Include="Properties\Resources.resx">
+      <Generator>ResXFileCodeGenerator</Generator>
+      <LastGenOutput>Resources.Designer.cs</LastGenOutput>
+    </EmbeddedResource>
+    <None Include="app.config" />
+    <None Include="Properties\Settings.settings">
+      <Generator>SettingsSingleFileGenerator</Generator>
+      <LastGenOutput>Settings.Designer.cs</LastGenOutput>
+    </None>
+    <AppDesigner Include="Properties\" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Resources\Help.txt" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Resources\App.ico" />
+  </ItemGroup>
+  <ItemGroup />
+  <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
+  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
+       Other similar extension points exist, see Microsoft.Common.targets.
+  <Target Name="BeforeBuild">
+  </Target>
+  <Target Name="AfterBuild">
+  </Target>
+  -->
+</Project>

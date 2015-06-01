@@ -1,0 +1,125 @@
+﻿<Window x:Class="IrcSays.Ui.ChannelWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+		xmlns:sys="clr-namespace:System;assembly=mscorlib"
+		xmlns:local="clr-namespace:IrcSays.Application"
+		xmlns:ircSays="clr-namespace:IrcSays"
+		xmlns:ui="clr-namespace:IrcSays.Ui"
+		Title="{Binding ElementName=grdRoot, Path=Children[2].Title}" Height="399" Width="722"
+        MinWidth="300"  MinHeight="205" WindowStyle="None" ResizeMode="CanResize" AllowsTransparency="True"
+		Background="Transparent" Icon="{Binding Source={x:Static local:App.ApplicationImage}}" x:Name="window">
+	<Window.CommandBindings>
+		<CommandBinding Command="ui:ChatWindow.ChatCommand" Executed="ExecuteChat"/>
+		<CommandBinding Command="ui:ChatWindow.SettingsCommand" Executed="ExecuteSettings"/>
+		<CommandBinding Command="ui:ChannelWindow.ReattachCommand" Executed="ExecuteReattach"/>
+		<CommandBinding Command="ui:ChatWindow.MinimizeCommand" Executed="ExecuteMinimize"/>
+		<CommandBinding Command="ui:ChatWindow.MaximizeCommand" Executed="ExecuteMaximize"/>
+		<CommandBinding Command="ui:ChatWindow.CloseCommand" Executed="ExecuteClose" CanExecute="CanExecuteClose"/>
+	</Window.CommandBindings>
+	<Window.Resources>
+		<Geometry x:Key="minimizeButtonGeometry">M0,8 L8,8</Geometry>
+		<Geometry x:Key="maximizeButtonGeometry">M0,0 L8,0 L8,8 L0,8 L0,0 M0,1 L8,1</Geometry>
+		<Geometry x:Key="settingsButtonGeometry">M3,4 L6,8 L10,0</Geometry>
+		<Geometry x:Key="reattachButtonGeometry">M3,0 L3,6 M0,4 L3,6 M6,4 L3,6</Geometry>
+		<ircSays:BrushSaturationConverter x:Key="modifySaturation"/>
+	</Window.Resources>
+	<Window.Style>
+		<Style TargetType="Window">
+			<Setter Property="Opacity" Value="{Binding Source={x:Static local:App.Settings}, Path=Current.Windows.ActiveOpacity}"/>
+			<Setter Property="ui:ChannelWindow.UIBackground">
+				<Setter.Value>
+					<MultiBinding Converter="{StaticResource opacityConverter}">
+						<Binding Source="{StaticResource winBG}"/>
+						<Binding Source="{x:Static local:App.Settings}" Path="Current.Windows.ChromeOpacity"/>
+					</MultiBinding>
+				</Setter.Value>
+			</Setter>
+			<Style.Triggers>
+				<Trigger Property="IsActive" Value="False">
+					<Setter Property="ui:ChannelWindow.UIBackground">
+						<Setter.Value>
+							<MultiBinding Converter="{StaticResource opacityConverter}">
+								<Binding Source="{StaticResource winBG}" Converter="{StaticResource modifySaturation}">
+									<Binding.ConverterParameter>
+										<sys:Double>0.5</sys:Double>
+									</Binding.ConverterParameter>
+								</Binding>
+								<Binding Source="{x:Static local:App.Settings}" Path="Current.Windows.ChromeOpacity"/>
+							</MultiBinding>
+						</Setter.Value>
+					</Setter>
+					<Setter Property="Opacity" Value="{Binding Source={x:Static local:App.Settings}, Path=Current.Windows.InactiveOpacity}"/>
+				</Trigger>
+			</Style.Triggers>
+		</Style>
+	</Window.Style>
+	<Border BorderBrush="{Binding ElementName=window, Path=UIBackground}" CornerRadius="8,8,0,0" BorderThickness="4,3,4,4">
+		<Grid x:Name="grdRoot">
+			<Grid.RowDefinitions>
+				<RowDefinition Height="25"/>
+				<RowDefinition Height="*"/>
+			</Grid.RowDefinitions>
+			<Grid.ColumnDefinitions>
+				<ColumnDefinition Width="*"/>
+				<ColumnDefinition Width="Auto"/>
+			</Grid.ColumnDefinitions>
+
+			<Border Background="{Binding ElementName=window, Path=UIBackground}" Grid.Row="0" Grid.Column="0">
+				<TextBlock Margin="4,0,10,0" Text="{Binding Title}" Foreground="{StaticResource winFG}" VerticalAlignment="Center"/>
+			</Border>
+			<StackPanel Background="{Binding ElementName=window, Path=UIBackground}" Grid.Row="0" Grid.Column="1" Orientation="Horizontal">
+				<Button x:Name="btnReattach" VerticalAlignment="Top" Focusable="False" Height="18" Width="18" Style="{StaticResource uiButtonStyle}" Margin="0,2,2,0" Padding="0" Command="ui:ChannelWindow.ReattachCommand">
+					<Path Margin="2" SnapsToDevicePixels="True"
+						Data="{StaticResource reattachButtonGeometry}"
+						Stroke="{StaticResource winFG}"
+						StrokeThickness="2"
+						StrokeStartLineCap="Round"
+						StrokeEndLineCap="Flat"
+						Stretch="Uniform"
+						HorizontalAlignment="Center" VerticalAlignment="Top"/>
+					<Button.ToolTip>
+						<ToolTip Content="Reattach"/>
+					</Button.ToolTip>
+				</Button>
+				<Button x:Name="btnSettings" VerticalAlignment="Top" Focusable="False" Height="18" Width="18" Style="{StaticResource uiButtonStyle}" Margin="0,2,2,0" Padding="0" Command="ui:ChatWindow.SettingsCommand">
+					<Path Margin="2" SnapsToDevicePixels="True"
+						Data="{StaticResource settingsButtonGeometry}"
+						Stroke="{StaticResource winFG}"
+						StrokeThickness="2"
+						StrokeStartLineCap="Round"
+						StrokeEndLineCap="Round"
+						Stretch="Uniform"
+						HorizontalAlignment="Center" VerticalAlignment="Top">
+					</Path>
+					<Button.ToolTip>
+						<ToolTip Content="Settings"/>
+					</Button.ToolTip>
+				</Button>
+				<Button x:Name="btnMinimize" VerticalAlignment="Top" Focusable="False" Height="18" Width="18" Style="{StaticResource uiButtonStyle}" Margin="0,2,2,0" Padding="0" Command="ui:ChatWindow.MinimizeCommand">
+					<Path Margin="2,10,2,2" SnapsToDevicePixels="True"
+						Data="{StaticResource minimizeButtonGeometry}"
+						Stroke="{StaticResource winFG}"
+						StrokeThickness="2"
+						StrokeStartLineCap="Round"
+						StrokeEndLineCap="Round"
+						Stretch="Uniform"
+						HorizontalAlignment="Center" VerticalAlignment="Top"/>
+				</Button>
+				<Button x:Name="btnMaximize" VerticalAlignment="Top" Focusable="False" Height="18" Width="18" Style="{StaticResource uiButtonStyle}" Margin="0,2,2,0" Command="ui:ChatWindow.MaximizeCommand">
+					<Path Margin="2" SnapsToDevicePixels="True"
+						Data="{StaticResource maximizeButtonGeometry}"
+						Stroke="{StaticResource winFG}"
+						StrokeThickness="2"
+						StrokeStartLineCap="Round"
+						StrokeEndLineCap="Round"
+						Stretch="Uniform"
+						VerticalAlignment="Top"
+						HorizontalAlignment="Center"/>
+				</Button>
+				<Button x:Name="btnClose" VerticalAlignment="Top" Height="18" Width="18" Style="{StaticResource uiButtonStyle}" Margin="0,2,6,0" Command="ui:ChatWindow.CloseCommand">
+					<Path Style="{StaticResource uiCloseButtonPathStyle}"/>
+				</Button>
+			</StackPanel>
+		</Grid>
+	</Border>
+</Window>
