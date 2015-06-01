@@ -372,396 +372,535 @@ namespace IrcSays.Ui
 
 		private void Execute(string command, string arguments)
 		{
-			string[] args;
-
 			switch (command)
 			{
-				case "QUOTE":
-					args = Split(command, arguments, 1, 1);
-					Session.Quote(args[0]);
+				case IrcCommands.Quote:
+					ExecuteQuoteCommand(command, arguments);
 					break;
-				case "QUIT":
-					args = Split(command, arguments, 0, 1);
-					Session.AutoReconnect = false;
-					Session.Quit(args.Length == 0 ? "Leaving" : args[0]);
+				case IrcCommands.Quit:
+					ExecuteQuitCommand(command, arguments);
 					break;
-				case "NICK":
-					args = Split(command, arguments, 1, 1);
-					Session.Nick(args[0]);
+				case IrcCommands.Nick:
+					ExecuteNickCommand(command, arguments);
 					break;
-				case "NOTICE":
-					args = Split(command, arguments, 2, 2);
-					Session.Notice(new IrcTarget(args[0]), args[1]);
+				case IrcCommands.Notice:
+					ExecuteNoticeCommand(command, arguments);
 					break;
-				case "JOIN":
-				case "J":
-					args = Split(command, arguments, 1, 2);
-					if (args.Length == 2)
-					{
-						Session.Join(args[0], args[1]);
-					}
-					else
-					{
-						Session.Join(args[0]);
-					}
+				case IrcCommands.Join:
+				case IrcCommands.J:
+					ExecuteJoinCommand(command, arguments);
 					break;
-				case "PART":
-				case "LEAVE":
-					args = Split(command, arguments, 1, 1, true);
-					Session.Part(args[0]);
+				case IrcCommands.Part:
+				case IrcCommands.Leave:
+					ExecutePartLeaveCommands(command, arguments);
 					break;
-				case "TOPIC":
-					args = Split(command, arguments, 1, 2, true);
-					if (args.Length > 1)
-					{
-						Session.Topic(args[0], args[1]);
-					}
-					else
-					{
-						Session.Topic(args[0]);
-					}
+				case IrcCommands.Topic:
+					ExecuteTopicCommand(command, arguments);
 					break;
-				case "INVITE":
-					args = Split(command, arguments, 2, 2);
-					Session.Invite(args[1], args[0]);
+				case IrcCommands.Invite:
+					ExecuteInviteCommand(command, arguments);
 					break;
-				case "KICK":
-					args = Split(command, arguments, 2, 3, true);
-					if (args.Length > 2)
-					{
-						Session.Kick(args[0], args[1], args[2]);
-					}
-					else
-					{
-						Session.Kick(args[0], args[1]);
-					}
+				case IrcCommands.Kick:
+					ExecuteKickCommand(command, arguments);
 					break;
-				case "MOTD":
-					args = Split(command, arguments, 0, 1);
-					if (args.Length > 0)
-					{
-						Session.Motd(args[0]);
-					}
-					else
-					{
-						Session.Motd();
-					}
+				case IrcCommands.Motd:
+					ExecuteMotdCommand(command, arguments);
 					break;
-				case "WHO":
-					args = Split(command, arguments, 1, 1);
-					Session.Who(args[0]);
+				case IrcCommands.Who:
+					ExecuteWhoCommand(command, arguments);
 					break;
-				case "WHOIS":
-					args = Split(command, arguments, 1, 2);
-					if (args != null)
-					{
-						if (args.Length == 2)
-						{
-							Session.WhoIs(args[0], args[1]);
-						}
-						else if (args.Length == 1)
-						{
-							Session.WhoIs(args[0]);
-						}
-					}
+				case IrcCommands.Whois:
+					ExecuteWhoisCommand(command, arguments);
 					break;
-				case "WHOWAS":
-					args = Split(command, arguments, 1, 1);
-					Session.WhoWas(args[0]);
+				case IrcCommands.Whowas:
+					ExecuteWhoWasCommand(command, arguments);
 					break;
-				case "AWAY":
-					args = Split(command, arguments, 0, 1);
-					if (args.Length > 0)
-					{
-						Session.Away(args[0]);
-					}
-					else
-					{
-						Session.UnAway();
-					}
+				case IrcCommands.Away:
+					ExecuteAwayCommand(command, arguments);
 					break;
-				case "USERHOST":
-					args = Split(command, arguments, 1, int.MaxValue);
-					Session.UserHost(args);
+				case IrcCommands.Userhost:
+					ExecuteUserHostCommand(command, arguments);
 					break;
-				case "MODE":
-					args = Split(command, arguments, 1, 2);
-					var target = new IrcTarget(args[0]);
-					if (!target.IsChannel)
-					{
-						if (!Session.IsSelf(target))
-						{
-							throw new CommandException("Can't change modes for another user.");
-						}
-						if (args.Length > 1)
-						{
-							Session.Mode(args[1]);
-						}
-						else
-						{
-							Session.Mode("");
-						}
-					}
-					else
-					{
-						if (args.Length > 1)
-						{
-							Session.Mode(target.Name, args[1]);
-						}
-						else
-						{
-							Session.Mode(target.Name, "");
-						}
-					}
+				case IrcCommands.Mode:
+					ExecuteModeCommand(command, arguments);
 					break;
-				case "SERVER":
-				{
-					args = Split(command, arguments, 1, 3);
-					var port = 0;
-					var useSsl = false;
-					if (args.Length > 1 &&
-						(args[1] = args[1].Trim()).Length > 0)
-					{
-						if (args[1][0] == '+')
-						{
-							useSsl = true;
-						}
-						int.TryParse(args[1], out port);
-					}
-					string password = null;
-					if (args.Length > 2)
-					{
-						password = args[2];
-					}
-					if (port == 0)
-					{
-						port = 6667;
-					}
-					if (IsConnected)
-					{
-						Session.AutoReconnect = false;
-						Session.Quit("Changing servers");
-					}
-					Perform = "";
-					Connect(args[0], port, useSsl, false, password);
-				}
+				case IrcCommands.Server:
+					ExecuteServerCommand(command, arguments);
 					break;
-				case "ME":
-				case "ACTION":
-					if (IsServer)
-					{
-						Write("Error", "Can't talk in this window.");
-					}
-					if (IsConnected)
-					{
-						args = Split(command, arguments, 1, int.MaxValue);
-						Write("Own", string.Format("{0} {1}", Session.Nickname, string.Join(" ", args)));
-						if (Type == ChatPageType.Chat)
-						{
-							Session.SendCtcp(Target, new CtcpCommand("ACTION", args), false);
-						}
-						else if (Type == ChatPageType.DccChat)
-						{
-							_dcc.QueueMessage(string.Format("\u0001ACTION {0}\u0001", string.Join(" ", args)));
-						}
-					}
+				case IrcCommands.Me:
+				case IrcCommands.Action:
+					ExecuteActionCommand(command, arguments);
 					break;
-				case "SETUP":
+				case IrcCommands.Setup:
 					App.ShowSettings();
 					break;
-				case "CLEAR":
+				case IrcCommands.Clear:
 					boxOutput.Clear();
 					break;
-				case "MSG":
-					if (IsConnected)
-					{
-						args = Split(command, arguments, 2, 2);
-						Session.PrivateMessage(new IrcTarget(args[0]), args[1]);
-						Write("Own", string.Format("-> [{0}] {1}", args[0], args[1]));
-					}
+				case IrcCommands.Msg:
+					ExecuteMsgCommand(command, arguments);
 					break;
-				case "LIST":
-					args = Split(command, arguments, 0, 2);
-					if (args.Length > 1)
-					{
-						Session.List(args[0], args[1]);
-					}
-					else if (args.Length > 0)
-					{
-						Session.List(args[0]);
-					}
-					else
-					{
-						Session.List();
-					}
+				case IrcCommands.List:
+					ExecuteListCommand(command, arguments);
 					break;
-				case "OP":
-				case "DEOP":
-				case "VOICE":
-				case "DEVOICE":
-					if (!IsChannel)
-					{
-						Write("Error", "Cannot perform that action in this window.");
-					}
-					else
-					{
-						var mode = (command == "OP" || command == "DEOP") ? 'o' : 'v';
-						args = Split(command, arguments, 1, int.MaxValue);
-						var modes = from s in args
-							select new IrcChannelMode(command == "OP" || command == "VOICE", mode, s);
-						Session.Mode(Target.Name, modes);
-					}
+				case IrcCommands.Op:
+				case IrcCommands.Deop:
+				case IrcCommands.Voice:
+				case IrcCommands.Devoice:
+					ExecuteOpVoiceCommands(command, arguments);
 					break;
-				case "HELP":
-					foreach (var s in App.HelpText.Split(Environment.NewLine.ToCharArray()))
-					{
-						if (s.Length > 0)
-						{
-							Write("Client", s);
-						}
-					}
+				case IrcCommands.Help:
+					ExecuteHelpCommand();
 					break;
-				case "CTCP":
-					args = Split(command, arguments, 2, int.MaxValue);
-					Session.SendCtcp(new IrcTarget(args[0]),
-						new CtcpCommand(args[1], args.Skip(2).ToArray()), false);
+				case IrcCommands.Ctcp:
+					ExecuteCtcpCommand(command, arguments);
 					break;
-				case "QUERY":
-					args = Split(command, arguments, 1, 1);
-					ChatWindow.ChatCommand.Execute(args[0], this);
+				case IrcCommands.Query:
+					ExecuteQueryCommand(command, arguments);
 					break;
-				case "BAN":
-					args = Split(command, arguments, 1, 1);
-					BanCommand.Execute(args[0], this);
+				case IrcCommands.Ban:
+					ExecuteBanCommand(command, arguments);
 					break;
-				case "UNBAN":
-					args = Split(command, arguments, 1, 1);
-					UnbanCommand.Execute(args[0], this);
+				case IrcCommands.Unban:
+					ExecuteUnbanCommand(command, arguments);
 					break;
-				case "IGNORE":
-				{
-					args = Split(command, arguments, 0, 2);
-					if (args.Length == 0)
-					{
-						var ignores = App.GetIgnoreInfo();
-						if (ignores.Any())
-						{
-							Write("Own", "Ignore list:");
-							foreach (var i in ignores)
-							{
-								Write("Own", "  " + i);
-							}
-						}
-						else
-						{
-							Write("Own", "Ignore list is empty.");
-						}
-						break;
-					}
-
-					var mask = args[0];
-					var sactions = args.Length > 1 ? args[1] : "All";
-					IgnoreActions actions;
-					if (!Enum.TryParse(sactions, true, out actions))
-					{
-						Write("Error", "Invalid ignore action(s).");
-						break;
-					}
-
-					if (!mask.Contains('!') &&
-						!mask.Contains('@'))
-					{
-						mask = mask + "!*@*";
-					}
-					App.AddIgnore(mask, actions);
-					Write("Own", "Added to ignore list: " + mask);
-				}
+				case IrcCommands.Ignore:
+					ExecuteIgnoreCommand(command, arguments);
 					break;
-				case "UNIGNORE":
-				{
-					args = Split(command, arguments, 1, 2);
-					var mask = args[0];
-
-					var sactions = args.Length > 1 ? args[1] : "All";
-					IgnoreActions actions;
-					if (!Enum.TryParse(sactions, true, out actions))
-					{
-						Write("Error", "Invalid ignore action(s).");
-						break;
-					}
-					if (!mask.Contains('!') &&
-						!mask.Contains('@'))
-					{
-						mask = mask + "!*@*";
-					}
-					if (App.RemoveIgnore(mask, actions))
-					{
-						Write("Own", "Removed from ignore list: " + mask);
-					}
-					else
-					{
-						Write("Error", "Specified pattern was not on ignore list.");
-					}
-				}
+				case IrcCommands.Unignore:
+					ExecuteUnignoreCommand(command, arguments);
 					break;
-				case "DCC":
-				{
-					if (!IsConnected)
-					{
-						return;
-					}
-					args = Split(command, arguments, 2, 3);
-					var dccCmd = args[0].ToUpperInvariant();
-
-					switch (dccCmd)
-					{
-						case "CHAT":
-							App.ChatWindow.DccChat(Session, new IrcTarget(args[1]));
-							break;
-						case "SEND":
-						case "XMIT":
-							string path = null;
-							if (args.Length < 3)
-							{
-								Write("Error", "File name is required.");
-								break;
-							}
-							try
-							{
-								if (Path.IsPathRooted(args[2]) &&
-									File.Exists(args[2]))
-								{
-									path = args[2];
-								}
-								else if (!File.Exists(path = Path.Combine(App.Settings.Current.Dcc.DownloadFolder, args[2])))
-								{
-									Write("Error", "Could not find file " + args[2]);
-									break;
-								}
-							}
-							catch (ArgumentException)
-							{
-								Write("Error", string.Format("Invalid pathname: {0}", args[2]));
-								break;
-							}
-							if (dccCmd == "XMIT")
-							{
-								App.ChatWindow.DccXmit(Session, new IrcTarget(args[1]), new FileInfo(path));
-							}
-							else
-							{
-								App.ChatWindow.DccSend(Session, new IrcTarget(args[1]), new FileInfo(path));
-							}
-							break;
-						default:
-							Write("Error", "Unsupported DCC mode " + args[0]);
-							break;
-					}
-				}
+				case IrcCommands.Dcc:
+					ExecuteDccCommand(command, arguments);
 					break;
 				default:
 					Write("Error", string.Format("Unrecognized command: {0}", command));
 					break;
+			}
+		}
+
+		private void ExecuteUnbanCommand(string command, string arguments)
+		{
+			var args = Split(command, arguments, 1, 1);
+			UnbanCommand.Execute(args[0], this);
+		}
+
+		private void ExecuteWhoCommand(string command, string arguments)
+		{
+			var args = Split(command, arguments, 1, 1);
+			Session.Who(args[0]);
+		}
+
+		private void ExecuteQuoteCommand(string command, string arguments)
+		{
+			var args = Split(command, arguments, 1, 1);
+			Session.Quote(args[0]);
+		}
+
+		private void ExecuteQuitCommand(string command, string arguments)
+		{
+			var args = Split(command, arguments, 0, 1);
+			Session.AutoReconnect = false;
+			Session.Quit(args.Length == 0 ? "Leaving" : args[0]);
+		}
+
+		private void ExecuteNickCommand(string command, string arguments)
+		{
+			var args = Split(command, arguments, 1, 1);
+			Session.Nick(args[0]);
+		}
+
+		private void ExecuteNoticeCommand(string command, string arguments)
+		{
+			var args = Split(command, arguments, 2, 2);
+			Session.Notice(new IrcTarget(args[0]), args[1]);
+		}
+
+		private void ExecuteJoinCommand(string command, string arguments)
+		{
+			var args = Split(command, arguments, 1, 2);
+			if (args.Length == 2)
+			{
+				Session.Join(args[0], args[1]);
+			}
+			else
+			{
+				Session.Join(args[0]);
+			}
+		}
+
+		private void ExecutePartLeaveCommands(string command, string arguments)
+		{
+			var args = Split(command, arguments, 1, 1, true);
+			Session.Part(args[0]);
+		}
+
+		private void ExecuteTopicCommand(string command, string arguments)
+		{
+			var args = Split(command, arguments, 1, 2, true);
+			if (args.Length > 1)
+			{
+				Session.Topic(args[0], args[1]);
+			}
+			else
+			{
+				Session.Topic(args[0]);
+			}
+		}
+
+		private void ExecuteInviteCommand(string command, string arguments)
+		{
+			var args = Split(command, arguments, 2, 2);
+			Session.Invite(args[1], args[0]);
+		}
+
+		private void ExecuteKickCommand(string command, string arguments)
+		{
+			var args = Split(command, arguments, 2, 3, true);
+			if (args.Length > 2)
+			{
+				Session.Kick(args[0], args[1], args[2]);
+			}
+			else
+			{
+				Session.Kick(args[0], args[1]);
+			}
+		}
+
+		private void ExecuteMotdCommand(string command, string arguments)
+		{
+			var args = Split(command, arguments, 0, 1);
+			if (args.Length > 0)
+			{
+				Session.Motd(args[0]);
+			}
+			else
+			{
+				Session.Motd();
+			}
+		}
+
+		private void ExecuteWhoisCommand(string command, string arguments)
+		{
+			var args = Split(command, arguments, 1, 2);
+			if (args != null)
+			{
+				if (args.Length == 2)
+				{
+					Session.WhoIs(args[0], args[1]);
+				}
+				else if (args.Length == 1)
+				{
+					Session.WhoIs(args[0]);
+				}
+			}
+		}
+
+		private void ExecuteWhoWasCommand(string command, string arguments)
+		{
+			var args = Split(command, arguments, 1, 1);
+			Session.WhoWas(args[0]);
+		}
+
+		private void ExecuteAwayCommand(string command, string arguments)
+		{
+			var args = Split(command, arguments, 0, 1);
+			if (args.Length > 0)
+			{
+				Session.Away(args[0]);
+			}
+			else
+			{
+				Session.UnAway();
+			}
+		}
+
+		private void ExecuteUserHostCommand(string command, string arguments)
+		{
+			var args = Split(command, arguments, 1, int.MaxValue);
+			Session.UserHost(args);
+			return;
+		}
+
+		private void ExecuteModeCommand(string command, string arguments)
+		{
+			var args = Split(command, arguments, 1, 2);
+			var target = new IrcTarget(args[0]);
+			if (!target.IsChannel)
+			{
+				if (!Session.IsSelf(target))
+				{
+					throw new CommandException("Can't change modes for another user.");
+				}
+				if (args.Length > 1)
+				{
+					Session.Mode(args[1]);
+				}
+				else
+				{
+					Session.Mode("");
+				}
+			}
+			else
+			{
+				if (args.Length > 1)
+				{
+					Session.Mode(target.Name, args[1]);
+				}
+				else
+				{
+					Session.Mode(target.Name, "");
+				}
+			}
+		}
+
+		private void ExecuteMsgCommand(string command, string arguments)
+		{
+			if (IsConnected)
+			{
+				var args = Split(command, arguments, 2, 2);
+				Session.PrivateMessage(new IrcTarget(args[0]), args[1]);
+				Write("Own", string.Format("-> [{0}] {1}", args[0], args[1]));
+			}
+		}
+
+		private void ExecuteServerCommand(string command, string arguments)
+		{
+			var args = Split(command, arguments, 1, 3);
+			var port = 0;
+			var useSsl = false;
+			if (args.Length > 1 &&
+				(args[1] = args[1].Trim()).Length > 0)
+			{
+				if (args[1][0] == '+')
+				{
+					useSsl = true;
+				}
+				int.TryParse(args[1], out port);
+			}
+			string password = null;
+			if (args.Length > 2)
+			{
+				password = args[2];
+			}
+			if (port == 0)
+			{
+				port = 6667;
+			}
+			if (IsConnected)
+			{
+				Session.AutoReconnect = false;
+				Session.Quit("Changing servers");
+			}
+			Perform = "";
+			Connect(args[0], port, useSsl, false, password);
+		}
+
+		private void ExecuteActionCommand(string command, string arguments)
+		{
+			if (IsServer)
+			{
+				Write("Error", "Can't talk in this window.");
+			}
+			if (IsConnected)
+			{
+				var args = Split(command, arguments, 1, int.MaxValue);
+				Write("Own", string.Format("{0} {1}", Session.Nickname, string.Join(" ", args)));
+				if (Type == ChatPageType.Chat)
+				{
+					Session.SendCtcp(Target, new CtcpCommand(IrcCommands.Action, args), false);
+				}
+				else if (Type == ChatPageType.DccChat)
+				{
+					_dcc.QueueMessage(string.Format("\u0001ACTION {0}\u0001", string.Join(" ", args)));
+				}
+			}
+		}
+
+		private void ExecuteListCommand(string command, string arguments)
+		{
+			var args = Split(command, arguments, 0, 2);
+			if (args.Length > 1)
+			{
+				Session.List(args[0], args[1]);
+			}
+			else if (args.Length > 0)
+			{
+				Session.List(args[0]);
+			}
+			else
+			{
+				Session.List();
+			}
+		}
+
+		private void ExecuteOpVoiceCommands(string command, string arguments)
+		{
+			if (!IsChannel)
+			{
+				Write("Error", "Cannot perform that action in this window.");
+			}
+			else
+			{
+				var mode = (command == IrcCommands.Op || command == IrcCommands.Deop) ? 'o' : 'v';
+				var args = Split(command, arguments, 1, int.MaxValue);
+				var modes = from s in args
+							select new IrcChannelMode(command == IrcCommands.Op || 
+								command == IrcCommands.Voice, mode, s);
+				Session.Mode(Target.Name, modes);
+			}
+		}
+
+		private void ExecuteHelpCommand()
+		{
+			foreach (var s in App.HelpText.Split(Environment.NewLine.ToCharArray()))
+			{
+				if (s.Length > 0)
+				{
+					Write("Client", s);
+				}
+			}
+		}
+
+		private void ExecuteCtcpCommand(string command, string arguments)
+		{
+			var args = Split(command, arguments, 2, int.MaxValue);
+			Session.SendCtcp(new IrcTarget(args[0]),
+				new CtcpCommand(args[1], args.Skip(2).ToArray()), false);
+		}
+
+		private void ExecuteQueryCommand(string command, string arguments)
+		{
+			var args = Split(command, arguments, 1, 1);
+			ChatWindow.ChatCommand.Execute(args[0], this);
+		}
+
+		private void ExecuteBanCommand(string command, string arguments)
+		{
+			var args = Split(command, arguments, 1, 1);
+			BanCommand.Execute(args[0], this);
+		}
+
+		private void ExecuteIgnoreCommand(string command, string arguments)
+		{
+			var args = Split(command, arguments, 0, 2);
+			if (args.Length == 0)
+			{
+				var ignores = App.GetIgnoreInfo();
+				if (ignores.Any())
+				{
+					Write("Own", "Ignore list:");
+					foreach (var i in ignores)
+					{
+						Write("Own", "  " + i);
+					}
+				}
+				else
+				{
+					Write("Own", "Ignore list is empty.");
+				}
+				return;
+			}
+
+			var mask = args[0];
+			var sactions = args.Length > 1 ? args[1] : "All";
+			IgnoreActions actions;
+			if (!Enum.TryParse(sactions, true, out actions))
+			{
+				Write("Error", "Invalid ignore action(s).");
+				return;
+			}
+
+			if (!mask.Contains('!') &&
+				!mask.Contains('@'))
+			{
+				mask = mask + "!*@*";
+			}
+			App.AddIgnore(mask, actions);
+			Write("Own", "Added to ignore list: " + mask);
+		}
+
+		private void ExecuteUnignoreCommand(string command, string arguments)
+		{
+			var args = Split(command, arguments, 1, 2);
+			var mask = args[0];
+
+			var sactions = args.Length > 1 ? args[1] : "All";
+			IgnoreActions actions;
+			if (!Enum.TryParse(sactions, true, out actions))
+			{
+				Write("Error", "Invalid ignore action(s).");
+				return;
+			}
+			if (!mask.Contains('!') &&
+				!mask.Contains('@'))
+			{
+				mask = mask + "!*@*";
+			}
+			if (App.RemoveIgnore(mask, actions))
+			{
+				Write("Own", "Removed from ignore list: " + mask);
+			}
+			else
+			{
+				Write("Error", "Specified pattern was not on ignore list.");
+			}
+		}
+
+		private void ExecuteDccCommand(string command, string arguments)
+		{
+			{
+				if (!IsConnected)
+				{
+					return;
+				}
+				var args = Split(command, arguments, 2, 3);
+				var dccCmd = args[0].ToUpperInvariant();
+
+				switch (dccCmd)
+				{
+					case IrcCommands.Chat:
+						App.ChatWindow.DccChat(Session, new IrcTarget(args[1]));
+						break;
+					case IrcCommands.Send:
+					case IrcCommands.Xmit:
+						string path = null;
+						if (args.Length < 3)
+						{
+							Write("Error", "File name is required.");
+							break;
+						}
+						try
+						{
+							if (Path.IsPathRooted(args[2]) &&
+								File.Exists(args[2]))
+							{
+								path = args[2];
+							}
+							else if (!File.Exists(path = Path.Combine(App.Settings.Current.Dcc.DownloadFolder, args[2])))
+							{
+								Write("Error", "Could not find file " + args[2]);
+								break;
+							}
+						}
+						catch (ArgumentException)
+						{
+							Write("Error", String.Format((string) "Invalid pathname: {0}", (object) args[2]));
+							break;
+						}
+						if (dccCmd == IrcCommands.Xmit)
+						{
+							App.ChatWindow.DccXmit(Session, new IrcTarget(args[1]), new FileInfo(path));
+						}
+						else
+						{
+							App.ChatWindow.DccSend(Session, new IrcTarget(args[1]), new FileInfo(path));
+						}
+						break;
+					default:
+						Write("Error", "Unsupported DCC mode " + args[0]);
+						break;
+				}
 			}
 		}
 
