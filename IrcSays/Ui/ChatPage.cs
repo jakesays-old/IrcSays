@@ -107,10 +107,12 @@ namespace IrcSays.Ui
 		{
 			base.OnVisualParentChanged(oldParent);
 
-			var bgBinding = new Binding();
-			bgBinding.Source = Window.GetWindow(this);
-			bgBinding.Path = new PropertyPath("UIBackground");
-			bgBinding.Mode = BindingMode.OneWay;
+			var bgBinding = new Binding
+			{
+				Source = Window.GetWindow(this),
+				Path = new PropertyPath("UIBackground"),
+				Mode = BindingMode.OneWay
+			};
 			SetBinding(UIBackgroundProperty, bgBinding);
 		}
 

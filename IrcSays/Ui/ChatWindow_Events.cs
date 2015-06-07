@@ -209,7 +209,7 @@ namespace IrcSays.Ui
 			}
 		}
 
-		private void session_InfoReceived(object sender, IrcInfoEventArgs e)
+		private void Session_InfoReceived(object sender, IrcInfoEventArgs e)
 		{
 			var session = sender as IrcSession;
 			switch (e.Code)
@@ -245,7 +245,7 @@ namespace IrcSays.Ui
 			session.StateChanged += Session_StateChanged;
 			session.CtcpCommandReceived += Session_CtcpCommandReceived;
 			session.RawMessageReceived += session_RawMessageReceived;
-			session.InfoReceived += session_InfoReceived;
+			session.InfoReceived += Session_InfoReceived;
 		}
 
 		public void UnsubscribeEvents(IrcSession session)
@@ -256,7 +256,7 @@ namespace IrcSays.Ui
 			session.StateChanged -= Session_StateChanged;
 			session.CtcpCommandReceived -= Session_CtcpCommandReceived;
 			session.RawMessageReceived -= session_RawMessageReceived;
-			session.InfoReceived -= session_InfoReceived;
+			session.InfoReceived -= Session_InfoReceived;
 		}
 	}
 }

@@ -9,6 +9,9 @@
 		public const string Join = "JOIN";
 		public const string J = "J";
 		public const string Part = "PART";
+		public const string Ping = "PING";
+		public const string Pong = "PONG";
+		public const string PrivateMsg = "PRIVMSG";
 		public const string Leave = "LEAVE";
 		public const string Topic = "TOPIC";
 		public const string Invite = "INVITE";

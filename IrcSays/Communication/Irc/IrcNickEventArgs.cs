@@ -19,8 +19,14 @@ namespace IrcSays.Communication.Irc
 			: base(message)
 		{
 			var peer = message.From as IrcPeer;
-			OldNickname = peer != null ? peer.Nickname : null;
-			NewNickname = message.Parameters.Count > 0 ? message.Parameters[0] : null;
+			if (peer != null)
+			{
+				OldNickname = peer.Nickname;
+			}
+			if (message.Parameters.Count > 0)
+			{
+				NewNickname = message.Parameters[0];
+			}
 		}
 	}
 }

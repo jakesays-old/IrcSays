@@ -262,7 +262,7 @@ namespace IrcSays.Communication.Irc
 		{
 			if (string.IsNullOrEmpty(nickname))
 			{
-				throw new ArgumentNullException("Nickname");
+				throw new ArgumentNullException("nickname");
 			}
 			_password = password;
 			_isInvisible = invisible;
@@ -696,7 +696,7 @@ namespace IrcSays.Communication.Irc
 		/// </summary>
 		public void List()
 		{
-			Send("LIST");
+			Send(IrcCommands.List);
 		}
 
 		/// <summary>
@@ -744,7 +744,7 @@ namespace IrcSays.Communication.Irc
 		{
 			if (State == IrcSessionState.Connected && _findExternalAddress)
 			{
-				AddHandler(new IrcCodeHandler((e) =>
+				AddHandler(new IrcCodeHandler(e =>
 				{
 					e.Handled = true;
 					if (e.Message.Parameters.Count < 2)
@@ -758,7 +758,7 @@ namespace IrcSays.Communication.Irc
 						IPAddress external;
 						if (!IPAddress.TryParse(parts[1], out external))
 						{
-							Dns.BeginGetHostEntry(parts[1], (ar) =>
+							Dns.BeginGetHostEntry(parts[1], ar =>
 							{
 								try
 								{
@@ -791,11 +791,11 @@ namespace IrcSays.Communication.Irc
 				{
 					_reconnectTimer.Dispose();
 				}
-				_reconnectTimer = new Timer((obj) =>
+				_reconnectTimer = new Timer(obj =>
 				{
 					if (_syncContext != null)
 					{
-						_syncContext.Post((o) => ((Action) o)(), (Action) OnReconnect);
+						_syncContext.Post(o => ((Action) o)(), (Action) OnReconnect);
 					}
 					else
 					{
@@ -838,44 +838,44 @@ namespace IrcSays.Communication.Irc
 
 			switch (e.Message.Command)
 			{
-				case "PING":
+				case IrcCommands.Ping:
 					if (e.Message.Parameters.Count > 0)
 					{
-						_conn.QueueMessage("PONG " + e.Message.Parameters[0]);
+						_conn.QueueMessage(IrcCommands.Pong + " " + e.Message.Parameters[0]);
 					}
 					else
 					{
-						_conn.QueueMessage("PONG");
+						_conn.QueueMessage(IrcCommands.Pong);
 					}
 					break;
-				case "NICK":
+				case IrcCommands.Nick:
 					OnNickChanged(e.Message);
 					break;
-				case "PRIVMSG":
+				case IrcCommands.PrivateMsg:
 					OnPrivateMessage(e.Message);
 					break;
-				case "NOTICE":
+				case IrcCommands.Notice:
 					OnNotice(e.Message);
 					break;
-				case "QUIT":
+				case IrcCommands.Quit:
 					OnQuit(e.Message);
 					break;
-				case "JOIN":
+				case IrcCommands.Join:
 					OnJoin(e.Message);
 					break;
-				case "PART":
+				case IrcCommands.Part:
 					OnPart(e.Message);
 					break;
-				case "TOPIC":
+				case IrcCommands.Topic:
 					OnTopic(e.Message);
 					break;
-				case "INVITE":
+				case IrcCommands.Invite:
 					OnInvite(e.Message);
 					break;
-				case "KICK":
+				case IrcCommands.Kick:
 					OnKick(e.Message);
 					break;
-				case "MODE":
+				case IrcCommands.Mode:
 					OnMode(e.Message);
 					break;
 				default:
@@ -994,8 +994,8 @@ namespace IrcSays.Communication.Irc
 				{
 					var e = new IrcUserModeEventArgs(message);
 					UserModes =
-						(from m in e.Modes.Where((newMode) => newMode.Set).Select((newMode) => newMode.Mode).Union(UserModes).Distinct()
-							where !e.Modes.Any((newMode) => !newMode.Set && newMode.Mode == m)
+						(from m in e.Modes.Where(newMode => newMode.Set).Select(newMode => newMode.Mode).Union(UserModes).Distinct()
+							where !e.Modes.Any(newMode => !newMode.Set && newMode.Mode == m)
 							select m).ToArray();
 
 					RaiseEvent(UserModeChanged, new IrcUserModeEventArgs(message));

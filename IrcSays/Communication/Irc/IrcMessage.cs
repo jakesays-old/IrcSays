@@ -21,7 +21,7 @@ namespace IrcSays.Communication.Irc
 		/// <summary>
 		///     Gets the list of parameters.
 		/// </summary>
-		public IList<string> Parameters { get; private set; }
+		public IReadOnlyList<string> Parameters { get; private set; }
 
 		internal IrcMessage(string command, params string[] parameters)
 			: this(null, command, parameters)
