@@ -37,7 +37,8 @@ namespace IrcSays.Ui
 		private bool CycleThroughNickCandidates()
 		{
 			if (_tabKeyCount > 1 &&
-				_nickCandidates != null)
+				_nickCandidates != null &&
+				_nickCandidates.Length > 0)
 			{
 				_nickListPosition += 1;
 				if (_nickListPosition >= _nickCandidates.Length)
@@ -92,12 +93,17 @@ namespace IrcSays.Ui
 				string nextNick = null;
 				if (_nickCandidates == null)
 				{
-					//						where n.Nickname.StartsWith(nickPart, StringComparison.InvariantCultureIgnoreCase)
 					var filter = new Regex(nickPart, RegexOptions.Compiled | RegexOptions.CultureInvariant | RegexOptions.IgnoreCase);
-					_nickCandidates = (from n in Nicknames
-						where filter.IsMatch(n.Nickname)
-						orderby n.Nickname.ToLowerInvariant()
-						select n.Nickname).ToArray();
+					_nickCandidates = Nicknames.Select(n => new
+					{
+						Nick = n,
+						Match = filter.Match(n.Nickname)
+					})
+						.Where(m => m.Match.Success)
+						.OrderBy(m => m.Match.Index)
+						.Select(m => m.Nick.Nickname)
+						.ToArray();
+
 					if (_nickCandidates.Length > 0)
 					{
 						nextNick = _nickCandidates[0];
