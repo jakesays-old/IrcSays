@@ -48,6 +48,12 @@
     <ApplicationIcon>Resources\App.ico</ApplicationIcon>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="Microsoft.WindowsAPICodePack">
+      <HintPath>..\ThirdParty\WinApi\Microsoft.WindowsAPICodePack.dll</HintPath>
+    </Reference>
+    <Reference Include="Microsoft.WindowsAPICodePack.Shell">
+      <HintPath>..\ThirdParty\WinApi\Microsoft.WindowsAPICodePack.Shell.dll</HintPath>
+    </Reference>
     <Reference Include="PresentationFramework.Aero" />
     <Reference Include="System" />
     <Reference Include="System.configuration" />
@@ -76,6 +82,15 @@
     <Compile Include="Application\IgnoreActions.cs" />
     <Compile Include="Application\LogFileHandle.cs" />
     <Compile Include="Communication\Irc\IrcCommands.cs" />
+    <Compile Include="FileSystemFilter.cs" />
+    <Compile Include="FileSystemObjectSelector.cs" />
+    <Compile Include="Interop\FLASHINFO.cs" />
+    <Compile Include="Interop\HitTestValues.cs" />
+    <Compile Include="Interop\MINMAXINFO.cs" />
+    <Compile Include="Interop\MONITORINFO.cs" />
+    <Compile Include="Interop\POINT.cs" />
+    <Compile Include="Interop\RECT.cs" />
+    <Compile Include="Interop\WINDOWPLACEMENT.cs" />
     <Compile Include="Ui\ChannelWindow.xaml.cs">
       <DependentUpon>ChannelWindow.xaml</DependentUpon>
     </Compile>
@@ -94,6 +109,7 @@
     <Compile Include="Ui\ChatPresenter_Selecting.cs" />
     <Compile Include="Ui\ChatSpan.cs" />
     <Compile Include="Ui\ChatSpanFlags.cs" />
+    <Compile Include="Settings\ColorPickerEx.cs" />
     <Compile Include="Ui\Constants.cs" />
     <Compile Include="Ui\SearchDirection.cs" />
     <Compile Include="Ui\IChatSpanProvider.cs" />
@@ -106,7 +122,6 @@
     <Compile Include="Ui\ChatControl_Dcc.cs" />
     <Compile Include="Ui\ChatControl_Events.cs" />
     <Compile Include="Ui\ChatControl_NickList.cs" />
-    <Compile Include="Ui\ChatControl_Slap.cs" />
     <Compile Include="Ui\NicknameItem.cs" />
     <Compile Include="Ui\NicknameList.cs" />
     <Compile Include="Ui\NotifyState.cs" />
@@ -186,10 +201,8 @@
     </Compile>
     <Compile Include="FileControl\FileControl_Properties.cs" />
     <Compile Include="HsvColor.cs" />
-    <Compile Include="Interop\ColorPicker.cs" />
-    <Compile Include="Interop\FolderBrowser.cs" />
     <Compile Include="Interop\NotifyIcon.cs" />
-    <Compile Include="Interop\WindowConstants.cs" />
+    <Compile Include="Interop\WindowFlags.cs" />
     <Compile Include="Interop\WindowHelper.cs" />
     <Compile Include="Ui\ListControl.xaml.cs">
       <DependentUpon>ListControl.xaml</DependentUpon>
@@ -228,6 +241,10 @@
       <DependentUpon>App.xaml</DependentUpon>
       <SubType>Code</SubType>
     </Compile>
+    <Compile Include="Utility\JetBrains.cs" />
+    <Compile Include="Utility\ListExtensions.cs" />
+    <Compile Include="Utility\MoreJetBrains.cs" />
+    <Compile Include="Utility\StringExtensions.cs" />
     <Page Include="Ui\ChannelWindow.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>

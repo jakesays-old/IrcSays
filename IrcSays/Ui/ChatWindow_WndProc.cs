@@ -22,7 +22,8 @@ namespace IrcSays.Ui
 
 		private const double ResizeHeight = 4.0;
 		private const double ResizeWidth = 6.0;
-		private bool _isInModalDialog = false, _isShuttingDown = false;
+		private bool _isInModalDialog = false;
+		private bool _isShuttingDown = false;
 		private NotifyIcon _notifyIcon;
 		private WindowState _oldWindowState = WindowState.Normal;
 		private IntPtr _hWnd;
@@ -34,7 +35,7 @@ namespace IrcSays.Ui
 			WindowHelper.Load(this, App.Settings.Current.Windows.Placement);
 
 			var hwndSrc = PresentationSource.FromVisual(this) as HwndSource;
-			hwndSrc.AddHook(new HwndSourceHook(WndProc));
+			hwndSrc.AddHook(WndProc);
 			_hWnd = hwndSrc.Handle;
 		}
 
@@ -42,84 +43,84 @@ namespace IrcSays.Ui
 		{
 			switch (msg)
 			{
-				case WindowConstants.WM_NCHITTEST:
+				case WindowFlags.WM_NCHITTEST:
 				{
 					var x = (short) (lParam.ToInt32() & 0xFFFF);
-					var p = new Point((double) x, lParam.ToInt32() >> 16);
+					var p = new Point(x, lParam.ToInt32() >> 16);
 					p = PointFromScreen(p);
 
-					var htResult = WindowConstants.HitTestValues.HTCLIENT;
+					var htResult = HitTestValues.HTCLIENT;
 
 					if ((ActualWidth - p.X <= ResizeWidth * 2.0 && ActualHeight - p.Y <= ResizeHeight) ||
 						(ActualWidth - p.X <= ResizeWidth && ActualHeight - p.Y <= ResizeHeight * 2))
 					{
-						htResult = WindowConstants.HitTestValues.HTBOTTOMRIGHT;
+						htResult = HitTestValues.HTBOTTOMRIGHT;
 					}
 					else if (p.X <= ResizeWidth)
 					{
 						if (p.Y <= ResizeHeight)
 						{
-							htResult = WindowConstants.HitTestValues.HTTOPLEFT;
+							htResult = HitTestValues.HTTOPLEFT;
 						}
 						else if (ActualHeight - p.Y <= ResizeHeight)
 						{
-							htResult = WindowConstants.HitTestValues.HTBOTTOMLEFT;
+							htResult = HitTestValues.HTBOTTOMLEFT;
 						}
 						else
 						{
-							htResult = WindowConstants.HitTestValues.HTLEFT;
+							htResult = HitTestValues.HTLEFT;
 						}
 					}
 					else if (ActualWidth - p.X <= ResizeWidth)
 					{
 						if (p.Y <= ResizeHeight)
 						{
-							htResult = WindowConstants.HitTestValues.HTTOPRIGHT;
+							htResult = HitTestValues.HTTOPRIGHT;
 						}
 						else if (ActualHeight - p.Y <= ResizeHeight)
 						{
-							htResult = WindowConstants.HitTestValues.HTBOTTOMRIGHT;
+							htResult = HitTestValues.HTBOTTOMRIGHT;
 						}
 						else
 						{
-							htResult = WindowConstants.HitTestValues.HTRIGHT;
+							htResult = HitTestValues.HTRIGHT;
 						}
 					}
 					else if (p.Y <= ResizeHeight)
 					{
-						htResult = WindowConstants.HitTestValues.HTTOP;
+						htResult = HitTestValues.HTTOP;
 					}
 					else if (ActualHeight - p.Y <= ResizeHeight)
 					{
-						htResult = WindowConstants.HitTestValues.HTBOTTOM;
+						htResult = HitTestValues.HTBOTTOM;
 					}
 					else if (p.Y <= grdRoot.RowDefinitions[0].Height.Value &&
 							p.X <= grdRoot.ColumnDefinitions[0].ActualWidth)
 					{
-						htResult = WindowConstants.HitTestValues.HTCAPTION;
+						htResult = HitTestValues.HTCAPTION;
 					}
 
 					var s = InputHitTest(p) as StackPanel;
 					if (s != null &&
 						s.TemplatedParent is TabControl)
 					{
-						htResult = WindowConstants.HitTestValues.HTCAPTION;
+						htResult = HitTestValues.HTCAPTION;
 					}
 
 					handled = true;
 					return (IntPtr) htResult;
 				}
-				case WindowConstants.WM_GETMINMAXINFO:
+				case WindowFlags.WM_GETMINMAXINFO:
 				{
 					WindowHelper.GetMinMaxInfo(this, _hWnd, lParam);
 					handled = true;
 				}
 					break;
-				case WindowConstants.WM_QUERYENDSESSION:
+				case WindowFlags.WM_QUERYENDSESSION:
 					_isShuttingDown = true;
 					handled = true;
 					return (IntPtr) 1;
-				case WindowConstants.WM_ENDSESSION:
+				case WindowFlags.WM_ENDSESSION:
 					if (wParam == (IntPtr) 0)
 					{
 						_isShuttingDown = false;
@@ -132,6 +133,7 @@ namespace IrcSays.Ui
 
 		protected override void OnActivated(EventArgs e)
 		{
+			_activeWindow = this;
 			Opacity = App.Settings.Current.Windows.ActiveOpacity;
 
 			base.OnActivated(e);
@@ -139,6 +141,11 @@ namespace IrcSays.Ui
 
 		protected override void OnDeactivated(EventArgs e)
 		{
+			if (_activeWindow == this)
+			{
+				_activeWindow = null;
+			}
+
 			if (OwnedWindows.Count == 0 &&
 				!_isInModalDialog)
 			{

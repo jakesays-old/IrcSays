@@ -38,7 +38,6 @@ namespace IrcSays.Ui
 		public static readonly RoutedUICommand SearchNextCommand = new RoutedUICommand("Next", "SearchNext",
 			typeof (ChatControl));
 
-		public static readonly RoutedUICommand SlapCommand = new RoutedUICommand("Slap!", "Slap", typeof (ChatControl));
 		public static readonly RoutedUICommand DccChatCommand = new RoutedUICommand("Chat", "DccXmit", typeof (ChatControl));
 		public static readonly RoutedUICommand DccXmitCommand = new RoutedUICommand("Xmit...", "DccXmit", typeof (ChatControl));
 		public static readonly RoutedUICommand DccSendCommand = new RoutedUICommand("Send...", "DccSend", typeof (ChatControl));

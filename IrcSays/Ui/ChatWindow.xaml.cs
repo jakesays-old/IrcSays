@@ -1,13 +1,32 @@
-﻿using System.Collections.ObjectModel;
+﻿using System;
+using System.Collections.ObjectModel;
 using System.Linq;
 using System.Windows;
 using System.Windows.Controls;
+using System.Windows.Interop;
 using IrcSays.Communication.Irc;
 
 namespace IrcSays.Ui
 {
 	public partial class ChatWindow : Window
 	{
+		private WindowInteropHelper _mainWindowHelper;
+
+		private static ChatWindow _activeWindow;
+
+		public static IntPtr ActiveWindowHandle
+		{
+			get
+			{
+				if (_activeWindow == null)
+				{
+					return IntPtr.Zero;
+				}
+
+				return _activeWindow._mainWindowHelper.Handle;
+			}
+		}
+
 		public ObservableCollection<ChatTabItem> Items { get; private set; }
 
 		public ChatControl ActiveControl
@@ -20,6 +39,8 @@ namespace IrcSays.Ui
 			Items = new ObservableCollection<ChatTabItem>();
 			DataContext = this;
 			InitializeComponent();
+
+			_mainWindowHelper = new WindowInteropHelper(this);
 
 			Loaded += ChatWindow_Loaded;
 		}

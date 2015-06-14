@@ -33,7 +33,6 @@
 		<CommandBinding Command="ui:ChatControl.SearchCommand" Executed="ExecuteSearch"/>
 		<CommandBinding Command="ui:ChatControl.SearchPreviousCommand" Executed="ExecuteSearchPrevious"/>
 		<CommandBinding Command="ui:ChatControl.SearchNextCommand" Executed="ExecuteSearchNext"/>
-		<CommandBinding Command="ui:ChatControl.SlapCommand" Executed="ExecuteSlap"/>
 		<CommandBinding Command="ui:ChatControl.DccChatCommand" Executed="ExecuteDccChat"/>
 		<CommandBinding Command="ui:ChatControl.DccXmitCommand" Executed="ExecuteDccXmit"/>
 		<CommandBinding Command="ui:ChatControl.DccSendCommand" Executed="ExecuteDccSend"/>
@@ -67,8 +66,6 @@
 			<MenuItem CommandTarget="{Binding ElementName=chatControl}" Command="ui:ChatControl.KickCommand" CommandParameter="{Binding ElementName=chatControl, Path=SelectedLink}"/>
 			<MenuItem CommandTarget="{Binding ElementName=chatControl}" Command="ui:ChatControl.BanCommand" CommandParameter="{Binding ElementName=chatControl, Path=SelectedLink}"/>
 			<MenuItem CommandTarget="{Binding ElementName=chatControl}" Command="ui:ChatControl.UnbanCommand" CommandParameter="{Binding ElementName=chatControl, Path=SelectedLink}"/>
-			<Separator/>
-			<MenuItem CommandTarget="{Binding ElementName=chatControl}" Command="ui:ChatControl.SlapCommand" CommandParameter="{Binding ElementName=chatControl, Path=SelectedLink}"/>
 		</ContextMenu>
 		<ContextMenu x:Key="cmNickList">
 			<MenuItem Command="ui:ChatControl.WhoisCommand" CommandParameter="{Binding ElementName=lstNicknames, Path=SelectedItem.Nickname}"/>
@@ -87,8 +84,6 @@
 			<MenuItem Command="ui:ChatControl.KickCommand" CommandParameter="{Binding ElementName=lstNicknames, Path=SelectedItems}"/>
 			<MenuItem Command="ui:ChatControl.BanCommand" CommandParameter="{Binding ElementName=lstNicknames, Path=SelectedItems}"/>
 			<MenuItem Command="ui:ChatControl.UnbanCommand" CommandParameter="{Binding ElementName=lstNicknames, Path=SelectedItems}"/>
-			<Separator/>
-			<MenuItem Command="ui:ChatControl.SlapCommand" CommandParameter="{Binding ElementName=lstNicknames, Path=SelectedItem.Nickname}"/>
 		</ContextMenu>
 		<ContextMenu x:Key="cmHyperlink">
 			<MenuItem CommandTarget="{Binding ElementName=chatControl}" Command="ui:ChatControl.OpenLinkCommand" CommandParameter="{Binding ElementName=chatControl, Path=SelectedLink}"/>

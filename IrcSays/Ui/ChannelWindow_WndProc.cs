@@ -9,12 +9,13 @@ namespace IrcSays.Ui
 {
 	public partial class ChannelWindow : Window
 	{
-		public readonly static DependencyProperty UIBackgroundProperty = DependencyProperty.Register("UIBackground",
-			typeof(System.Windows.Media.SolidColorBrush), typeof(ChannelWindow));
+		public static readonly DependencyProperty UIBackgroundProperty = DependencyProperty.Register("UIBackground",
+			typeof (SolidColorBrush), typeof (ChannelWindow));
+
 		public SolidColorBrush UIBackground
 		{
-			get { return (SolidColorBrush)this.GetValue(UIBackgroundProperty); }
-			set { this.SetValue(UIBackgroundProperty, value); }
+			get { return (SolidColorBrush) GetValue(UIBackgroundProperty); }
+			set { SetValue(UIBackgroundProperty, value); }
 		}
 
 		private const double ResizeHeight = 4.0;
@@ -25,83 +26,83 @@ namespace IrcSays.Ui
 		{
 			base.OnSourceInitialized(e);
 
-			var state = App.Settings.Current.Windows.States[this.Page.Id];
+			var state = App.Settings.Current.Windows.States[Page.Id];
 			if (!string.IsNullOrEmpty(state.Placement))
 			{
-				Interop.WindowHelper.Load(this, state.Placement);
+				WindowHelper.Load(this, state.Placement);
 			}
-			if (!this.IsActive)
+			if (!IsActive)
 			{
 				WindowHelper.FlashWindow(this);
 			}
 
 			var hwndSrc = PresentationSource.FromVisual(this) as HwndSource;
-			hwndSrc.AddHook(new HwndSourceHook(WndProc));
+			hwndSrc.AddHook(WndProc);
 			_hWnd = hwndSrc.Handle;
 		}
 
 		private IntPtr WndProc(IntPtr hwnd, int msg, IntPtr wParam, IntPtr lParam, ref bool handled)
 		{
-			if (msg == WindowConstants.WM_NCHITTEST)
+			if (msg == WindowFlags.WM_NCHITTEST)
 			{
 				var p = new Point(lParam.ToInt32() & 0xFFFF, lParam.ToInt32() >> 16);
-				p = this.PointFromScreen(p);
+				p = PointFromScreen(p);
 
-				var htResult = WindowConstants.HitTestValues.HTCLIENT;
+				var htResult = HitTestValues.HTCLIENT;
 
-				if ((this.ActualWidth - p.X <= ResizeWidth * 2.0 && this.ActualHeight - p.Y <= ResizeHeight) ||
-					(this.ActualWidth - p.X <= ResizeWidth && this.ActualHeight - p.Y <= ResizeHeight * 2))
+				if ((ActualWidth - p.X <= ResizeWidth * 2.0 && ActualHeight - p.Y <= ResizeHeight) ||
+					(ActualWidth - p.X <= ResizeWidth && ActualHeight - p.Y <= ResizeHeight * 2))
 				{
-					htResult = WindowConstants.HitTestValues.HTBOTTOMRIGHT;
+					htResult = HitTestValues.HTBOTTOMRIGHT;
 				}
 				else if (p.X <= ResizeWidth)
 				{
 					if (p.Y <= ResizeHeight)
 					{
-						htResult = WindowConstants.HitTestValues.HTTOPLEFT;
+						htResult = HitTestValues.HTTOPLEFT;
 					}
-					else if (this.ActualHeight - p.Y <= ResizeHeight)
+					else if (ActualHeight - p.Y <= ResizeHeight)
 					{
-						htResult = WindowConstants.HitTestValues.HTBOTTOMLEFT;
+						htResult = HitTestValues.HTBOTTOMLEFT;
 					}
 					else
 					{
-						htResult = WindowConstants.HitTestValues.HTLEFT;
+						htResult = HitTestValues.HTLEFT;
 					}
 				}
-				else if (this.ActualWidth - p.X <= ResizeWidth)
+				else if (ActualWidth - p.X <= ResizeWidth)
 				{
 					if (p.Y <= ResizeHeight)
 					{
-						htResult = WindowConstants.HitTestValues.HTTOPRIGHT;
+						htResult = HitTestValues.HTTOPRIGHT;
 					}
-					else if (this.ActualHeight - p.Y <= ResizeHeight)
+					else if (ActualHeight - p.Y <= ResizeHeight)
 					{
-						htResult = WindowConstants.HitTestValues.HTBOTTOMRIGHT;
+						htResult = HitTestValues.HTBOTTOMRIGHT;
 					}
 					else
 					{
-						htResult = WindowConstants.HitTestValues.HTRIGHT;
+						htResult = HitTestValues.HTRIGHT;
 					}
 				}
 				else if (p.Y <= ResizeHeight)
 				{
-					htResult = WindowConstants.HitTestValues.HTTOP;
+					htResult = HitTestValues.HTTOP;
 				}
-				else if (this.ActualHeight - p.Y <= ResizeHeight)
+				else if (ActualHeight - p.Y <= ResizeHeight)
 				{
-					htResult = WindowConstants.HitTestValues.HTBOTTOM;
+					htResult = HitTestValues.HTBOTTOM;
 				}
 				else if (p.Y <= grdRoot.RowDefinitions[0].Height.Value &&
-					p.X <= grdRoot.ColumnDefinitions[0].ActualWidth)
+						p.X <= grdRoot.ColumnDefinitions[0].ActualWidth)
 				{
-					htResult = WindowConstants.HitTestValues.HTCAPTION;
+					htResult = HitTestValues.HTCAPTION;
 				}
 
 				handled = true;
-				return (IntPtr)htResult;
+				return (IntPtr) htResult;
 			}
-			else if (msg == WindowConstants.WM_GETMINMAXINFO)
+			if (msg == WindowFlags.WM_GETMINMAXINFO)
 			{
 				WindowHelper.GetMinMaxInfo(this, _hWnd, lParam);
 				handled = true;

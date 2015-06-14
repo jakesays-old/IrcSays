@@ -1,4 +1,5 @@
-﻿using System.Windows;
+﻿using System;
+using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Media;
 
@@ -9,19 +10,33 @@ namespace IrcSays.Settings
 		public ColorsSettingsControl()
 		{
 			InitializeComponent();
-
-			this.AddHandler(Button.ClickEvent, new RoutedEventHandler(OnButtonClicked));
+			Picker.SelectedColorChanged += PickerOnSelectedColorChanged;
+			AddHandler(Button.ClickEvent, new RoutedEventHandler(OnButtonClicked));
 		}
+
+		private void PickerOnSelectedColorChanged(object sender, RoutedPropertyChangedEventArgs<Color> args)
+		{
+			if (_currentColorButton != null)
+			{
+				_currentColorButton.Foreground = new SolidColorBrush(args.NewValue);
+				Picker.IsOpen = false;
+			}
+		}
+
+		private Button _currentColorButton;
 
 		private void OnButtonClicked(object sender, RoutedEventArgs e)
 		{
-			var button = e.OriginalSource as Button;
-			if (button != null)
+			var colorButton = e.OriginalSource as Button;
+			if (colorButton == null)
 			{
-				var color = ((SolidColorBrush)button.Foreground).Color;
-				Interop.ColorPicker.PickColor(Window.GetWindow(this), ref color);
-				button.Foreground = new SolidColorBrush(color);
+				return;
 			}
+			_currentColorButton = null;
+			var color = ((SolidColorBrush) colorButton.Foreground).Color;
+			Picker.SelectedColor = color;
+			Picker.IsOpen = true;
+			_currentColorButton = colorButton;
 		}
 	}
 }

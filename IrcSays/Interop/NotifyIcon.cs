@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Drawing;
 using System.Runtime.InteropServices;
 using System.Windows;
 using System.Windows.Interop;
@@ -20,15 +21,21 @@ namespace IrcSays.Interop
 			public uint uFlags;
 			public int uCallbackMessage;
 			public IntPtr hIcon;
+
 			[MarshalAs(UnmanagedType.ByValTStr, SizeConst = 128)]
-			public string szTip;
+			public readonly string szTip;
+
 			public int dwState;
 			public int dwStateMask;
+
 			[MarshalAs(UnmanagedType.ByValTStr, SizeConst = 256)]
 			public string szInfo;
+
 			public int uTimeoutOrVersion;
+
 			[MarshalAs(UnmanagedType.ByValTStr, SizeConst = 64)]
 			public string szInfoTitle;
+
 			public int dwInfoFlags;
 		}
 
@@ -40,17 +47,17 @@ namespace IrcSays.Interop
 
 		private static int _id = 1;
 		private NotifyIconData _data;
-		private HwndSource _src;
+		private readonly HwndSource _src;
 
 		public bool IsVisible { get; private set; }
 
 		public event EventHandler DoubleClicked;
 		public event EventHandler RightClicked;
 
-		public NotifyIcon(Window parent, System.Drawing.Icon icon)
+		public NotifyIcon(Window parent, Icon icon)
 		{
 			_data = new NotifyIconData();
-			_data.cbSize = Marshal.SizeOf(typeof(NotifyIconData));
+			_data.cbSize = Marshal.SizeOf(typeof (NotifyIconData));
 			_data.uID = _id++;
 			_data.uFlags = 0x8 | 0x2 | 0x1;
 			_data.dwState = 0x0;
@@ -58,21 +65,22 @@ namespace IrcSays.Interop
 			_data.hWnd = new WindowInteropHelper(parent).Handle;
 			_data.uCallbackMessage = CallbackMessage;
 			_src = HwndSource.FromHwnd(_data.hWnd);
-			_src.AddHook(new HwndSourceHook(WndProc));
+			_src.AddHook(WndProc);
 			Shell_NotifyIcon(0x0, ref _data);
-			this.IsVisible = true;
+			IsVisible = true;
 		}
 
 		public void Show()
 		{
-			this.Show(null, null);
+			Show(null, null);
 		}
 
 		public void Show(string balloonTitle, string balloonMessage)
 		{
 			_data.dwState = 0x0;
 			_data.dwStateMask = 0x1;
-			if (!string.IsNullOrEmpty(balloonTitle) && !string.IsNullOrEmpty(balloonMessage))
+			if (!string.IsNullOrEmpty(balloonTitle) &&
+				!string.IsNullOrEmpty(balloonMessage))
 			{
 				_data.uFlags |= 0x10;
 				_data.szInfo = balloonMessage;
@@ -82,10 +90,10 @@ namespace IrcSays.Interop
 			}
 			else
 			{
-				_data.uFlags &= ~(uint)0x10;
+				_data.uFlags &= ~(uint) 0x10;
 			}
 			Shell_NotifyIcon(0x1, ref _data);
-			this.IsVisible = true;
+			IsVisible = true;
 		}
 
 		public void Hide()
@@ -93,40 +101,41 @@ namespace IrcSays.Interop
 			_data.dwState = 0x1;
 			_data.dwStateMask = 0x1;
 			Shell_NotifyIcon(0x1, ref _data);
-			this.IsVisible = false;
+			IsVisible = false;
 		}
 
 		public void Dispose()
 		{
 			Shell_NotifyIcon(0x2, ref _data);
-			_src.RemoveHook(new HwndSourceHook(WndProc));
+			_src.RemoveHook(WndProc);
 		}
 
 		private IntPtr WndProc(IntPtr hwnd, int msg, IntPtr wParam, IntPtr lParam, ref bool handled)
 		{
-			if (msg == CallbackMessage && (int)wParam == _data.uID)
+			if (msg == CallbackMessage &&
+				(int) wParam == _data.uID)
 			{
-				switch ((int)lParam)
+				switch ((int) lParam)
 				{
 					case WM_LBUTTONDBLCLK:
+					{
+						var handler = DoubleClicked;
+						if (handler != null)
 						{
-							var handler = this.DoubleClicked;
-							if (handler != null)
-							{
-								handler(this, EventArgs.Empty);
-							}
+							handler(this, EventArgs.Empty);
 						}
+					}
 						break;
 					case WM_RBUTTONDOWN:
+					{
+						var handler = RightClicked;
+						if (handler != null)
 						{
-							var handler = this.RightClicked;
-							if (handler != null)
-							{
-								handler(this, EventArgs.Empty);
-							}
-
-							SetForegroundWindow(_src.Handle);
+							handler(this, EventArgs.Empty);
 						}
+
+						SetForegroundWindow(_src.Handle);
+					}
 						break;
 				}
 			}
