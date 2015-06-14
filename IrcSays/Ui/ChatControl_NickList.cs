@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Text.RegularExpressions;
 
@@ -27,9 +28,11 @@ namespace IrcSays.Ui
 		private int _nickListPosition = 0;
 		private int _currentNickStart = 0;
 		private int _currentNickEnd = 0;
-
+		private IReadOnlyList<DisplayBlock> _highlightedNicks;
+ 
 		private void ResetNickCompletion()
 		{
+			boxOutput.Presenter.ClearNicks(_highlightedNicks);
 			_nickListPosition = 0;
 			_tabKeyCount = 0;
 		}
@@ -120,7 +123,6 @@ namespace IrcSays.Ui
 					{
 						nextNick = _nickCandidates[i];
 						_nickListPosition = i;
-						//nextNick = i < _nickCandidates.Length - 1 ? _nickCandidates[i + 1] : _nickCandidates[0];
 						break;
 					}
 				}
@@ -133,8 +135,11 @@ namespace IrcSays.Ui
 
 		private void InsertNick(string nextNick, string input)
 		{
+			boxOutput.Presenter.ClearNicks(_highlightedNicks);
+
 			if (nextNick != null)
 			{
+				_highlightedNicks = boxOutput.Presenter.HighlightNick(nextNick);
 				if (_currentNickStart <= 1)
 				{
 					nextNick += ": ";

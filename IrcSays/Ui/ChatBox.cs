@@ -12,7 +12,12 @@ namespace IrcSays.Ui
 
 		public bool IsAutoScrolling
 		{
-			get { return _presenter.IsAutoScrolling; }
+			get { return Presenter.IsAutoScrolling; }
+		}
+
+		public ChatPresenter Presenter
+		{
+			get { return _presenter; }
 		}
 
 		public ChatBox()
@@ -26,7 +31,7 @@ namespace IrcSays.Ui
 			base.OnApplyTemplate();
 
 			_presenter = GetTemplateChild("PART_ChatPresenter") as ChatPresenter;
-			if (_presenter == null)
+			if (Presenter == null)
 			{
 				throw new Exception("Missing template part.");
 			}
@@ -34,47 +39,47 @@ namespace IrcSays.Ui
 
 		public void AppendBulkLines(IEnumerable<ChatLine> lines)
 		{
-			_presenter.AppendBulkLines(lines);
+			Presenter.AppendBulkLines(lines);
 		}
 
 		public void AppendLine(ChatLine line)
 		{
-			_presenter.AppendLine(line);
+			Presenter.AppendLine(line);
 		}
 
 		public void Clear()
 		{
-			_presenter.Clear();
+			Presenter.Clear();
 		}
 
 		public void PageUp()
 		{
-			_presenter.PageUp();
+			Presenter.PageUp();
 		}
 
 		public void PageDown()
 		{
-			_presenter.PageDown();
+			Presenter.PageDown();
 		}
 
 		public void MouseWheelUp()
 		{
-			_presenter.MouseWheelUp();
+			Presenter.MouseWheelUp();
 		}
 
 		public void MouseWheelDown()
 		{
-			_presenter.MouseWheelDown();
+			Presenter.MouseWheelDown();
 		}
 
 		public void Search(Regex pattern, SearchDirection dir)
 		{
-			_presenter.Search(pattern, dir);
+			Presenter.Search(pattern, dir);
 		}
 
 		public void ClearSearch()
 		{
-			_presenter.ClearSearch();
+			Presenter.ClearSearch();
 		}
 	}
 }

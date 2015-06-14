@@ -6,6 +6,7 @@ using System.Windows.Controls.Primitives;
 using System.Windows.Media;
 using System.Windows.Media.TextFormatting;
 using System.Windows.Threading;
+using IrcSays.Utility;
 
 namespace IrcSays.Ui
 {
@@ -16,31 +17,13 @@ namespace IrcSays.Ui
 		private const float MinNickBrightness = .2f;
 		private const float NickBrightnessBand = .2f;
 
-		private class Block
-		{
-			public ChatLine Source { get; set; }
-			public Brush Foreground { get; set; }
-
-			public string TimeString { get; set; }
-			public string NickString { get; set; }
-
-			public TextLine Time { get; set; }
-			public TextLine Nick { get; set; }
-			public TextLine[] Text { get; set; }
-
-			public int CharStart { get; set; }
-			public int CharEnd { get; set; }
-			public double Y { get; set; }
-			public double NickX { get; set; }
-			public double TextX { get; set; }
-			public double Height { get; set; }
-		}
-
-		private LinkedList<Block> _blocks = new LinkedList<Block>();
+		private LinkedList<DisplayBlock> _blocks = new LinkedList<DisplayBlock>();
 		private double _lineHeight;
-		private LinkedListNode<Block> _bottomBlock, _curBlock;
+		private LinkedListNode<DisplayBlock> _bottomBlock, _curBlock;
 		private int _curLine;
 		private bool _isProcessingText;
+		private SolidColorBrush _nickHighlightFg = Brushes.Black;
+		private SolidColorBrush _nickHighlightBg = Brushes.White;
 
 		private Typeface Typeface
 		{
@@ -95,37 +78,43 @@ namespace IrcSays.Ui
 		{
 			foreach (var line in lines)
 			{
-				var b = new Block();
-				b.Source = line;
-				b.TimeString = FormatTime(b.Source.Time);
-				b.NickString = FormatNick(b.Source.Nick);
+				var newBlock = new DisplayBlock
+				{
+					Source = line,
+					NickText = line.Nick
+				};
+				newBlock.TimeString = FormatTime(newBlock.Source.Time);
+				newBlock.FormattedNick = FormatNick(newBlock.Source.Nick);
 
 				var offset = _blocks.Last != null ? _blocks.Last.Value.CharEnd : 0;
-				b.CharStart = offset;
-				offset += b.TimeString.Length + b.NickString.Length + b.Source.Text.Length;
-				b.CharEnd = offset;
+				newBlock.CharStart = offset;
+				offset += newBlock.TimeString.Length + newBlock.FormattedNick.Length + newBlock.Source.Text.Length;
+				newBlock.CharEnd = offset;
 
-				_blocks.AddLast(b);
+				_blocks.AddLast(newBlock);
 			}
 			StartProcessingText();
 		}
 
 		public void AppendLine(ChatLine line)
 		{
-			var b = new Block();
-			b.Source = line;
+			var newBlock = new DisplayBlock
+			{
+				Source = line,
+				NickText = line.Nick
+			};
 
-			b.TimeString = FormatTime(b.Source.Time);
-			b.NickString = FormatNick(b.Source.Nick);
+			newBlock.TimeString = FormatTime(newBlock.Source.Time);
+			newBlock.FormattedNick = FormatNick(newBlock.Source.Nick);
 
 			var offset = _blocks.Last != null ? _blocks.Last.Value.CharEnd : 0;
-			b.CharStart = offset;
-			offset += b.TimeString.Length + b.NickString.Length + b.Source.Text.Length;
-			b.CharEnd = offset;
+			newBlock.CharStart = offset;
+			offset += newBlock.TimeString.Length + newBlock.FormattedNick.Length + newBlock.Source.Text.Length;
+			newBlock.CharEnd = offset;
 
-			_blocks.AddLast(b);
-			FormatOne(b, AutoSizeColumn);
-			_bufferLines += b.Text.Length;
+			_blocks.AddLast(newBlock);
+			FormatOne(newBlock, AutoSizeColumn);
+			_bufferLines += newBlock.Text.Length;
 
 			while (_blocks.Count > BufferLines)
 			{
@@ -143,49 +132,58 @@ namespace IrcSays.Ui
 			InvalidateScrollInfo();
 			if (!_isAutoScrolling || _isSelecting)
 			{
-				_scrollPos += b.Text.Length;
+				_scrollPos += newBlock.Text.Length;
 			}
 			InvalidateVisual();
 		}
 
-		private void FormatOne(Block b, bool autoSize)
+		private void FormatOne(DisplayBlock displayBlock, bool autoSize, bool highlightNick = false)
 		{
-			b.Foreground = Palette[b.Source.ColorKey];
+			displayBlock.Foreground = Palette[displayBlock.Source.ColorKey];
 
 			var formatter = new ChatFormatter(Typeface, FontSize, Foreground, Palette);
-			b.Time = formatter.Format(b.TimeString, null, ViewportWidth, b.Foreground, Background,
+			displayBlock.Time = formatter.Format(displayBlock.TimeString, null, ViewportWidth, displayBlock.Foreground, Background,
 				TextWrapping.NoWrap).FirstOrDefault();
-			b.NickX = b.Time != null ? b.Time.WidthIncludingTrailingWhitespace : 0.0;
+			displayBlock.NickX = displayBlock.Time != null ? displayBlock.Time.WidthIncludingTrailingWhitespace : 0.0;
 
-			var nickBrush = b.Foreground;
-			if (ColorizeNicknames && b.Source.NickHashCode != 0)
+			var nickBrush = displayBlock.Foreground;
+			if (ColorizeNicknames && displayBlock.Source.NickHashCode != 0)
 			{
-				nickBrush = GetNickColor(b.Source.NickHashCode);
+				nickBrush = GetNickColor(displayBlock.Source.NickHashCode);
 			}
-			b.Nick = formatter.Format(b.NickString, null, ViewportWidth - b.NickX, nickBrush, Background,
-				TextWrapping.NoWrap).First();
-			b.TextX = b.NickX + b.Nick.WidthIncludingTrailingWhitespace;
 
-			if (autoSize && b.TextX > ColumnWidth)
+			var nickFg = nickBrush;
+			var nickBg = Background;
+			var forceNickBackground = false;
+			if (highlightNick)
 			{
-				ColumnWidth = b.TextX;
+				nickFg = Background;
+				nickBg = nickBrush;
+				forceNickBackground = true;
+			}
+			displayBlock.Nick = formatter.Format(displayBlock.FormattedNick, null, ViewportWidth - displayBlock.NickX, nickFg, nickBg,
+				TextWrapping.NoWrap, forceNickBackground).First();
+			displayBlock.TextX = displayBlock.NickX + displayBlock.Nick.WidthIncludingTrailingWhitespace;
+
+			if (autoSize && displayBlock.TextX > ColumnWidth)
+			{
+				ColumnWidth = displayBlock.TextX;
 				InvalidateAll(false);
 			}
 
 			if (UseTabularView)
 			{
-				b.TextX = ColumnWidth + SeparatorPadding * 2.0 + 1.0;
-				b.NickX = ColumnWidth - b.Nick.WidthIncludingTrailingWhitespace;
+				displayBlock.TextX = ColumnWidth + SeparatorPadding * 2.0 + 1.0;
+				displayBlock.NickX = ColumnWidth - displayBlock.Nick.WidthIncludingTrailingWhitespace;
 			}
 
-			b.Text = formatter.Format(b.Source.Text, b.Source, ViewportWidth - b.TextX, b.Foreground,
+			displayBlock.Text = formatter.Format(displayBlock.Source.Text, displayBlock.Source, ViewportWidth - displayBlock.TextX, displayBlock.Foreground,
 				Background, TextWrapping.Wrap).ToArray();
-			b.Height = b.Text.Sum(t => t.Height);
+			displayBlock.Height = displayBlock.Text.Sum(t => t.Height);
 		}
 
 		private void InvalidateAll(bool styleChanged)
 		{
-			var formatter = new ChatFormatter(Typeface, FontSize, Foreground, Palette);
 			_lineHeight = Math.Ceiling(FontSize * Typeface.FontFamily.LineSpacing);
 
 			if (styleChanged)
@@ -195,8 +193,8 @@ namespace IrcSays.Ui
 				{
 					b.CharStart = offset;
 					b.TimeString = FormatTime(b.Source.Time);
-					b.NickString = FormatNick(b.Source.Nick);
-					offset += b.TimeString.Length + b.NickString.Length + b.Source.Text.Length;
+					b.FormattedNick = FormatNick(b.Source.Nick);
+					offset += b.TimeString.Length + b.FormattedNick.Length + b.Source.Text.Length;
 					b.CharEnd = offset;
 				}
 			}
@@ -246,6 +244,8 @@ namespace IrcSays.Ui
 			InvalidateScrollInfo();
 			InvalidateVisual();
 		}
+
+		private long _drawCounter;
 
 		protected override void OnRender(DrawingContext dc)
 		{
@@ -337,6 +337,8 @@ namespace IrcSays.Ui
 				return;
 			}
 
+			_drawCounter += 1;
+
 			do
 			{
 				var block = node.Value;
@@ -344,6 +346,8 @@ namespace IrcSays.Ui
 				{
 					continue;
 				}
+
+				block.DrawCounter = _drawCounter;
 
 				if ((block.Source.Marker & ChatMarker.Attention) > 0)
 				{
@@ -371,6 +375,55 @@ namespace IrcSays.Ui
 					DrawSearchHighlight(dc, node.Value);
 				}
 			} while ((node = node.Next) != null);
+		}
+
+		public IReadOnlyList<DisplayBlock> HighlightNick(string nick)
+		{
+			if (_blocks.Count == 0)
+			{
+				return new DisplayBlock[0];
+			}
+
+			var highlightedNicks = new List<DisplayBlock>();
+
+			var node = _blocks.Last;
+			do
+			{
+				var block = node.Value;
+				if (block.DrawCounter != _drawCounter)
+				{
+					break;
+				}
+
+				if (string.Compare(nick, block.NickText, StringComparison.OrdinalIgnoreCase) == 0)
+				{
+					highlightedNicks.Add(block);
+					FormatOne(block, false, true);
+				}
+			} while (node.Previous != null &&
+					(node = node.Previous) != null);
+
+			if (highlightedNicks.Count > 0)
+			{
+				InvalidateVisual();
+			}
+
+			return highlightedNicks;
+		}
+
+		public void ClearNicks(IReadOnlyList<DisplayBlock> nicks)
+		{
+			if (nicks.IsNullOrEmpty())
+			{
+				return;
+			}
+
+			foreach (var nick in nicks)
+			{
+				FormatOne(nick, false);
+			}
+
+			InvalidateVisual();
 		}
 
 		protected override void OnRenderSizeChanged(SizeChangedInfo sizeInfo)

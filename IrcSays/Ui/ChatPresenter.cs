@@ -12,29 +12,33 @@ namespace IrcSays.Ui
 
 		public ChatPresenter()
 		{
-			Loaded += (sender, e) =>
+			Loaded += HandleLoad;
+			Unloaded += HandleUnload;
+		}
+
+		private void HandleUnload(object sender, RoutedEventArgs e)
+		{
+			_isSelecting = false;
+			_isDragging = false;
+		}
+
+		private void HandleLoad(object sender, RoutedEventArgs e)
+		{
+			if (_isAutoScrolling)
 			{
-				if (_isAutoScrolling)
-				{
-					ScrollToEnd();
-				}
-				if (_selectBrush == null)
-				{
-					var c = HighlightColor;
-					c.A = 102;
-					_selectBrush = new SolidColorBrush(c);
-				}
-			};
-			Unloaded += (sender, e) =>
+				ScrollToEnd();
+			}
+			if (_selectBrush == null)
 			{
-				_isSelecting = false;
-				_isDragging = false;
-			};
+				var c = HighlightColor;
+				c.A = 102;
+				_selectBrush = new SolidColorBrush(c);
+			}
 		}
 
 		public void Clear()
 		{
-			_blocks = new LinkedList<Block>();
+			_blocks = new LinkedList<DisplayBlock>();
 			_curBlock = null;
 			_bufferLines = 0;
 			_isAutoScrolling = true;

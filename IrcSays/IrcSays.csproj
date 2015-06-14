@@ -111,6 +111,7 @@
     <Compile Include="Ui\ChatSpanFlags.cs" />
     <Compile Include="Settings\ColorPickerEx.cs" />
     <Compile Include="Ui\Constants.cs" />
+    <Compile Include="Ui\DisplayBlock.cs" />
     <Compile Include="Ui\SearchDirection.cs" />
     <Compile Include="Ui\IChatSpanProvider.cs" />
     <Compile Include="Ui\SearchOptions.cs" />

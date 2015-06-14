@@ -197,7 +197,7 @@ namespace IrcSays.Ui
 			return null;
 		}
 
-		private Block GetBlockAt(double y)
+		private DisplayBlock GetBlockAt(double y)
 		{
 			if (_bottomBlock == null)
 			{
@@ -225,7 +225,7 @@ namespace IrcSays.Ui
 			}
 
 			p.Y = Math.Min(ActualHeight - 1, Math.Max(0, p.Y));
-			Block block = null;
+			DisplayBlock displayBlock = null;
 			var node = _bottomBlock;
 			do
 			{
@@ -237,44 +237,44 @@ namespace IrcSays.Ui
 			} while (node.Previous != null &&
 					p.Y >= 0.0 &&
 					(node = node.Previous) != null);
-			block = node.Value;
+			displayBlock = node.Value;
 			if (!allowSelectionAboveTopLine &&
-				p.Y < block.Y)
+				p.Y < displayBlock.Y)
 			{
 				return -1;
 			}
-			p.Y = Math.Max(block.Y, p.Y);
-			if (block.Text == null)
+			p.Y = Math.Max(displayBlock.Y, p.Y);
+			if (displayBlock.Text == null)
 			{
 				return -1;
 			}
 
-			var line = (int) (p.Y - block.Y) / (int) _lineHeight;
-			if (line >= block.Text.Length)
+			var line = (int) (p.Y - displayBlock.Y) / (int) _lineHeight;
+			if (line >= displayBlock.Text.Length)
 			{
-				line = block.Text.Length - 1;
+				line = displayBlock.Text.Length - 1;
 			}
 			var idx = 0;
 			if (line > 0 ||
-				p.X >= block.TextX)
+				p.X >= displayBlock.TextX)
 			{
-				idx += block.TimeString.Length + block.NickString.Length;
-				var ch = block.Text[line].GetCharacterHitFromDistance(p.X - block.TextX);
-				idx += Math.Min(ch.FirstCharacterIndex, block.Source.Text.Length - 1);
+				idx += displayBlock.TimeString.Length + displayBlock.FormattedNick.Length;
+				var ch = displayBlock.Text[line].GetCharacterHitFromDistance(p.X - displayBlock.TextX);
+				idx += Math.Min(ch.FirstCharacterIndex, displayBlock.Source.Text.Length - 1);
 			}
-			else if (p.X >= block.NickX ||
-					block.Time == null)
+			else if (p.X >= displayBlock.NickX ||
+					displayBlock.Time == null)
 			{
-				idx += block.TimeString.Length;
-				var ch = block.Nick.GetCharacterHitFromDistance(p.X - block.NickX);
-				idx += Math.Min(ch.FirstCharacterIndex, block.NickString.Length - 1);
+				idx += displayBlock.TimeString.Length;
+				var ch = displayBlock.Nick.GetCharacterHitFromDistance(p.X - displayBlock.NickX);
+				idx += Math.Min(ch.FirstCharacterIndex, displayBlock.FormattedNick.Length - 1);
 			}
 			else
 			{
-				var ch = block.Time.GetCharacterHitFromDistance(p.X);
-				idx += Math.Min(ch.FirstCharacterIndex, block.TimeString.Length - 1);
+				var ch = displayBlock.Time.GetCharacterHitFromDistance(p.X);
+				idx += Math.Min(ch.FirstCharacterIndex, displayBlock.TimeString.Length - 1);
 			}
-			return idx + block.CharStart;
+			return idx + displayBlock.CharStart;
 		}
 
 		private void FindSelectedArea(int idx, int txtLen, int txtOffset, double x, TextLine line, ref double start,
@@ -289,32 +289,32 @@ namespace IrcSays.Ui
 			}
 		}
 
-		private void DrawSelectionHighlight(DrawingContext dc, Block block)
+		private void DrawSelectionHighlight(DrawingContext dc, DisplayBlock displayBlock)
 		{
-			if (SelectionEnd < block.CharStart ||
-				SelectionStart >= block.CharEnd ||
+			if (SelectionEnd < displayBlock.CharStart ||
+				SelectionStart >= displayBlock.CharEnd ||
 				SelectionStart > SelectionEnd)
 			{
 				return;
 			}
 
-			int idx = block.CharStart, txtOffset = 0;
-			var y = block.Y;
-			for (var i = 0; i < block.Text.Length; i++)
+			int idx = displayBlock.CharStart, txtOffset = 0;
+			var y = displayBlock.Y;
+			for (var i = 0; i < displayBlock.Text.Length; i++)
 			{
 				double start = double.MaxValue, end = double.MinValue;
 				if (i == 0)
 				{
-					if (block.Time != null)
+					if (displayBlock.Time != null)
 					{
-						FindSelectedArea(idx, block.TimeString.Length, 0, 0.0, block.Time, ref start, ref end);
-						idx += block.TimeString.Length;
+						FindSelectedArea(idx, displayBlock.TimeString.Length, 0, 0.0, displayBlock.Time, ref start, ref end);
+						idx += displayBlock.TimeString.Length;
 					}
-					FindSelectedArea(idx, block.NickString.Length, 0, block.NickX, block.Nick, ref start, ref end);
-					idx += block.NickString.Length;
+					FindSelectedArea(idx, displayBlock.FormattedNick.Length, 0, displayBlock.NickX, displayBlock.Nick, ref start, ref end);
+					idx += displayBlock.FormattedNick.Length;
 				}
-				FindSelectedArea(idx, block.Text[i].Length, txtOffset, block.TextX, block.Text[i], ref start, ref end);
-				txtOffset += block.Text[i].Length;
+				FindSelectedArea(idx, displayBlock.Text[i].Length, txtOffset, displayBlock.TextX, displayBlock.Text[i], ref start, ref end);
+				txtOffset += displayBlock.Text[i].Length;
 
 				if (end >= start)
 				{
@@ -340,7 +340,7 @@ namespace IrcSays.Ui
 				bool start, end;
 				output.Append(GetSelectedText(idx, block.TimeString, output, out start, out end));
 				idx += block.TimeString.Length;
-				var nick = GetSelectedText(idx, block.NickString, output, out start, out end);
+				var nick = GetSelectedText(idx, block.FormattedNick, output, out start, out end);
 				if (start &&
 					UseTabularView &&
 					block.Source.Nick != null)
@@ -358,7 +358,7 @@ namespace IrcSays.Ui
 					}
 					output.Append(' ');
 				}
-				idx += block.NickString.Length;
+				idx += block.FormattedNick.Length;
 				output.Append(GetSelectedText(idx, block.Source.Text, output, out start, out end));
 				if (SelectionEnd >= block.CharEnd)
 				{
