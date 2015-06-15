@@ -82,6 +82,16 @@
     <Compile Include="Application\IgnoreActions.cs" />
     <Compile Include="Application\LogFileHandle.cs" />
     <Compile Include="Communication\Irc\IrcCommands.cs" />
+    <Compile Include="Utility\DirectoryName.cs" />
+    <Compile Include="Utility\DirectoryNameConverter.cs" />
+    <Compile Include="Utility\FileErrorPolicy.cs" />
+    <Compile Include="Utility\FileName.cs" />
+    <Compile Include="Utility\FileNameConverter.cs" />
+    <Compile Include="Utility\FileNameEventHandler.cs" />
+    <Compile Include="Utility\FileOperationResult.cs" />
+    <Compile Include="Utility\FileUtility.cs" />
+    <Compile Include="Utility\FileUtility.Minimal.cs" />
+    <Compile Include="Utility\PathName.cs" />
     <Compile Include="FileSystemFilter.cs" />
     <Compile Include="FileSystemObjectSelector.cs" />
     <Compile Include="Interop\FLASHINFO.cs" />
@@ -244,7 +254,6 @@
     </Compile>
     <Compile Include="Utility\JetBrains.cs" />
     <Compile Include="Utility\ListExtensions.cs" />
-    <Compile Include="Utility\MoreJetBrains.cs" />
     <Compile Include="Utility\StringExtensions.cs" />
     <Page Include="Ui\ChannelWindow.xaml">
       <SubType>Designer</SubType>
