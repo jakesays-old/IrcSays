@@ -78,10 +78,19 @@ namespace IrcSays.Ui
 		{
 			foreach (var line in lines)
 			{
+				string nickText = null;
+				if (line.Nick != null)
+				{
+					nickText = line.Nick;
+					if (nickText.StartsWith("+"))
+					{
+						nickText = nickText.Substring(1);
+					}
+				}
 				var newBlock = new DisplayBlock
 				{
 					Source = line,
-					NickText = line.Nick
+					NickText = nickText
 				};
 				newBlock.TimeString = FormatTime(newBlock.Source.Time);
 				newBlock.FormattedNick = FormatNick(newBlock.Source.Nick);
@@ -98,10 +107,19 @@ namespace IrcSays.Ui
 
 		public void AppendLine(ChatLine line)
 		{
+			string nickText = null;
+			if (line.Nick != null)
+			{
+				nickText = line.Nick;
+				if (nickText.StartsWith("+"))
+				{
+					nickText = nickText.Substring(1);
+				}
+			}
 			var newBlock = new DisplayBlock
 			{
 				Source = line,
-				NickText = line.Nick
+				NickText = nickText
 			};
 
 			newBlock.TimeString = FormatTime(newBlock.Source.Time);
