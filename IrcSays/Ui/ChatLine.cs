@@ -36,7 +36,111 @@ namespace IrcSays.Ui
 
 		public ChatSpan GetSpan(int idx)
 		{
-			return Spans.Where((s) => idx >= s.Start && idx < s.End).FirstOrDefault();
+			return Spans.Where(s => idx >= s.Start && idx < s.End).FirstOrDefault();
+		}
+
+		private void ParseLine(string line)
+		{
+			var lastPos = line.Length - 1;
+			var text = new StringBuilder();
+			var spans = new List<ChatSpan>();
+			var currentSpan = new ChatSpan();
+
+			const int normalState = 0;
+			const int fgColorState = 1;
+			const int bgColorState = 2;
+
+			var currentState = normalState;
+			var colorCharCount = 0;
+			var currentColor = 0;
+
+			for(var index = 0; index <= lastPos; index++)
+			{
+				var ch = (int) line[index];
+				if (currentState == normalState)
+				{
+					if (!TextFormatCodes.IsFormatChar(ch))
+					{
+						text.Append((char) ch);
+						continue;
+					}
+
+					currentSpan.End = index;
+					spans.Add(currentSpan);
+					currentSpan.Start = index;
+
+					switch (ch)
+					{
+						case TextFormatCodes.Color:
+							currentState = fgColorState;
+							colorCharCount = 0;
+							currentColor = 0;
+							break;
+						case TextFormatCodes.Bold:
+							currentSpan.Flags ^= ChatSpanFlags.Bold;
+							break;
+						case TextFormatCodes.Reset:
+							currentSpan.Flags = ChatSpanFlags.None;
+							break;
+						case TextFormatCodes.Reverse:
+							currentSpan.Flags ^= ChatSpanFlags.Reverse;
+							break;
+						case TextFormatCodes.Underline:
+							currentSpan.Flags ^= ChatSpanFlags.Underline;
+							break;
+					}
+
+					continue;
+				}
+
+				if (!char.IsDigit((char) ch) ||
+					colorCharCount >= 2)
+				{
+					if (currentState == fgColorState)
+					{
+						if (colorCharCount == 0)
+						{
+							//no colors specified
+							currentSpan.Flags &= ~ChatSpanFlags.Foreground;
+							currentSpan.Flags &= ~ChatSpanFlags.Background;
+							currentState = normalState;
+						}
+						else
+						{
+							currentSpan.Flags |= ChatSpanFlags.Foreground;
+							currentSpan.Foreground = (byte) Math.Min(currentColor, 15);
+							colorCharCount = 0;
+							currentState = ch == ','
+								? bgColorState
+								: normalState;
+						}
+					}
+					else if (currentState == bgColorState)
+					{
+						currentState = normalState;
+						currentSpan.Flags |= ChatSpanFlags.Foreground;
+						currentSpan.Foreground = (byte) Math.Min(currentColor, 15);
+					}
+
+					if (currentState == normalState)
+					{
+						text.Append((char) ch);
+					}
+					continue;
+				}
+
+				currentColor += ('9' - ch) * (++colorCharCount);
+			}
+
+			if (currentState != normalState)
+			{
+				//indicates the last char in line was the color formatting code without color parameters
+				currentSpan.Flags &= ~ChatSpanFlags.Foreground;
+				currentSpan.Flags &= ~ChatSpanFlags.Background;
+			}
+
+			currentSpan.End = lastPos;
+			spans.Add(currentSpan);
 		}
 
 		public void Process(string raw)
@@ -50,11 +154,7 @@ namespace IrcSays.Ui
 			for (var i = 0; i < raw.Length; i++)
 			{
 				var ichar = (int) raw[i];
-				if (ichar == 2 ||
-					ichar == 3 ||
-					ichar == 15 ||
-					ichar == 22 ||
-					ichar == 31)
+				if (TextFormatCodes.IsFormatChar(ichar))
 				{
 					span.End = idx;
 					spans.Add(span);
@@ -62,10 +162,10 @@ namespace IrcSays.Ui
 				}
 				switch (ichar)
 				{
-					case 2:
+					case TextFormatCodes.Bold:
 						span.Flags ^= ChatSpanFlags.Bold;
 						break;
-					case 3:
+					case TextFormatCodes.Color:
 						if (i == last ||
 							(raw[i + 1] > '9' || raw[i + 1] < '0'))
 						{
@@ -107,13 +207,13 @@ namespace IrcSays.Ui
 						}
 						span.Background = (byte) Math.Min(15, c);
 						break;
-					case 15:
+					case TextFormatCodes.Reset:
 						span.Flags = ChatSpanFlags.None;
 						break;
-					case 22:
+					case TextFormatCodes.Reverse:
 						span.Flags ^= ChatSpanFlags.Reverse;
 						break;
-					case 31:
+					case TextFormatCodes.Underline:
 						span.Flags ^= ChatSpanFlags.Underline;
 						break;
 					default:
@@ -125,7 +225,7 @@ namespace IrcSays.Ui
 			span.End = idx;
 			spans.Add(span);
 			Text = text.ToString();
-			Spans = spans.Where((s) => s.End > s.Start).ToArray();
+			Spans = spans.Where(s => s.End > s.Start).ToArray();
 			Links = (from Match m in Constants.UrlRegex.Matches(Text)
 				select new ChatLink
 				{
