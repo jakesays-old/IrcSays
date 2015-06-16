@@ -14,7 +14,8 @@ namespace IrcSays.Ui
 	{
 		private char[] _channelModes = new char[0];
 		private string _topic = "", _prefix;
-		private bool _hasDeactivated = false, _usingAlternateNick = false;
+		private bool _hasDeactivated = false;
+		private bool _usingAlternateNick = false;
 		private Window _window;
 
 		private void Session_StateChanged(object sender, EventArgs e)
