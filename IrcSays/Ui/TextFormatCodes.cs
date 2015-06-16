@@ -1,6 +1,6 @@
 namespace IrcSays.Ui
 {
-	public static class FormattingCodes
+	public static class TextFormatCodes
 	{
 		public const int Bold = 2;
 		public const int Color = 3;
