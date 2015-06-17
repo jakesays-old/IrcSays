@@ -8,6 +8,7 @@ using System.Windows.Input;
 using IrcSays.Application;
 using IrcSays.Communication.Irc;
 using IrcSays.Configuration;
+using IrcSays.Services;
 
 namespace IrcSays.Ui
 {
@@ -29,7 +30,6 @@ namespace IrcSays.Ui
 
 		private readonly LinkedList<string> _history;
 		private LinkedListNode<string> _historyNode;
-		private readonly LogFileHandle _logFile;
 		private ChatLine _markerLine;
 		private Timer _delayTimer;
 
@@ -56,18 +56,18 @@ namespace IrcSays.Ui
 				Header = Target == null ? "Server" : Target.ToString();
 				SubscribeEvents();
 
-				if (!IsServer)
-				{
-					_logFile = App.OpenLogFile(Id);
-					var logLines = new List<ChatLine>();
-					while (_logFile.Buffer.Count > 0)
-					{
-						var cl = _logFile.Buffer.Dequeue();
-						cl.Marker = _logFile.Buffer.Count == 0 ? ChatMarker.OldMarker : ChatMarker.None;
-						logLines.Add(cl);
-					}
-					boxOutput.AppendBulkLines(logLines);
-				}
+				//if (!IsServer)
+				//{
+				//	_logFile = App.OpenLogFile(Id);
+				//	var logLines = new List<ChatLine>();
+				//	while (_logFile.Buffer.Count > 0)
+				//	{
+				//		var cl = _logFile.Buffer.Dequeue();
+				//		cl.Marker = _logFile.Buffer.Count == 0 ? ChatMarker.OldMarker : ChatMarker.None;
+				//		logLines.Add(cl);
+				//	}
+				//	boxOutput.AppendBulkLines(logLines);
+				//}
 
 				if (IsChannel)
 				{
@@ -227,10 +227,6 @@ namespace IrcSays.Ui
 			}
 
 			boxOutput.AppendLine(cl);
-			if (_logFile != null)
-			{
-				_logFile.WriteLine(cl);
-			}
 		}
 
 		private void Write(string styleKey, IrcPeer peer, string text, bool attn)
@@ -239,7 +235,7 @@ namespace IrcSays.Ui
 				GetNickWithLevel(peer.Nickname), text, attn);
 			if (!boxOutput.IsAutoScrolling)
 			{
-				App.DoEvent("beep");
+				ServiceManager.Sound.PlaySound("beep");
 			}
 		}
 
@@ -348,10 +344,6 @@ namespace IrcSays.Ui
 					state.NickListWidth = colNickList.ActualWidth;
 				}
 				UnsubscribeEvents();
-				if (_logFile != null)
-				{
-					_logFile.Dispose();
-				}
 			}
 		}
 

@@ -1,19 +1,25 @@
 ﻿using System;
 using System.Diagnostics;
 using System.Media;
+using IrcSays.Application;
+using IrcSays.Utility;
 
-namespace IrcSays.Application
+namespace IrcSays.Services
 {
-	public partial class App
+	public class SoundService : ISoundService
 	{
-		private static SoundPlayer _player;
+		private SoundPlayer _player;
 
-		public static void DoEvent(string eventName)
+		public SoundService()
+		{			
+		}
+
+		public void PlaySound(string name)
 		{
-			if (Settings.Current.Sounds.IsEnabled)
+			if (App.Settings.Current.Sounds.IsEnabled)
 			{
-				var path = Settings.Current.Sounds.GetPathByName(eventName);
-				if (!string.IsNullOrEmpty(path))
+				var path = App.Settings.Current.Sounds.GetPathByName(name);
+				if (path.NotNullOrEmpty())
 				{
 					if (_player != null)
 					{

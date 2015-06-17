@@ -1,28 +1,38 @@
-﻿using System;
 using System.Collections.Generic;
-using System.ComponentModel;
-using System.Configuration;
-using System.Runtime.CompilerServices;
-using IrcSays.Configuration;
-using JetBrains.Annotations;
 
 namespace IrcSays.Preferences.Models
 {
-	public class WindowPreferences : PreferenceBase
+	public class WindowsPreferences : PreferenceBase
 	{
-		private bool _suppressWarningOnQuit;
-		private bool _defaultQueryDetached;
-		private double _minTabWidth;
-		private TabStripPosition _tabStripPosition;
-		private bool _minimizeToSysTray;
-		private double _backgroundOpacity;
-		private double _chromeOpacity;
-		private double _inactiveOpacity;
-		private double _activeOpacity;
-		private string _customColors;
 		private string _placement;
+		private string _customColors;
+		private double _activeOpacity;
+		private double _inactiveOpacity;
+		private double _chromeOpacity;
+		private double _backgroundOpacity;
+		private bool _minimizeToSysTray;
+		private TabStripPosition _tabStripPosition;
+		private double _minTabWidth;
+		private bool _defaultQueryDetached;
+		private bool _suppressWarningOnQuit;
 		private List<ChannelState> _states;
 
+		public WindowsPreferences()
+		{
+			_placement = null;
+			_customColors = "";
+			_activeOpacity = 1;
+			_inactiveOpacity = 1;
+			_chromeOpacity = 1;
+			_backgroundOpacity = 0.92;
+			_minimizeToSysTray = false;
+			_tabStripPosition = TabStripPosition.Bottom;
+			_minTabWidth = 75;
+			_defaultQueryDetached = false;
+			_suppressWarningOnQuit = false;
+			_states = null;
+		}
+		
 		public string Placement
 		{
 			get { return _placement; }
@@ -48,10 +58,6 @@ namespace IrcSays.Preferences.Models
 			get { return _activeOpacity; }
 			set
 			{
-				if (value.Equals(_activeOpacity))
-				{
-					return;
-				}
 				_activeOpacity = value;
 				OnPropertyChanged();
 			}
@@ -62,7 +68,7 @@ namespace IrcSays.Preferences.Models
 			get { return _inactiveOpacity; }
 			set
 			{
-				_inactiveOpacity = Math.Round(value, 2);
+				_inactiveOpacity = value;
 				OnPropertyChanged();
 			}
 		}
@@ -77,7 +83,6 @@ namespace IrcSays.Preferences.Models
 			}
 		}
 
-
 		public double BackgroundOpacity
 		{
 			get { return _backgroundOpacity; }
@@ -87,7 +92,6 @@ namespace IrcSays.Preferences.Models
 				OnPropertyChanged();
 			}
 		}
-
 
 		public bool MinimizeToSysTray
 		{
@@ -99,7 +103,6 @@ namespace IrcSays.Preferences.Models
 			}
 		}
 
-
 		public TabStripPosition TabStripPosition
 		{
 			get { return _tabStripPosition; }
@@ -109,7 +112,6 @@ namespace IrcSays.Preferences.Models
 				OnPropertyChanged();
 			}
 		}
-
 
 		public double MinTabWidth
 		{
@@ -121,7 +123,6 @@ namespace IrcSays.Preferences.Models
 			}
 		}
 
-
 		public bool DefaultQueryDetached
 		{
 			get { return _defaultQueryDetached; }
@@ -131,7 +132,6 @@ namespace IrcSays.Preferences.Models
 				OnPropertyChanged();
 			}
 		}
-
 
 		public bool SuppressWarningOnQuit
 		{

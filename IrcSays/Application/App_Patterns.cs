@@ -13,7 +13,7 @@ namespace IrcSays.Application
 		{
 			_attnPatterns.Clear();
 			foreach (var s in Settings.Current.Formatting.AttentionPatterns.Split(
-				Environment.NewLine.ToCharArray()).Where((s) => s.Trim().Length > 0))
+				Environment.NewLine.ToCharArray()).Where(s => s.Trim().Length > 0))
 			{
 				try
 				{

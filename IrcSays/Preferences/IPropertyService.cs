@@ -28,16 +28,6 @@ namespace IrcSays.Preferences
 	public interface IPropertyService : INotifyPropertyChanged
 	{
 		/// <summary>
-		/// Gets the configuration directory. (usually "%ApplicationData%\%ApplicationName%")
-		/// </summary>
-		DirectoryName ConfigDirectory { get; }
-		
-		/// <summary>
-		/// Gets the data directory (usually "ApplicationRootPath\data")
-		/// </summary>
-		DirectoryName DataDirectory { get; }
-		
-		/// <summary>
 		/// Gets the main properties container for this property service.
 		/// </summary>
 		Properties MainPropertiesContainer { get; }

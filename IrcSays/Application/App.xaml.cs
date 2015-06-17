@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Windows;
 using IrcSays.Communication.Network;
+using IrcSays.Services;
 using IrcSays.Ui;
 
 namespace IrcSays.Application
@@ -9,7 +10,7 @@ namespace IrcSays.Application
 	{
 		public App()
 		{
-			AppDomain.CurrentDomain.UnhandledException += (sender, e) => LogUnhandledException(e.ExceptionObject);
+//			AppDomain.CurrentDomain.UnhandledException += (sender, e) => LogUnhandledException(e.ExceptionObject);
 
 			NatHelper.BeginDiscover(ar => NatHelper.EndDiscover(ar));
 		}
@@ -17,6 +18,8 @@ namespace IrcSays.Application
 		protected override void OnStartup(StartupEventArgs e)
 		{
 			base.OnStartup(e);
+
+			ServiceManager.Initialize();
 
 			var window = new ChatWindow();
 			window.Closed += window_Closed;

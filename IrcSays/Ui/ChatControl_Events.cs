@@ -7,6 +7,7 @@ using IrcSays.Application;
 using IrcSays.Communication.Irc;
 using IrcSays.Configuration;
 using IrcSays.Interop;
+using IrcSays.Services;
 
 namespace IrcSays.Ui
 {
@@ -40,7 +41,7 @@ namespace IrcSays.Ui
 						break;
 					case IrcSessionState.Connected:
 						Header = Session.NetworkName;
-						App.DoEvent("connect");
+						ServiceManager.Sound.PlaySound("connect");
 						if (Perform != null)
 						{
 							DoPerform(0);
@@ -76,7 +77,7 @@ namespace IrcSays.Ui
 				{
 					Write("Notice", e.Text);
 				}
-				App.DoEvent("notice");
+				ServiceManager.Sound.PlaySound("notice");
 			}
 		}
 
@@ -103,16 +104,16 @@ namespace IrcSays.Ui
 						if (VisualParent == null)
 						{
 							NotifyState = NotifyState.Alert;
-							App.DoEvent("inactiveAlert");
+							ServiceManager.Sound.PlaySound("inactiveAlert");
 						}
 						else if (_window != null &&
 								!_window.IsActive)
 						{
-							App.DoEvent("inactiveAlert");
+							ServiceManager.Sound.PlaySound("inactiveAlert");
 						}
 						else
 						{
-							App.DoEvent("activeAlert");
+							ServiceManager.Sound.PlaySound("activeAlert");
 						}
 					}
 
@@ -127,7 +128,7 @@ namespace IrcSays.Ui
 						WindowHelper.FlashWindow(_window);
 						if (VisualParent == null)
 						{
-							App.DoEvent("privateMessage");
+							ServiceManager.Sound.PlaySound("privateMessage");
 						}
 					}
 				}

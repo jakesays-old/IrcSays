@@ -8,6 +8,7 @@ using IrcSays.Communication;
 using IrcSays.Communication.Irc;
 using IrcSays.Configuration;
 using IrcSays.Interop;
+using IrcSays.Services;
 
 namespace IrcSays.Ui
 {
@@ -64,7 +65,7 @@ namespace IrcSays.Ui
 				case IrcSessionState.Disconnected:
 					if (!_isShuttingDown)
 					{
-						App.DoEvent("disconnect");
+						ServiceManager.Sound.PlaySound("disconnect");
 					}
 					break;
 			}

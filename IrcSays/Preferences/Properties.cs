@@ -329,43 +329,6 @@ namespace IrcSays.Preferences
 			SetSerializedValue(key, serializedArray);
 		}
 
-		[Obsolete("Use the GetList method instead", true)]
-		public T[] Get<T>(string key, T[] defaultValue)
-		{
-			throw new InvalidOperationException();
-		}
-
-		[Obsolete("Use the SetList method instead", true)]
-		public void Set<T>(string key, T[] value)
-		{
-			throw new InvalidOperationException();
-		}
-
-		[Obsolete("Use the GetList method instead", true)]
-		public List<T> Get<T>(string key, List<T> defaultValue)
-		{
-			throw new InvalidOperationException();
-		}
-
-		[Obsolete("Use the SetList method instead", true)]
-		public void Set<T>(string key, List<T> value)
-		{
-			throw new InvalidOperationException();
-		}
-
-		[Obsolete("Use the GetList method instead", true)]
-		public ArrayList Get<T>(string key, ArrayList defaultValue)
-		{
-			throw new InvalidOperationException();
-		}
-
-		[Obsolete("Use the SetList method instead", true)]
-		public void Set<T>(string key, ArrayList value)
-		{
-			throw new InvalidOperationException();
-		}
-
-
 		private object Serialize(object value, Type sourceType, string key)
 		{
 			if (value == null)
@@ -453,18 +416,6 @@ namespace IrcSays.Preferences
 					return _parent;
 				}
 			}
-		}
-
-		[Obsolete("Use the NestedProperties method instead", true)]
-		public Properties Get(string key, Properties defaultValue)
-		{
-			throw new InvalidOperationException();
-		}
-
-		[Obsolete("Use the SetNestedProperties method instead", true)]
-		public void Set(string key, Properties value)
-		{
-			throw new InvalidOperationException();
 		}
 
 		/// <summary>

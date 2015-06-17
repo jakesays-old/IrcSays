@@ -10,6 +10,7 @@ using System.Windows.Input;
 using IrcSays.Application;
 using IrcSays.Communication;
 using IrcSays.Communication.Irc;
+using IrcSays.Services;
 
 namespace IrcSays.Ui
 {
@@ -364,7 +365,7 @@ namespace IrcSays.Ui
 				}
 				else
 				{
-					App.DoEvent("beep");
+					ServiceManager.Sound.PlaySound("beep");
 				}
 			}
 		}

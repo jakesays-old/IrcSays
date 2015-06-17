@@ -7,6 +7,7 @@ using IrcSays.Communication;
 using IrcSays.Communication.Dcc;
 using IrcSays.Communication.Irc;
 using IrcSays.Communication.Network;
+using IrcSays.Services;
 
 namespace IrcSays.Ui
 {
@@ -66,7 +67,7 @@ namespace IrcSays.Ui
 				lblDccChat.Content = string.Format("Do you want DCC chat with {0}?", Target.Name);
 				pnlDccChat.Visibility = Visibility.Visible;
 			}
-			App.DoEvent("dccRequest");
+			ServiceManager.Sound.PlaySound("dccRequest");
 		}
 
 		private void DeletePortForwarding()

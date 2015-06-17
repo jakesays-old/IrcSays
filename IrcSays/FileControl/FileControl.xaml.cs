@@ -11,6 +11,7 @@ using IrcSays.Communication;
 using IrcSays.Communication.Dcc;
 using IrcSays.Communication.Irc;
 using IrcSays.Communication.Network;
+using IrcSays.Services;
 using IrcSays.Ui;
 using Microsoft.Win32;
 using ErrorEventArgs = IrcSays.Communication.Irc.ErrorEventArgs;
@@ -112,7 +113,7 @@ namespace IrcSays.FileControl
 			{
 				Accept(false);
 			}
-			App.DoEvent("dccRequest");
+			ServiceManager.Sound.PlaySound("dccRequest");
 		}
 
 		public override bool CanClose()
@@ -237,14 +238,14 @@ namespace IrcSays.FileControl
 				{
 					Status = FileStatus.Cancelled;
 					StatusText = "Connection lost";
-					App.DoEvent("dccError");
+					ServiceManager.Sound.PlaySound("dccError");
 				}
 			}
 			else
 			{
 				Status = (_dcc is DccXmitReceiver || _dcc is DccSendReceiver) ? FileStatus.Received : FileStatus.Sent;
 				StatusText = "Finished";
-				App.DoEvent("dccComplete");
+				ServiceManager.Sound.PlaySound("dccComplete");
 			}
 			DeletePortForwarding();
 		}
@@ -258,7 +259,7 @@ namespace IrcSays.FileControl
 				_pollTimer.Dispose();
 			}
 			DeletePortForwarding();
-			App.DoEvent("dccError");
+			ServiceManager.Sound.PlaySound("dccError");
 		}
 
 		private void btnCancel_Click(object sender, RoutedEventArgs e)

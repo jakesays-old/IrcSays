@@ -17,143 +17,104 @@
 // DEALINGS IN THE SOFTWARE.
 
 using System;
-using System.IO;
-using System.Threading;
-using System.Xml;
+using System.Collections.Generic;
+using System.ComponentModel;
 using IrcSays.Utility;
 
 namespace IrcSays.Preferences
 {
-	internal class PropertyService : PropertyServiceImpl
+	public abstract class PropertyService : IPropertyService
 	{
-		private readonly DirectoryName _dataDirectory;
-		private readonly DirectoryName _configDirectory;
-		private readonly FileName _propertiesFileName;
+		private readonly Properties _properties;
 
-		public PropertyService(DirectoryName configDirectory, DirectoryName dataDirectory, string propertiesName)
-			: base(LoadPropertiesFromStream(configDirectory.CombineFile(propertiesName + ".xml")))
+		/// <summary>
+		///     Initializes the service for unit-testing (reset properties to an empty property container).
+		///     Use <c>SD.InitializeForUnitTests()</c> instead, that initializes the property service and more.
+		/// </summary>
+		protected PropertyService()
 		{
-			_dataDirectory = dataDirectory;
-			_configDirectory = configDirectory;
-			_propertiesFileName = configDirectory.CombineFile(propertiesName + ".xml");
+			_properties = new Properties();
 		}
 
-		public override DirectoryName ConfigDirectory
+		protected PropertyService(Properties properties)
 		{
-			get { return _configDirectory; }
+			if (properties == null)
+			{
+				throw new ArgumentNullException("properties");
+			}
+			_properties = properties;
 		}
 
-		public override DirectoryName DataDirectory
+		/// <inheritdoc cref="Properties.Get{T}(string, T)" />
+		public T Get<T>(string key, T defaultValue)
 		{
-			get { return _dataDirectory; }
+			return _properties.Get(key, defaultValue);
 		}
 
-		private static Properties LoadPropertiesFromStream(FileName fileName)
+		/// <inheritdoc cref="Properties.NestedProperties" />
+		public Properties NestedProperties(string key)
 		{
-			if (!File.Exists(fileName))
-			{
-				return new Properties();
-			}
-			try
-			{
-				using (LockPropertyFile())
-				{
-					return Properties.Load(fileName);
-				}
-			}
-			catch (XmlException ex)
-			{
-//				SD.MessageService.ShowError("Error loading properties: " + ex.Message + "\nSettings have been restored to default values.");
-			}
-			catch (IOException ex)
-			{
-//				SD.MessageService.ShowError("Error loading properties: " + ex.Message + "\nSettings have been restored to default values.");
-			}
+			return _properties.NestedProperties(key);
+		}
+
+		/// <inheritdoc cref="Properties.SetNestedProperties" />
+		public void SetNestedProperties(string key, Properties nestedProperties)
+		{
+			_properties.SetNestedProperties(key, nestedProperties);
+		}
+
+		/// <inheritdoc cref="Properties.Contains" />
+		public bool Contains(string key)
+		{
+			return _properties.Contains(key);
+		}
+
+		/// <inheritdoc cref="Properties.Set{T}(string, T)" />
+		public void Set<T>(string key, T value)
+		{
+			_properties.Set(key, value);
+		}
+
+		/// <inheritdoc cref="Properties.GetList" />
+		public IReadOnlyList<T> GetList<T>(string key)
+		{
+			return _properties.GetList<T>(key);
+		}
+
+		/// <inheritdoc cref="Properties.SetList" />
+		public void SetList<T>(string key, IEnumerable<T> value)
+		{
+			_properties.SetList(key, value);
+		}
+
+		/// <inheritdoc cref="Properties.Remove" />
+		public void Remove(string key)
+		{
+			_properties.Remove(key);
+		}
+
+		public event PropertyChangedEventHandler PropertyChanged
+		{
+			add { _properties.PropertyChanged += value; }
+			remove { _properties.PropertyChanged -= value; }
+		}
+
+		public Properties MainPropertiesContainer
+		{
+			get { return _properties; }
+		}
+
+		public virtual void Save()
+		{
+		}
+
+		public virtual Properties LoadExtraProperties(string key)
+		{
 			return new Properties();
 		}
 
-		public override void Save()
+		public virtual void SaveExtraProperties(string key, Properties p)
 		{
-			using (LockPropertyFile())
-			{
-				MainPropertiesContainer.Save(_propertiesFileName);
-			}
-		}
-
-		public static string LockKey { get; set; }
-
-		/// <summary>
-		///     Acquires an exclusive lock on the properties file so that it can be opened safely.
-		/// </summary>
-		private static IDisposable LockPropertyFile()
-		{
-			var mutex = new Mutex(false, LockKey);
-			mutex.WaitOne();
-			return new CallbackOnDispose(
-				delegate
-				{
-					mutex.ReleaseMutex();
-					mutex.Close();
-				});
-		}
-
-		private class CallbackOnDispose : IDisposable
-		{
-			private readonly Action _action;
-
-			public CallbackOnDispose(Action action)
-			{
-				_action = action;
-			}
-
-			public void Dispose()
-			{
-				if (_action != null)
-				{
-					_action();
-				}
-			}
-		}
-
-		private static int GetStableHashCode(string text)
-		{
-			unchecked
-			{
-				var h = 0;
-				foreach (var c in text)
-				{
-					h = (h << 5) - h + c;
-				}
-				return h;
-			}
-		}
-
-		private FileName GetExtraFileName(string key)
-		{
-			return _configDirectory.CombineFile("preferences/" + GetStableHashCode(key).ToString("x8") + ".xml");
-		}
-
-		public override Properties LoadExtraProperties(string key)
-		{
-			var fileName = GetExtraFileName(key);
-			using (LockPropertyFile())
-			{
-				if (File.Exists(fileName))
-				{
-					return Properties.Load(fileName);
-				}
-				return new Properties();
-			}
-		}
-
-		public override void SaveExtraProperties(string key, Properties p)
-		{
-			var fileName = GetExtraFileName(key);
-			using (LockPropertyFile())
-			{
-				Directory.CreateDirectory(fileName.GetParentDirectory());
-				p.Save(fileName);
-			}
 		}
 	}
 }
