@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Windows;
 using System.Windows.Controls;
@@ -17,7 +18,7 @@ namespace IrcSays.Ui
 		private bool _hasDeactivated = false;
 		private bool _usingAlternateNick = false;
 		private Window _window;
-
+        private List<string> _recentNicks = new List<string>(); 
 		private void Session_StateChanged(object sender, EventArgs e)
 		{
 			var state = Session.State;
@@ -117,6 +118,17 @@ namespace IrcSays.Ui
 					}
 
 					Write("Default", e.From, e.Text, attn);
+                    if (e.From.Nickname != null)
+                    {
+                        var gonnaRemove = _recentNicks.FirstOrDefault(x => x == e.From.Nickname);
+                        if (gonnaRemove != null)
+                        {
+                            _recentNicks.Remove(gonnaRemove);
+                        }
+                        _recentNicks.Insert(0, e.From.Nickname);
+                        if (_recentNicks.Count > 10)
+                            _recentNicks.RemoveAt(_recentNicks.Count - 1);
+                    }
 					if (!Target.IsChannel)
 					{
 						if (e.From.Prefix != _prefix)
