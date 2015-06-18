@@ -7,7 +7,7 @@ namespace IrcSays.Ui
 {
 	public partial class ChatControl : ChatPage
 	{
-		private string[] _nickCandidates;
+		private List<String> _nickCandidates;
 		private readonly NicknameList _nickList;
 
 		public NicknameList Nicknames
@@ -41,10 +41,10 @@ namespace IrcSays.Ui
 		{
 			if (_tabKeyCount > 1 &&
 				_nickCandidates != null &&
-				_nickCandidates.Length > 0)
+				_nickCandidates.Count > 0)
 			{
 				_nickListPosition += 1;
-				if (_nickListPosition >= _nickCandidates.Length)
+				if (_nickListPosition >= _nickCandidates.Count)
 				{
 					_nickListPosition = 0;
 				}
@@ -97,7 +97,16 @@ namespace IrcSays.Ui
 				if (_nickCandidates == null)
 				{
 					var filter = new Regex(nickPart, RegexOptions.Compiled | RegexOptions.CultureInvariant | RegexOptions.IgnoreCase);
-					_nickCandidates = Nicknames.Select(n => new
+                    _nickCandidates = _recentNicks.Select(n => new
+                    {
+                        Nick = n,
+                        Match = filter.Match(n)
+                    })
+                        .Where(m => m.Match.Success)
+                        .OrderBy(m => m.Match.Index)
+                        .Select(m => m.Nick)
+                        .ToList();
+					_nickCandidates.AddRange(Nicknames.Select(n => new
 					{
 						Nick = n,
 						Match = filter.Match(n.Nickname)
@@ -105,9 +114,11 @@ namespace IrcSays.Ui
 						.Where(m => m.Match.Success)
 						.OrderBy(m => m.Match.Index)
 						.Select(m => m.Nick.Nickname)
-						.ToArray();
+						.ToArray());
 
-					if (_nickCandidates.Length > 0)
+				    _nickCandidates = _nickCandidates.Distinct().ToList();
+
+					if (_nickCandidates.Count > 0)
 					{
 						nextNick = _nickCandidates[0];
 					}
@@ -117,7 +128,7 @@ namespace IrcSays.Ui
 					}
 				}
 
-				for (var i = 0; i < _nickCandidates.Length; i++)
+				for (var i = 0; i < _nickCandidates.Count; i++)
 				{
 					if (string.Compare(_nickCandidates[i], nickPart, StringComparison.InvariantCulture) == 0)
 					{
