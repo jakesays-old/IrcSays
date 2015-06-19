@@ -117,7 +117,7 @@ namespace IrcSays.Ui
 
 			if (_currentNickEnd - _currentNickStart > 0)
 			{
-				var nickPart = input.Substring(_currentNickStart, _currentNickEnd - _currentNickStart);
+				var nickPart = Regex.Escape(input.Substring(_currentNickStart, _currentNickEnd - _currentNickStart));
 				string nextNick = null;
 				if (_nickCandidates == null)
 				{
