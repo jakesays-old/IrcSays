@@ -7,8 +7,11 @@ namespace IrcSays.Ui
 {
 	public partial class ChatControl : ChatPage
 	{
-		private List<String> _nickCandidates;
+		private string[] _nickCandidates;
 		private readonly NicknameList _nickList;
+		private readonly List<string> _mostRecentTalkers = new List<string>();
+		private readonly LinkedList<string> _mostRecentlyReferenced = new LinkedList<string>();
+		private string _lastReferencedNick;
 
 		public NicknameList Nicknames
 		{
@@ -35,16 +38,26 @@ namespace IrcSays.Ui
 			boxOutput.Presenter.ClearNicks(_highlightedNicks);
 			_nickListPosition = 0;
 			_tabKeyCount = 0;
+			if (_lastReferencedNick != null)
+			{
+				_mostRecentlyReferenced.Remove(_lastReferencedNick);
+				_mostRecentlyReferenced.AddFirst(_lastReferencedNick);
+				if (_mostRecentlyReferenced.Count > 10)
+				{
+					_mostRecentlyReferenced.RemoveLast();
+				}
+				_lastReferencedNick = null;
+			}
 		}
 
 		private bool CycleThroughNickCandidates()
 		{
 			if (_tabKeyCount > 1 &&
 				_nickCandidates != null &&
-				_nickCandidates.Count > 0)
+				_nickCandidates.Length > 0)
 			{
 				_nickListPosition += 1;
-				if (_nickListPosition >= _nickCandidates.Count)
+				if (_nickListPosition >= _nickCandidates.Length)
 				{
 					_nickListPosition = 0;
 				}
@@ -54,6 +67,18 @@ namespace IrcSays.Ui
 			}
 
 			return false;
+		}
+
+		class NickMatch
+		{
+			public string Nick { get; private set; }
+			public Match Match { get; private set; }
+
+			public NickMatch(string nick, Match match)
+			{
+				Nick = nick;
+				Match = match;
+			}
 		}
 
 		private void DoNickCompletion()
@@ -97,28 +122,20 @@ namespace IrcSays.Ui
 				if (_nickCandidates == null)
 				{
 					var filter = new Regex(nickPart, RegexOptions.Compiled | RegexOptions.CultureInvariant | RegexOptions.IgnoreCase);
-                    _nickCandidates = _recentNicks.Select(n => new
-                    {
-                        Nick = n,
-                        Match = filter.Match(n)
-                    })
-                        .Where(m => m.Match.Success)
-                        .OrderBy(m => m.Match.Index)
-                        .Select(m => m.Nick)
-                        .ToList();
-					_nickCandidates.AddRange(Nicknames.Select(n => new
-					{
-						Nick = n,
-						Match = filter.Match(n.Nickname)
-					})
+					_nickCandidates = _mostRecentTalkers
+						.Select(n => new NickMatch(n, filter.Match(n)))
 						.Where(m => m.Match.Success)
 						.OrderBy(m => m.Match.Index)
-						.Select(m => m.Nick.Nickname)
-						.ToArray());
+						.Concat(
+							Nicknames.Select(n => new NickMatch(n.Nickname, filter.Match(n.Nickname)))
+								.Where(m => m.Match.Success)
+								.OrderBy(m => m.Match.Index)
+						)
+						.Select(m => m.Nick)
+						.Distinct()
+						.ToArray();
 
-				    _nickCandidates = _nickCandidates.Distinct().ToList();
-
-					if (_nickCandidates.Count > 0)
+					if (_nickCandidates.Length > 0)
 					{
 						nextNick = _nickCandidates[0];
 					}
@@ -128,7 +145,7 @@ namespace IrcSays.Ui
 					}
 				}
 
-				for (var i = 0; i < _nickCandidates.Count; i++)
+				for (var i = 0; i < _nickCandidates.Length; i++)
 				{
 					if (string.Compare(_nickCandidates[i], nickPart, StringComparison.InvariantCulture) == 0)
 					{
@@ -138,9 +155,12 @@ namespace IrcSays.Ui
 					}
 				}
 
-				var keepNickCandidates = _nickCandidates;
 				InsertNick(nextNick, input);
-				_nickCandidates = keepNickCandidates;
+			}
+			else if (_mostRecentlyReferenced.Count > 0)
+			{
+				_nickCandidates = _mostRecentlyReferenced.ToArray();
+				InsertNick(_nickCandidates[0], "");
 			}
 		}
 
@@ -150,6 +170,7 @@ namespace IrcSays.Ui
 
 			if (nextNick != null)
 			{
+				_lastReferencedNick = nextNick;
 				_highlightedNicks = boxOutput.Presenter.HighlightNick(nextNick);
 				if (_currentNickStart <= 1)
 				{
