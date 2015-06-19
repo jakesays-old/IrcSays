@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Windows;
 using System.Windows.Controls;
@@ -118,6 +119,17 @@ namespace IrcSays.Ui
 					}
 
 					Write("Default", e.From, e.Text, attn);
+                    if (e.From.Nickname != null)
+                    {
+                        var gonnaRemove = _mostRecentTalkers.FirstOrDefault(x => x == e.From.Nickname);
+                        if (gonnaRemove != null)
+                        {
+                            _mostRecentTalkers.Remove(gonnaRemove);
+                        }
+                        _mostRecentTalkers.Insert(0, e.From.Nickname);
+                        if (_mostRecentTalkers.Count > 10)
+                            _mostRecentTalkers.RemoveAt(_mostRecentTalkers.Count - 1);
+                    }
 					if (!Target.IsChannel)
 					{
 						if (e.From.Prefix != _prefix)
