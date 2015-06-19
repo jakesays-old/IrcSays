@@ -86,6 +86,7 @@
     <Compile Include="Preferences\Models\ColorsPreferences.cs" />
     <Compile Include="Preferences\Models\FormattingPreferences.cs" />
     <Compile Include="Preferences\Models\NetworkPreferences.cs" />
+    <Compile Include="Preferences\Models\ServerPreference.cs" />
     <Compile Include="Preferences\Models\ServerPreferences.cs" />
     <Compile Include="Preferences\Models\SoundsPreferences.cs" />
     <Compile Include="Preferences\Models\TabStripPosition.cs" />
@@ -262,6 +263,7 @@
     </Compile>
     <Compile Include="Utility\JetBrains.cs" />
     <Compile Include="Utility\ListExtensions.cs" />
+    <Compile Include="Utility\RelayCommand.cs" />
     <Compile Include="Utility\StringExtensions.cs" />
     <Page Include="Ui\ChannelWindow.xaml">
       <SubType>Designer</SubType>

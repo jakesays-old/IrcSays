@@ -7,6 +7,8 @@ namespace IrcSays.Preferences.Models
 		private int _proxyPort;
 		private string _proxyUsername;
 		private string _proxyPassword;
+		private bool _enableUPnp;
+		private bool _discoverExternalIp;
 
 		public NetworkPreferences()
 		{
@@ -68,5 +70,24 @@ namespace IrcSays.Preferences.Models
 			}
 		}
 
+		public bool EnableUPnP
+		{
+			get { return _enableUPnp; }
+			set
+			{
+				_enableUPnp = value;
+				OnPropertyChanged();
+			}
+		}
+
+		public bool DiscoverExternalIp
+		{
+			get { return _discoverExternalIp; }
+			set
+			{
+				_discoverExternalIp = value;
+				OnPropertyChanged();
+			}
+		}
 	}
 }

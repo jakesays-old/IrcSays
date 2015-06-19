@@ -4,7 +4,9 @@
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:local="clr-namespace:IrcSays.Application"
+             xmlns:models="clr-namespace:IrcSays.Preferences.Models"
              mc:Ignorable="d"
+			 d:DataContext="{d:DesignInstance Type=models:UserPreferences}"
              d:DesignHeight="300" d:DesignWidth="384">
 	<Canvas>
 		<Label Canvas.Left="64" Canvas.Top="12" Content="Nickname:" Height="28" Name="label1" />
@@ -13,16 +15,16 @@
 		<Label Canvas.Left="63" Canvas.Top="127" Content="Full Name:" Height="28" Name="label5" />
 		<TextBox Canvas.Left="136" Canvas.Top="14" Height="23" Name="txtNickname" Width="109">
 			<TextBox.Text>
-				<Binding Source="{x:Static local:App.Settings}" Path="Current.User.Nickname" Mode="TwoWay">
+				<Binding Path="Nickname" Mode="TwoWay">
 					<Binding.ValidationRules>
 						<ExceptionValidationRule/>
 					</Binding.ValidationRules>
 				</Binding>
 			</TextBox.Text>
 		</TextBox>
-		<TextBox Canvas.Left="136" Canvas.Top="48" Height="23" Name="txtAltNickname" Width="109" Text="{Binding Source={x:Static local:App.Settings}, Path=Current.User.AlternateNickname, Mode=TwoWay}"/>
-		<TextBox Canvas.Left="136" Canvas.Top="127" Height="23" Name="txtFullName" Width="159" Text="{Binding Source={x:Static local:App.Settings}, Path=Current.User.FullName, Mode=TwoWay}"/>
-		<TextBox Canvas.Left="136" Canvas.Top="161" Height="23" Name="txtUsername" Width="109" Text="{Binding Source={x:Static local:App.Settings}, Path=Current.User.Username, Mode=TwoWay}"/>
-		<CheckBox Canvas.Left="136" Canvas.Top="199" Content="Invisible (+i) by default" Height="16" Name="chkInvisible" IsChecked="{Binding Source={x:Static local:App.Settings}, Path=Current.User.Invisible, Mode=TwoWay}" />
+		<TextBox Canvas.Left="136" Canvas.Top="48" Height="23" Name="txtAltNickname" Width="109" Text="{Binding AlternateNickname, Mode=TwoWay}"/>
+		<TextBox Canvas.Left="136" Canvas.Top="127" Height="23" Name="txtFullName" Width="159" Text="{Binding FullName, Mode=TwoWay}"/>
+		<TextBox Canvas.Left="136" Canvas.Top="161" Height="23" Name="txtUsername" Width="109" Text="{Binding Username, Mode=TwoWay}"/>
+		<CheckBox Canvas.Left="136" Canvas.Top="199" Content="Invisible (+i) by default" Height="16" Name="chkInvisible" IsChecked="{Binding Invisible, Mode=TwoWay}" />
 	</Canvas>
 </UserControl>

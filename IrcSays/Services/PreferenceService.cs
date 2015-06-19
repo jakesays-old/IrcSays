@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.IO;
 using IrcSays.Preferences;
 using IrcSays.Preferences.Models;
@@ -13,10 +14,11 @@ namespace IrcSays.Services
 		private BufferPreferences _buffer;
 		private ColorsPreferences _color;
 		private NetworkPreferences _network;
-		private ServerPreferences _server;
+		private ServerPreferences _servers;
 		private SoundsPreferences _sound;
 		private UserPreferences _user;
 		private WindowsPreferences _window;
+		private FormattingPreferences _formatting;
 
 		public void Initialize()
 		{
@@ -46,11 +48,19 @@ namespace IrcSays.Services
 				_buffer = _properties.Set("BufferProperties", new BufferPreferences());
 				_color = _properties.Set("ColorPreferences", new ColorsPreferences());
 				_network = _properties.Set("NetworkPreferences", new NetworkPreferences());
-				_server = _properties.Set("ServerPreferences", new ServerPreferences());
+				_servers = _properties.Set("ServerPreferences", new ServerPreferences());
+				_servers.AddNewCommand.Execute(new ServerPreference
+				{
+					Name = "Freenode",
+					Port = 6667,
+					AutoReconnect = true,
+					ConnectOnStartup = false,
+					Hostname = "irc.freenode.net"
+				});
 				_sound = _properties.Set("SoundPreferences", new SoundsPreferences());
 				_user = _properties.Set("UserPreferences", new UserPreferences());
 				_window = _properties.Set("WindowPreferences", new WindowsPreferences());
-
+				_formatting = _properties.Set("FormattingPreferences", new FormattingPreferences());
 				_properties.Save();
 			}
 			else
@@ -58,10 +68,11 @@ namespace IrcSays.Services
 				_buffer = _properties.Get("BufferProperties", () => new BufferPreferences());
 				_color = _properties.Get("ColorPreferences", () => new ColorsPreferences());
 				_network = _properties.Get("NetworkPreferences", () => new NetworkPreferences());
-				_server = _properties.Get("ServerPreferences", () => new ServerPreferences());
+				_servers = _properties.Get("ServerPreferences", () => new ServerPreferences());
 				_sound = _properties.Get("SoundPreferences", () => new SoundsPreferences());
 				_user = _properties.Get("UserPreferences", () => new UserPreferences());
 				_window = _properties.Get("WindowPreferences", () => new WindowsPreferences());
+				_formatting = _properties.Get("FormattingPreferences", new FormattingPreferences());
 
 			}
 		}
@@ -81,9 +92,9 @@ namespace IrcSays.Services
 			get { return _network; }
 		}
 
-		public ServerPreferences Server
+		public ServerPreferences Servers
 		{
-			get { return _server; }
+			get { return _servers; }
 		}
 
 		public SoundsPreferences Sound
@@ -99,6 +110,11 @@ namespace IrcSays.Services
 		public WindowsPreferences Window
 		{
 			get { return _window; }
+		}
+
+		public FormattingPreferences Formatting
+		{
+			get { return _formatting; }
 		}
 	}
 }

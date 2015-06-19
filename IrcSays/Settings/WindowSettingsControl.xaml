@@ -7,7 +7,10 @@
              xmlns:config="clr-namespace:IrcSays.Configuration"
              xmlns:ircSays="clr-namespace:IrcSays"
              xmlns:local="clr-namespace:IrcSays.Application"
+             xmlns:models="clr-namespace:IrcSays.Preferences.Models"
              mc:Ignorable="d"
+			 d:DataContext="{d:DesignInstance Type=models:WindowsPreferences}"
+			 
              d:DesignHeight="300" d:DesignWidth="384">
 	<UserControl.Resources>
 		<ObjectDataProvider MethodName="GetValues" ObjectType="{x:Type sys:Enum}" x:Key="tabStripPositionValues">
