@@ -84,7 +84,6 @@
     <Compile Include="Preferences\Models\ChannelState.cs" />
     <Compile Include="Preferences\Models\ChatPalette.cs" />
     <Compile Include="Preferences\Models\ColorsPreferences.cs" />
-    <Compile Include="Preferences\Models\DccPreferences.cs" />
     <Compile Include="Preferences\Models\FormattingPreferences.cs" />
     <Compile Include="Preferences\Models\NetworkPreferences.cs" />
     <Compile Include="Preferences\Models\ServerPreferences.cs" />
@@ -93,7 +92,8 @@
     <Compile Include="Preferences\Models\UserPreferences.cs" />
     <Compile Include="Preferences\Models\WindowsPreferences.cs" />
     <Compile Include="Preferences\PreferenceBase.cs" />
-    <Compile Include="Preferences\PreferenceManager.cs" />
+    <Compile Include="Services\IPreferenceService.cs" />
+    <Compile Include="Services\PreferenceService.cs" />
     <Compile Include="Preferences\Properties.cs" />
     <Compile Include="Preferences\FileSystemPropertyService.cs" />
     <Compile Include="Preferences\PropertyService.cs" />

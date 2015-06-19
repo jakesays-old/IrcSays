@@ -202,8 +202,8 @@ namespace IrcSays.Preferences
 		///     Retrieves a single element from this Properties-container.
 		/// </summary>
 		/// <param name="key">Key of the item to retrieve</param>
-		/// <param name="defaultValue">Default value to be returned if the key is not present.</param>
-		public T Get<T>(string key, T defaultValue)
+		/// <param name="defaultFactory">Factory that creates the default value to be returned if the key is not present.</param>
+		public TValue Get<TValue>(string key, Func<TValue> defaultFactory)
 		{
 			lock (_syncRoot)
 			{
@@ -212,16 +212,25 @@ namespace IrcSays.Preferences
 				{
 					try
 					{
-						return (T) Deserialize(val, typeof (T));
+						return (TValue) Deserialize(val, typeof(TValue));
 					}
 					catch (SerializationException ex)
 					{
-//						LoggingService.Warn(ex);
-						return defaultValue;
+						return defaultFactory();
 					}
 				}
-				return defaultValue;
+				return defaultFactory();
 			}
+		}
+
+		/// <summary>
+		///     Retrieves a single element from this Properties-container.
+		/// </summary>
+		/// <param name="key">Key of the item to retrieve</param>
+		/// <param name="defaultValue">Default value to be returned if the key is not present.</param>
+		public TValue Get<TValue>(string key, TValue defaultValue)
+		{
+			return Get(key, () => defaultValue);
 		}
 
 		/// <summary>
@@ -229,10 +238,12 @@ namespace IrcSays.Preferences
 		///     The element will be serialized using a TypeConverter if possible, or XAML serializer otherwise.
 		/// </summary>
 		/// <remarks>Setting a key to <c>null</c> has the same effect as calling <see cref="Remove" />.</remarks>
-		public void Set<T>(string key, T value)
+		public TValue Set<TValue>(string key, TValue value)
 		{
-			var serializedValue = Serialize(value, typeof (T), key);
+			var serializedValue = Serialize(value, typeof (TValue), key);
 			SetSerializedValue(key, serializedValue);
+			
+			return value;
 		}
 
 		private void SetSerializedValue(string key, object serializedValue)

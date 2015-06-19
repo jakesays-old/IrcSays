@@ -16,6 +16,7 @@
 // OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
 // DEALINGS IN THE SOFTWARE.
 
+using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using IrcSays.Utility;
@@ -27,24 +28,28 @@ namespace IrcSays.Preferences
 	/// </summary>
 	public interface IPropertyService : INotifyPropertyChanged
 	{
+		bool IsNew { get; }
+
 		/// <summary>
 		/// Gets the main properties container for this property service.
 		/// </summary>
-		Properties MainPropertiesContainer { get; }
+		Properties RootContainer { get; }
 		
-		T Get<T>(string key, T defaultValue);
-		
+		TValue Get<TValue>(string key, TValue defaultValue);
+
+		TValue Get<TValue>(string key, Func<TValue> defaultFactory);
+
 		Properties NestedProperties(string key);
 		
 		void SetNestedProperties(string key, Properties nestedProperties);
 		
 		bool Contains(string key);
 		
-		void Set<T>(string key, T value);
+		TValue Set<TValue>(string key, TValue value);
 		
-		IReadOnlyList<T> GetList<T>(string key);
+		IReadOnlyList<TValue> GetList<TValue>(string key);
 		
-		void SetList<T>(string key, IEnumerable<T> value);
+		void SetList<TValue>(string key, IEnumerable<TValue> value);
 		
 		void Remove(string key);
 		

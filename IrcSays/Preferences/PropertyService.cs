@@ -25,18 +25,13 @@ namespace IrcSays.Preferences
 {
 	public abstract class PropertyService : IPropertyService
 	{
-		private readonly Properties _properties;
+		private Properties _properties;
 
-		/// <summary>
-		///     Initializes the service for unit-testing (reset properties to an empty property container).
-		///     Use <c>SD.InitializeForUnitTests()</c> instead, that initializes the property service and more.
-		/// </summary>
 		protected PropertyService()
 		{
-			_properties = new Properties();
 		}
 
-		protected PropertyService(Properties properties)
+		protected void Initialize(Properties properties)
 		{
 			if (properties == null)
 			{
@@ -45,49 +40,46 @@ namespace IrcSays.Preferences
 			_properties = properties;
 		}
 
-		/// <inheritdoc cref="Properties.Get{T}(string, T)" />
-		public T Get<T>(string key, T defaultValue)
+		public TValue Get<TValue>(string key, TValue defaultValue)
 		{
 			return _properties.Get(key, defaultValue);
 		}
 
-		/// <inheritdoc cref="Properties.NestedProperties" />
+		public TValue Get<TValue>(string key, Func<TValue> defaultFactory)
+		{
+			return _properties.Get(key, defaultFactory);
+		}
+
 		public Properties NestedProperties(string key)
 		{
 			return _properties.NestedProperties(key);
 		}
 
-		/// <inheritdoc cref="Properties.SetNestedProperties" />
 		public void SetNestedProperties(string key, Properties nestedProperties)
 		{
 			_properties.SetNestedProperties(key, nestedProperties);
 		}
 
-		/// <inheritdoc cref="Properties.Contains" />
 		public bool Contains(string key)
 		{
 			return _properties.Contains(key);
 		}
 
-		/// <inheritdoc cref="Properties.Set{T}(string, T)" />
-		public void Set<T>(string key, T value)
+		public T Set<T>(string key, T value)
 		{
-			_properties.Set(key, value);
+			return _properties.Set(key, value);
 		}
 
-		/// <inheritdoc cref="Properties.GetList" />
 		public IReadOnlyList<T> GetList<T>(string key)
 		{
 			return _properties.GetList<T>(key);
 		}
 
-		/// <inheritdoc cref="Properties.SetList" />
 		public void SetList<T>(string key, IEnumerable<T> value)
 		{
 			_properties.SetList(key, value);
 		}
 
-		/// <inheritdoc cref="Properties.Remove" />
 		public void Remove(string key)
 		{
 			_properties.Remove(key);
@@ -99,7 +91,9 @@ namespace IrcSays.Preferences
 			remove { _properties.PropertyChanged -= value; }
 		}
 
-		public Properties MainPropertiesContainer
+		public abstract bool IsNew { get; }
+
+		public Properties RootContainer
 		{
 			get { return _properties; }
 		}

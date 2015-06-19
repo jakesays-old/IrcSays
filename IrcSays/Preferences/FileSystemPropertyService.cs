@@ -31,11 +31,17 @@ namespace IrcSays.Preferences
 		private readonly FileName _propertiesFileName;
 
 		public FileSystemPropertyService(DirectoryName configDirectory, DirectoryName dataDirectory, string propertiesName)
-			: base(LoadPropertiesFromStream(configDirectory.CombineFile(propertiesName + ".xml")))
 		{
 			_dataDirectory = dataDirectory;
 			_configDirectory = configDirectory;
 			_propertiesFileName = configDirectory.CombineFile(propertiesName + ".xml");
+
+			Initialize(LoadPropertiesFromStream(_propertiesFileName));
+		}
+
+		public override bool IsNew
+		{
+			get { return !File.Exists(_propertiesFileName); }
 		}
 
 		public DirectoryName ConfigDirectory
@@ -76,7 +82,7 @@ namespace IrcSays.Preferences
 		{
 			using (LockPropertyFile())
 			{
-				MainPropertiesContainer.Save(_propertiesFileName);
+				RootContainer.Save(_propertiesFileName);
 			}
 		}
 
