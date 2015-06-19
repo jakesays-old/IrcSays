@@ -34,11 +34,7 @@ namespace IrcSays.Ui
 		private Timer _delayTimer;
 
 		public ChatControl(ChatPageType type, IrcSession session, IrcTarget target)
-			: base(type, session, target, type == ChatPageType.Server
-				? "server"
-				: (type == ChatPageType.DccChat
-					? "dcc-chat"
-					: string.Format("{0}.{1}", session.NetworkName, target.Name).ToLowerInvariant()))
+			: base(type, session, target, CreateId(type, session, target))
 		{
 			_history = new LinkedList<string>();
 			_nickList = new NicknameList();
@@ -46,11 +42,7 @@ namespace IrcSays.Ui
 			InitializeComponent();
 
 			var state = App.Settings.Current.Windows.States[Id];
-			if (Type == ChatPageType.DccChat)
-			{
-				Header = string.Format("[CHAT] {0}", Target.Name);
-			}
-			else if (Type == ChatPageType.Chat ||
+			if (Type == ChatPageType.Chat ||
 					Type == ChatPageType.Server)
 			{
 				Header = Target == null ? "Server" : Target.ToString();
@@ -127,6 +119,13 @@ namespace IrcSays.Ui
 			Unloaded += ChatControl_Unloaded;
 			PrepareContextMenus();
 			boxOutput.ContextMenu = GetDefaultContextMenu();
+		}
+
+		private static string CreateId(ChatPageType type, IrcSession session, IrcTarget target)
+		{
+			return type == ChatPageType.Server
+				? "server"
+				: string.Format("{0}.{1}", session.NetworkName, target.Name).ToLowerInvariant();
 		}
 
 		public bool IsChannel
@@ -208,7 +207,7 @@ namespace IrcSays.Ui
 
 			if (VisualParent == null)
 			{
-				if (IsNickname || Type == ChatPageType.DccChat)
+				if (IsNickname)
 				{
 					// Activity in PM window
 					NotifyState = NotifyState.Alert;
@@ -262,18 +261,14 @@ namespace IrcSays.Ui
 
 			switch (Type)
 			{
-				case ChatPageType.DccChat:
-					Title = string.Format("{0} - {1} - DCC chat with {2}", App.Product, Session.Nickname, Target.Name);
-					break;
-
 				case ChatPageType.Server:
 					if (Session.State == IrcSessionState.Disconnected)
 					{
-						Title = string.Format("{0} - Not Connected", App.Product);
+						Title = string.Format("{0} - Not Connected", AppInfo.Product);
 					}
 					else
 					{
-						Title = string.Format("{0} - {1} ({2}) on {3}", App.Product, Session.Nickname,
+						Title = string.Format("{0} - {1} ({2}) on {3}", AppInfo.Product, Session.Nickname,
 							userModes, Session.NetworkName);
 					}
 					break;
@@ -281,12 +276,12 @@ namespace IrcSays.Ui
 				default:
 					if (Target.IsChannel)
 					{
-						Title = string.Format("{0} - {1} ({2}) on {3} - {4} ({5}) - {6}", App.Product, Session.Nickname,
+						Title = string.Format("{0} - {1} ({2}) on {3} - {4} ({5}) - {6}", AppInfo.Product, Session.Nickname,
 							userModes, Session.NetworkName, Target, channelModes, _topic);
 					}
 					else
 					{
-						Title = string.Format("{0} - {1} ({2}) on {3} - {4}", App.Product, Session.Nickname,
+						Title = string.Format("{0} - {1} ({2}) on {3} - {4}", AppInfo.Product, Session.Nickname,
 							userModes, Session.NetworkName, _prefix);
 					}
 					break;
@@ -331,20 +326,11 @@ namespace IrcSays.Ui
 			var state = App.Settings.Current.Windows.States[Id];
 			state.ColumnWidth = boxOutput.ColumnWidth;
 
-			if (Type == ChatPageType.DccChat &&
-				_dcc != null)
+			if (IsChannel)
 			{
-				_dcc.Dispose();
-				DeletePortForwarding();
+				state.NickListWidth = colNickList.ActualWidth;
 			}
-			else
-			{
-				if (IsChannel)
-				{
-					state.NickListWidth = colNickList.ActualWidth;
-				}
-				UnsubscribeEvents();
-			}
+			UnsubscribeEvents();
 		}
 
 		private void DoPerform(int startIndex)

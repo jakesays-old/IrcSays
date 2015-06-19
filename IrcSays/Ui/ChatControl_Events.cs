@@ -602,10 +602,6 @@ namespace IrcSays.Ui
 				}
 				else
 				{
-					if (Type == ChatPageType.DccChat)
-					{
-						return;
-					}
 					SelectedLink = GetNickWithoutLevel(SelectedLink);
 					boxOutput.ContextMenu = Resources["cmNickname"] as ContextMenu;
 				}

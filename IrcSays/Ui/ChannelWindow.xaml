@@ -7,7 +7,7 @@
 		xmlns:ui="clr-namespace:IrcSays.Ui"
 		Title="{Binding ElementName=grdRoot, Path=Children[2].Title}" Height="399" Width="722"
         MinWidth="300"  MinHeight="205" WindowStyle="None" ResizeMode="CanResize" AllowsTransparency="True"
-		Background="Transparent" Icon="{Binding Source={x:Static local:App.ApplicationImage}}" x:Name="window">
+		Background="Transparent" Icon="/IrcSays;component/Resources/App.ico" x:Name="window">
 	<Window.CommandBindings>
 		<CommandBinding Command="ui:ChatWindow.ChatCommand" Executed="ExecuteChat"/>
 		<CommandBinding Command="ui:ChatWindow.SettingsCommand" Executed="ExecuteSettings"/>

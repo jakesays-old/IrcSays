@@ -76,7 +76,7 @@
     <Compile Include="Application\App_Ignore.cs" />
     <Compile Include="Application\App_Interface.cs" />
     <Compile Include="Application\App_Patterns.cs" />
-    <Compile Include="Application\App_Resources.cs" />
+    <Compile Include="Application\AppInfo.cs" />
     <Compile Include="Application\IgnoreActions.cs" />
     <Compile Include="Communication\Irc\IrcCommands.cs" />
     <Compile Include="Preferences\IPropertyService.cs" />
@@ -149,7 +149,6 @@
       <DependentUpon>ChatControl.xaml</DependentUpon>
     </Compile>
     <Compile Include="Ui\ChatControl_Commands.cs" />
-    <Compile Include="Ui\ChatControl_Dcc.cs" />
     <Compile Include="Ui\ChatControl_Events.cs" />
     <Compile Include="Ui\ChatControl_NickList.cs" />
     <Compile Include="Ui\NicknameItem.cs" />
@@ -159,7 +158,6 @@
     <Compile Include="Ui\ChatPageType.cs" />
     <Compile Include="Ui\ChatTabItem.cs" />
     <Compile Include="Ui\ChatWindow_Commands.cs" />
-    <Compile Include="Ui\ChatWindow_Dcc.cs" />
     <Compile Include="Ui\ChatWindow_Events.cs" />
     <Compile Include="Ui\ChatWindow.xaml.cs">
       <DependentUpon>ChatWindow.xaml</DependentUpon>
@@ -224,12 +222,6 @@
     <Compile Include="Ui\ConfirmDialog.xaml.cs">
       <DependentUpon>ConfirmDialog.xaml</DependentUpon>
     </Compile>
-    <Compile Include="FileControl\DccMethod.cs" />
-    <Compile Include="FileControl\FileStatus.cs" />
-    <Compile Include="FileControl\FileControl.xaml.cs">
-      <DependentUpon>FileControl.xaml</DependentUpon>
-    </Compile>
-    <Compile Include="FileControl\FileControl_Properties.cs" />
     <Compile Include="HsvColor.cs" />
     <Compile Include="Interop\NotifyIcon.cs" />
     <Compile Include="Interop\WindowFlags.cs" />
@@ -248,9 +240,6 @@
     </Compile>
     <Compile Include="Settings\SoundSettingsControl.xaml.cs">
       <DependentUpon>SoundSettingsControl.xaml</DependentUpon>
-    </Compile>
-    <Compile Include="Settings\DccSettingsControl.xaml.cs">
-      <DependentUpon>DccSettingsControl.xaml</DependentUpon>
     </Compile>
     <Compile Include="Settings\WindowSettingsControl.xaml.cs">
       <DependentUpon>WindowSettingsControl.xaml</DependentUpon>
@@ -290,10 +279,6 @@
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
-    <Page Include="FileControl\FileControl.xaml">
-      <SubType>Designer</SubType>
-      <Generator>MSBuild:Compile</Generator>
-    </Page>
     <Page Include="Ui\ListControl.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
@@ -313,10 +298,6 @@
     <Page Include="Settings\SoundSettingsControl.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
-    </Page>
-    <Page Include="Settings\DccSettingsControl.xaml">
-      <SubType>Designer</SubType>
-      <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="Settings\WindowSettingsControl.xaml">
       <Generator>MSBuild:Compile</Generator>
@@ -378,7 +359,7 @@
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
-    <EmbeddedResource Include="Resources\App.ico" />
+    <Resource Include="Resources\App.ico" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

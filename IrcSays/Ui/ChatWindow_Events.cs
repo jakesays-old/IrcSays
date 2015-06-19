@@ -87,8 +87,8 @@ namespace IrcSays.Ui
 					case "VERSION":
 						session.SendCtcp(new IrcTarget(e.From), new CtcpCommand(
 							"VERSION",
-							App.Product,
-							App.Version), true);
+							AppInfo.Product,
+							AppInfo.Version), true);
 						break;
 					case "PING":
 						session.SendCtcp(new IrcTarget(e.From), new CtcpCommand(
@@ -102,7 +102,8 @@ namespace IrcSays.Ui
 						break;
 					case "DCC":
 						var args = e.Command.Arguments;
-						e.Handled = HandleDcc(session, new IrcTarget(e.From), args);
+						e.Handled = true;
+							//HandleDcc(session, new IrcTarget(e.From), args);
 						break;
 				}
 			}

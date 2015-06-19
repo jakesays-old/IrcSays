@@ -4,8 +4,6 @@ namespace IrcSays.Ui
 	{
 		Server,
 		Chat,
-		DccFile,
-		DccChat,
 		ChannelList
 	}
 }
