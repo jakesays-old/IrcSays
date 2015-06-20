@@ -70,14 +70,14 @@
 			<ListBoxItem Content="Network"/>
 		</ListBox>
 		<Grid Name="grdSettings" DockPanel.Dock="Right" Background="#FFEEEEEE">
-			<settings:UserSettingsControl DataContext="{Binding User}" Visibility="Collapsed"/>
-			<settings:ServerSettingsControl DataContext="{Binding Servers}" Visibility="Collapsed"/>
-			<settings:FormattingSettingsControl DataContext="{Binding Formatting}" Visibility="Collapsed" />
-			<settings:ColorsSettingsControl DataContext="{Binding Color}" Visibility="Collapsed"/>
-			<settings:BufferSettingsControl DataContext="{Binding Buffer}" Visibility="Collapsed"/>
-			<settings:WindowSettingsControl DataContext="{Binding Window}" Visibility="Collapsed"/>
-			<settings:SoundSettingsControl DataContext="{Binding Sound}" Visibility="Collapsed"/>
-			<settings:NetworkSettingsControl DataContext="{Binding Network}" Visibility="Collapsed"/>
+			<settings:UserSettingsControl		DataContext="{Binding User}" Visibility="Collapsed"/>
+			<settings:ServerSettingsControl		DataContext="{Binding Servers}" Visibility="Collapsed"/>
+			<settings:FormattingSettingsControl DataContext="{Binding Formatting}" Visibility="Collapsed"/>
+			<settings:ColorsSettingsControl		DataContext="{Binding Color}" Visibility="Collapsed"/>
+			<settings:BufferSettingsControl		DataContext="{Binding Buffer}" Visibility="Collapsed"/>
+			<settings:WindowSettingsControl		DataContext="{Binding Window}" Visibility="Collapsed"/>
+			<settings:SoundSettingsControl		DataContext="{Binding Sound}" Visibility="Collapsed"/>
+			<settings:NetworkSettingsControl	DataContext="{Binding Network}" Visibility="Collapsed"/>
 		</Grid>
 	</DockPanel>
 </Window>
