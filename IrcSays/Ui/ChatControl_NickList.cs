@@ -176,7 +176,22 @@ namespace IrcSays.Ui
 				{
 					nextNick += ": ";
 				}
-				txtInput.Text = input.Substring(0, _currentNickStart) + nextNick + input.Substring(_currentNickEnd);
+
+				var prefixText = "";
+				var suffixText = "";
+				if (input != null)
+				{
+					if (input.Length > _currentNickStart)
+					{
+						prefixText = input.Substring(0, _currentNickStart);
+					}
+					if (input.Length > _currentNickEnd)
+					{
+						suffixText = input.Substring(_currentNickEnd);
+					}
+				}
+
+				txtInput.Text = prefixText + nextNick + suffixText;
 				txtInput.CaretIndex = _currentNickStart + nextNick.Length;
 				_currentNickEnd = _currentNickStart + nextNick.Length;
 			}
