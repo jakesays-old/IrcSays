@@ -292,13 +292,26 @@ namespace IrcSays.Ui
 					chars[i] = (char) (chars[i] - 0x2500);
 				}
 			}
-			text = new string(chars);
+			text = new string(chars).Trim();
 
-			var command = text.Trim();
+			var command = text;
 
-			if (command.Length > 0 &&
-				command[0] == CommandChar &&
-				!literal)
+			var isCommand = false;
+			if (command.Length > 0)
+			{
+				if (command.Length >= 2 &&
+					command.StartsWith("//"))
+				{
+					text = text.Substring(1);
+				}
+				else if (command[0] == CommandChar &&
+					!literal)
+				{
+					isCommand = true;
+				}
+			}
+
+			if (isCommand)
 			{
 				var args = string.Empty;
 				command = command.Substring(1).TrimStart();
@@ -322,7 +335,7 @@ namespace IrcSays.Ui
 			}
 			else
 			{
-				if (text.Trim().Length > 0 && IsConnected)
+				if (text.Length > 0 && IsConnected)
 				{
 					if (Type == ChatPageType.Chat)
 					{
