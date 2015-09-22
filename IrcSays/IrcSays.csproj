@@ -100,6 +100,7 @@
     <Compile Include="Services\ISoundService.cs" />
     <Compile Include="Services\ServiceManager.cs" />
     <Compile Include="Services\SoundService.cs" />
+    <Compile Include="Ui\DelegateCommand.cs" />
     <Compile Include="Utility\DirectoryName.cs" />
     <Compile Include="Utility\DirectoryNameConverter.cs" />
     <Compile Include="Utility\FileErrorPolicy.cs" />

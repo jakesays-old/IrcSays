@@ -14,8 +14,6 @@ namespace IrcSays.Ui
 {
 	public partial class ChatControl : ChatPage
 	{
-		#region Nested types
-
 		private class CommandException : Exception
 		{
 			public CommandException(string message)
@@ -23,8 +21,6 @@ namespace IrcSays.Ui
 			{
 			}
 		}
-
-		#endregion
 
 		private const double MinNickListWidth = 50.0;
 
@@ -66,7 +62,7 @@ namespace IrcSays.Ui
 					colNickList.MinWidth = MinNickListWidth;
 					colNickList.Width = new GridLength(state.NickListWidth);
 
-					Write("Join", string.Format("Now talking on {0}", Target.Name));
+					Write("Join", $"Now talking on {Target.Name}");
 					Session.AddHandler(new IrcCodeHandler(e =>
 					{
 						if (e.Message.Parameters.Count > 2 &&
@@ -125,18 +121,12 @@ namespace IrcSays.Ui
 		{
 			return type == ChatPageType.Server
 				? "server"
-				: string.Format("{0}.{1}", session.NetworkName, target.Name).ToLowerInvariant();
+				: $"{session.NetworkName}.{target.Name}".ToLowerInvariant();
 		}
 
-		public bool IsChannel
-		{
-			get { return Type == ChatPageType.Chat && Target.IsChannel; }
-		}
+		public bool IsChannel => Type == ChatPageType.Chat && Target.IsChannel;
 
-		public bool IsNickname
-		{
-			get { return Type == ChatPageType.Chat && !Target.IsChannel; }
-		}
+		public bool IsNickname => Type == ChatPageType.Chat && !Target.IsChannel;
 
 		public string Perform { get; set; }
 
@@ -230,7 +220,7 @@ namespace IrcSays.Ui
 
 		private void Write(string styleKey, IrcPeer peer, string text, bool attn)
 		{
-			Write(styleKey, string.Format("{0}@{1}", peer.Username, peer.Hostname).GetHashCode(),
+			Write(styleKey, $"{peer.Username}@{peer.Hostname}".GetHashCode(),
 				GetNickWithLevel(peer.Nickname), text, attn);
 			if (!boxOutput.IsAutoScrolling)
 			{
@@ -253,10 +243,10 @@ namespace IrcSays.Ui
 		private void SetTitle()
 		{
 			var userModes = Session.UserModes.Length > 0
-				? string.Format("+{0}", string.Join("", (from c in Session.UserModes select c.ToString()).ToArray()))
+				? $"+{string.Join("", (from c in Session.UserModes select c.ToString()).ToArray())}"
 				: "";
 			var channelModes = _channelModes.Length > 0
-				? string.Format("+{0}", string.Join("", (from c in _channelModes select c.ToString()).ToArray()))
+				? $"+{string.Join("", (from c in _channelModes select c.ToString()).ToArray())}"
 				: "";
 
 			switch (Type)
@@ -264,25 +254,23 @@ namespace IrcSays.Ui
 				case ChatPageType.Server:
 					if (Session.State == IrcSessionState.Disconnected)
 					{
-						Title = string.Format("{0} - Not Connected", AppInfo.Product);
+						Title = $"{AppInfo.Product} - Not Connected";
 					}
 					else
 					{
-						Title = string.Format("{0} - {1} ({2}) on {3}", AppInfo.Product, Session.Nickname,
-							userModes, Session.NetworkName);
+						Title = $"{AppInfo.Product} - {Session.Nickname} ({userModes}) on {Session.NetworkName}";
 					}
 					break;
 
 				default:
 					if (Target.IsChannel)
 					{
-						Title = string.Format("{0} - {1} ({2}) on {3} - {4} ({5}) - {6}", AppInfo.Product, Session.Nickname,
-							userModes, Session.NetworkName, Target, channelModes, _topic);
+						Title =
+							$"{AppInfo.Product} - {Session.Nickname} ({userModes}) on {Session.NetworkName} - {Target} ({channelModes}) - {_topic}";
 					}
 					else
 					{
-						Title = string.Format("{0} - {1} ({2}) on {3} - {4}", AppInfo.Product, Session.Nickname,
-							userModes, Session.NetworkName, _prefix);
+						Title = $"{AppInfo.Product} - {Session.Nickname} ({userModes}) on {Session.NetworkName} - {_prefix}";
 					}
 					break;
 			}

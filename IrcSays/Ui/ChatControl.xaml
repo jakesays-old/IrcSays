@@ -123,6 +123,8 @@
 			</Setter>
 		</Style>
 		<ContextMenu x:Key="cmInputBox">
+            <MenuItem Header="(No Suggestions)" IsEnabled="False"/>
+            <Separator/>
 			<MenuItem Command="ApplicationCommands.Cut"/>
 			<MenuItem Command="ApplicationCommands.Copy"/>
 			<MenuItem Command="ApplicationCommands.Paste"/>
@@ -201,7 +203,10 @@
 				 FontStyle="{Binding Source={x:Static local:App.Settings}, Path=Current.Formatting.FontStyle, Mode=OneWay}"
 				 FontWeight="{Binding Source={x:Static local:App.Settings}, Path=Current.Formatting.FontWeight, Mode=OneWay}"
 				 Padding="1,2,2,2" Margin="0" BorderThickness="0" Height="Auto" TextWrapping="Wrap" MaxLength="512"
-					 ContextMenu="{StaticResource cmInputBox}">
+					 ContextMenu="{StaticResource cmInputBox}"
+                     SpellCheck.IsEnabled="True"
+                     ContextMenuOpening="OnTxtInputContextMenuOpening"
+                     >
 				<TextBox.Background>
 					<MultiBinding Converter="{StaticResource opacityConverter}">
 						<Binding Source="{StaticResource editBG}"/>

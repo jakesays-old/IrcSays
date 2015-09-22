@@ -2,6 +2,8 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text.RegularExpressions;
+using System.Windows.Controls;
+using System.Windows.Documents;
 
 namespace IrcSays.Ui
 {
@@ -194,6 +196,37 @@ namespace IrcSays.Ui
 				txtInput.Text = prefixText + nextNick + suffixText;
 				txtInput.CaretIndex = _currentNickStart + nextNick.Length;
 				_currentNickEnd = _currentNickStart + nextNick.Length;
+			}
+		}
+
+		private void OnTxtInputContextMenuOpening(object sender, ContextMenuEventArgs e)
+		{
+			var charIndex = txtInput.CaretIndex;
+			var spellingMenu = (MenuItem) txtInput.ContextMenu.Items[0];
+			spellingMenu.Items.Clear();
+
+			var error = txtInput.GetSpellingError(charIndex);
+			if (error != null &&
+				error.Suggestions.Any())
+			{
+				spellingMenu.Header = "Suggestions";
+				spellingMenu.IsEnabled = true;
+
+				foreach (var suggestion in error.Suggestions)
+				{
+					spellingMenu.Items.Add(new MenuItem
+					{
+						Header = suggestion,
+						Command = EditingCommands.CorrectSpellingError,
+						CommandParameter = suggestion,
+						CommandTarget = txtInput
+					});
+				}
+			}
+			else
+			{
+				spellingMenu.Header = "(No Suggestions)";
+				spellingMenu.IsEnabled = false;
 			}
 		}
 	}
