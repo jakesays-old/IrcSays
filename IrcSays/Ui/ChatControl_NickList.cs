@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text.RegularExpressions;
+using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Documents;
 
@@ -211,17 +212,31 @@ namespace IrcSays.Ui
 			{
 				spellingMenu.Header = "Suggestions";
 				spellingMenu.IsEnabled = true;
-
+				var first = true;
 				foreach (var suggestion in error.Suggestions)
 				{
-					spellingMenu.Items.Add(new MenuItem
+					var item = new MenuItem
 					{
 						Header = suggestion,
 						Command = EditingCommands.CorrectSpellingError,
 						CommandParameter = suggestion,
 						CommandTarget = txtInput
-					});
+					};
+					if (first)
+					{
+						first = false;
+						item.FontWeight = FontWeights.Bold;
+					}
+					spellingMenu.Items.Add(item);
 				}
+				spellingMenu.Items.Add(new Separator());
+				spellingMenu.Items.Add(new MenuItem
+				{
+					Header = "Ignore All",
+					Command = EditingCommands.IgnoreSpellingError,
+					CommandTarget = txtInput,
+					FontWeight = FontWeights.Bold
+				});
 			}
 			else
 			{
