@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Linq;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Controls.Primitives;
@@ -67,6 +68,16 @@ namespace IrcSays.Ui
 			}
 
 			base.OnPropertyChanged(e);
+		}
+
+		public void PurgeMessages(string nick)
+		{
+			foreach (var block in _blocks.Where(b => b.NickText == nick).ToArray())
+			{
+				_blocks.Remove(block);
+			}
+
+			InvalidateAll(false);
 		}
 	}
 }

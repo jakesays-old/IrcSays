@@ -45,5 +45,8 @@
 		public const string Chat = "CHAT";
 		public const string Send = "SEND";
 		public const string Xmit = "XMIT";
+
+		//unofficial commands
+		public const string PurgeMessages = "PURGE";
 	}
 }
