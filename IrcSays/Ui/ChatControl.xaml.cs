@@ -29,6 +29,12 @@ namespace IrcSays.Ui
 		private ChatLine _markerLine;
 		private Timer _delayTimer;
 
+		public void ReConnect(IrcTarget target)
+		{
+			Target = target;
+			Id = CreateId(Type, Session, target);
+		}
+
 		public ChatControl(ChatPageType type, IrcSession session, IrcTarget target)
 			: base(type, session, target, CreateId(type, session, target))
 		{
@@ -41,7 +47,7 @@ namespace IrcSays.Ui
 			if (Type == ChatPageType.Chat ||
 					Type == ChatPageType.Server)
 			{
-				Header = Target == null ? "Server" : Target.ToString();
+				Header = Target?.ToString() ?? "Server";
 				SubscribeEvents();
 
 				//if (!IsServer)
@@ -117,7 +123,7 @@ namespace IrcSays.Ui
 			boxOutput.ContextMenu = GetDefaultContextMenu();
 		}
 
-		private static string CreateId(ChatPageType type, IrcSession session, IrcTarget target)
+		public static string CreateId(ChatPageType type, IrcSession session, IrcTarget target)
 		{
 			return type == ChatPageType.Server
 				? "server"

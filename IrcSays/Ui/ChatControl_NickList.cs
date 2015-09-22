@@ -5,12 +5,13 @@ using System.Text.RegularExpressions;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Documents;
+using IrcSays.Utility;
 
 namespace IrcSays.Ui
 {
 	public partial class ChatControl : ChatPage
 	{
-		private string[] _nickCandidates;
+		private List<string> _nickCandidates;
 		private readonly NicknameList _nickList;
 		private readonly List<string> _mostRecentTalkers = new List<string>();
 		private readonly LinkedList<string> _mostRecentlyReferenced = new LinkedList<string>();
@@ -56,11 +57,10 @@ namespace IrcSays.Ui
 		private bool CycleThroughNickCandidates()
 		{
 			if (_tabKeyCount > 1 &&
-				_nickCandidates != null &&
-				_nickCandidates.Length > 0)
+				_nickCandidates.NotNullOrEmpty())
 			{
 				_nickListPosition += 1;
-				if (_nickListPosition >= _nickCandidates.Length)
+				if (_nickListPosition >= _nickCandidates.Count)
 				{
 					_nickListPosition = 0;
 				}
@@ -82,6 +82,13 @@ namespace IrcSays.Ui
 				Nick = nick;
 				Match = match;
 			}
+		}
+
+		private void RemoveNickCandidate(string nick)
+		{
+			_mostRecentTalkers?.Remove(nick);
+			_nickCandidates?.Remove(nick);
+			_mostRecentlyReferenced?.Remove(nick);
 		}
 
 		private void DoNickCompletion()
@@ -136,9 +143,9 @@ namespace IrcSays.Ui
 						)
 						.Select(m => m.Nick)
 						.Distinct()
-						.ToArray();
+						.ToList();
 
-					if (_nickCandidates.Length > 0)
+					if (_nickCandidates.NotNullOrEmpty())
 					{
 						nextNick = _nickCandidates[0];
 					}
@@ -148,7 +155,7 @@ namespace IrcSays.Ui
 					}
 				}
 
-				for (var i = 0; i < _nickCandidates.Length; i++)
+				for (var i = 0; i < _nickCandidates.Count; i++)
 				{
 					if (string.Compare(_nickCandidates[i], nickPart, StringComparison.InvariantCulture) == 0)
 					{
@@ -162,7 +169,7 @@ namespace IrcSays.Ui
 			}
 			else if (_mostRecentlyReferenced.Count > 0)
 			{
-				_nickCandidates = _mostRecentlyReferenced.ToArray();
+				_nickCandidates = _mostRecentlyReferenced.ToList();
 				InsertNick(_nickCandidates[0], "");
 			}
 		}

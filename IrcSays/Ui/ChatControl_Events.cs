@@ -37,8 +37,7 @@ namespace IrcSays.Ui
 					case IrcSessionState.Connecting:
 						_usingAlternateNick = false;
 						Header = Session.NetworkName;
-						Write("Client", string.Format(
-							"Connecting to {0}:{1}", Session.Server, Session.Port));
+						Write("Client", $"Connecting to {Session.Server}:{Session.Port}");
 						break;
 					case IrcSessionState.Connected:
 						Header = Session.NetworkName;
@@ -100,7 +99,7 @@ namespace IrcSays.Ui
 						attn = true;
 						if (_window != null)
 						{
-							App.Alert(_window, string.Format("You received an alert from {0}", Target.Name));
+							App.Alert(_window, $"You received an alert from {Target.Name}");
 						}
 						if (VisualParent == null)
 						{
@@ -154,8 +153,8 @@ namespace IrcSays.Ui
 			{
 				Write("Kick",
 					e.Kicker == null
-						? string.Format("{0} has been kicked ({1}", e.KickeeNickname, e.Text)
-						: string.Format("{0} has been kicked by {1} ({2})", e.KickeeNickname, e.Kicker.Nickname, e.Text));
+						? $"{e.KickeeNickname} has been kicked ({e.Text}"
+						: $"{e.KickeeNickname} has been kicked by {e.Kicker.Nickname} ({e.Text})");
 				_nickList.Remove(e.KickeeNickname);
 			}
 		}
@@ -164,8 +163,7 @@ namespace IrcSays.Ui
 		{
 			if (IsServer)
 			{
-				Write("Kick", string.Format("You have been kicked from {0} by {1} ({2})",
-					e.Channel, e.Kicker.Nickname, e.Text));
+				Write("Kick", $"You have been kicked from {e.Channel} by {e.Kicker.Nickname} ({e.Text})");
 			}
 		}
 
@@ -194,7 +192,7 @@ namespace IrcSays.Ui
 					{
 						_topic = e.Message.Parameters[2];
 						SetTitle();
-						Write("Topic", string.Format("Topic is: {0}", _topic));
+						Write("Topic", $"Topic is: {_topic}");
 					}
 					return;
 				case IrcCode.RplTopicSetBy:
@@ -202,8 +200,7 @@ namespace IrcSays.Ui
 						!IsServer &&
 						Target.Equals(new IrcTarget(e.Message.Parameters[1])))
 					{
-						Write("Topic", string.Format("Topic set by {0} on {1}", e.Message.Parameters[2],
-							FormatTime(e.Message.Parameters[3])));
+						Write("Topic", $"Topic set by {e.Message.Parameters[2]} on {FormatTime(e.Message.Parameters[3])}");
 					}
 					return;
 				case IrcCode.RplChannelCreatedOn:
@@ -243,17 +240,15 @@ namespace IrcSays.Ui
 				case IrcCode.RplWhoisIdle:
 					if (e.Message.Parameters.Count == 5 && IsDefault)
 					{
-						Write("ServerInfo", string.Format("{0} has been idle {1}, signed on {2}",
-							e.Message.Parameters[1], FormatTimeSpan(e.Message.Parameters[2]),
-							FormatTime(e.Message.Parameters[3])));
+						Write("ServerInfo",
+							$"{e.Message.Parameters[1]} has been idle {FormatTimeSpan(e.Message.Parameters[2])}, signed on {FormatTime(e.Message.Parameters[3])}");
 						return;
 					}
 					break;
 				case IrcCode.RplInviting:
 					if (e.Message.Parameters.Count == 3 && IsDefault)
 					{
-						Write("ServerInfo", string.Format("Invited {0} to channel {1}",
-							e.Message.Parameters[1], e.Message.Parameters[2]));
+						Write("ServerInfo", $"Invited {e.Message.Parameters[1]} to channel {e.Message.Parameters[2]}");
 						return;
 					}
 					break;
@@ -328,8 +323,8 @@ namespace IrcSays.Ui
 					e.Command.Command != "ACTION" &&
 					e.From != null)
 			{
-				Write("Ctcp", e.From, string.Format("[CTCP {0}] {1}", e.Command.Command,
-					e.Command.Arguments.Length > 0 ? string.Join(" ", e.Command.Arguments) : ""), false);
+				Write("Ctcp", e.From,
+					$"[CTCP {e.Command.Command}] {(e.Command.Arguments.Length > 0 ? string.Join(" ", e.Command.Arguments) : "")}", false);
 			}
 		}
 
@@ -342,8 +337,7 @@ namespace IrcSays.Ui
 			{
 				if (!isIgnored)
 				{
-					Write("Join", string.Format("{0} ({1}@{2}) has joined channel {3}",
-						e.Who.Nickname, e.Who.Username, e.Who.Hostname, Target.ToString()));
+					Write("Join", $"{e.Who.Nickname} ({e.Who.Username}@{e.Who.Hostname}) has joined channel {Target.ToString()}");
 				}
 				_nickList.Add(e.Who.Nickname);
 			}
@@ -358,10 +352,10 @@ namespace IrcSays.Ui
 			{
 				if (!isIgnored)
 				{
-					Write("Part", string.Format("{0} ({1}@{2}) has left channel {3}",
-						e.Who.Nickname, e.Who.Username, e.Who.Hostname, Target.ToString()));
+					Write("Part", $"{e.Who.Nickname} ({e.Who.Username}@{e.Who.Hostname}) has left channel {Target.ToString()}");
 				}
 				_nickList.Remove(e.Who.Nickname);
+				RemoveNickCandidate(e.Who.Nickname);
 			}
 		}
 
@@ -373,7 +367,7 @@ namespace IrcSays.Ui
 			{
 				if (!isIgnored)
 				{
-					Write("Nick", string.Format("{0} is now known as {1}", e.OldNickname, e.NewNickname));
+					Write("Nick", $"{e.OldNickname} is now known as {e.NewNickname}");
 				}
 				_nickList.ChangeNick(e.OldNickname, e.NewNickname);
 			}
@@ -383,7 +377,7 @@ namespace IrcSays.Ui
 		{
 			if (IsServer || IsChannel)
 			{
-				Write("Nick", string.Format("You are now known as {0}", e.NewNickname));
+				Write("Nick", $"You are now known as {e.NewNickname}");
 			}
 			SetTitle();
 
@@ -398,7 +392,7 @@ namespace IrcSays.Ui
 			if (!IsServer &&
 				Target.Equals(e.Channel))
 			{
-				Write("Topic", string.Format("{0} changed topic to: {1}", e.Who.Nickname, e.Text));
+				Write("Topic", $"{e.Who.Nickname} changed topic to: {e.Text}");
 				_topic = e.Text;
 				SetTitle();
 			}
@@ -408,7 +402,7 @@ namespace IrcSays.Ui
 		{
 			if (IsServer)
 			{
-				Write("Mode", string.Format("You set mode: {0}", IrcUserMode.RenderModes(e.Modes)));
+				Write("Mode", $"You set mode: {IrcUserMode.RenderModes(e.Modes)}");
 			}
 			SetTitle();
 		}
@@ -421,7 +415,7 @@ namespace IrcSays.Ui
 			{
 				if (!isIgnored)
 				{
-					Write("Quit", string.Format("{0} has quit ({1})", e.Who.Nickname, e.Text));
+					Write("Quit", $"{e.Who.Nickname} has quit ({e.Text})");
 				}
 				_nickList.Remove(e.Who.Nickname);
 			}
@@ -434,8 +428,7 @@ namespace IrcSays.Ui
 			{
 				if (e.Who != null)
 				{
-					Write("Mode", string.Format("{0} set mode: {1}", e.Who.Nickname,
-						string.Join(" ", IrcChannelMode.RenderModes(e.Modes))));
+					Write("Mode", $"{e.Who.Nickname} set mode: {string.Join(" ", IrcChannelMode.RenderModes(e.Modes))}");
 
 					_channelModes = (from m in e.Modes.Where(newMode => newMode.Parameter == null && newMode.Set).
 						Select(newMode => newMode.Mode).Union(_channelModes).Distinct()
@@ -465,7 +458,7 @@ namespace IrcSays.Ui
 
 			if (IsDefault || IsServer)
 			{
-				Write("Invite", string.Format("{0} invited you to channel {1}", e.From.Nickname, e.Channel));
+				Write("Invite", $"{e.From.Nickname} invited you to channel {e.Channel}");
 			}
 		}
 
@@ -521,8 +514,8 @@ namespace IrcSays.Ui
 					{
 						Dispatcher.BeginInvoke((Action) (() =>
 						{
-							if (!App.Confirm(_window, string.Format("Are you sure you want to paste more than {0} lines?",
-								App.Settings.Current.Buffer.MaximumPasteLines), "Paste Warning"))
+							if (!App.Confirm(_window,
+								$"Are you sure you want to paste more than {App.Settings.Current.Buffer.MaximumPasteLines} lines?", "Paste Warning"))
 							{
 								return;
 							}

@@ -41,12 +41,12 @@ namespace IrcSays.Communication.Irc
 		{
 			if (string.IsNullOrEmpty(server))
 			{
-				throw new ArgumentNullException("server");
+				throw new ArgumentNullException(nameof(server));
 			}
 			if (port <= 0 ||
 				port > 65535)
 			{
-				throw new ArgumentOutOfRangeException("port");
+				throw new ArgumentOutOfRangeException(nameof(port));
 			}
 
 			if (_socketThread != null)
@@ -89,10 +89,7 @@ namespace IrcSays.Communication.Irc
 			}
 
 			_writeQueue.Enqueue(message);
-			if (_writeWaitHandle != null)
-			{
-				_writeWaitHandle.Set();
-			}
+			_writeWaitHandle?.Set();
 		}
 
 		public void Dispose()
@@ -118,19 +115,14 @@ namespace IrcSays.Communication.Irc
 			{
 				Dispatch(OnError, ex);
 			}
-			if (_tcpClient != null
-				/*&& _tcpClient.Connected*/)
-			{
-				_tcpClient.Close();
-			}
+			_tcpClient?.Close();
 		}
 
 		private void SocketLoop()
 		{
 			Stream stream = null;
 
-			if (_proxy != null &&
-				!string.IsNullOrEmpty(_proxy.ProxyHostname))
+			if (!string.IsNullOrEmpty(_proxy?.ProxyHostname))
 			{
 				var proxy = new SocksTcpClient(_proxy);
 				var ar = proxy.BeginConnect(_server, _port, null, null);
@@ -292,56 +284,38 @@ namespace IrcSays.Communication.Irc
 		private void OnConnected()
 		{
 			var handler = Connected;
-			if (handler != null)
-			{
-				handler(this, EventArgs.Empty);
-			}
+			handler?.Invoke(this, EventArgs.Empty);
 		}
 
 		private void OnDisconnected()
 		{
 			var handler = Disconnected;
-			if (handler != null)
-			{
-				handler(this, EventArgs.Empty);
-			}
+			handler?.Invoke(this, EventArgs.Empty);
 		}
 
 		private void OnHeartbeat()
 		{
 			var handler = Heartbeat;
-			if (handler != null)
-			{
-				handler(this, EventArgs.Empty);
-			}
+			handler?.Invoke(this, EventArgs.Empty);
 		}
 
 		private void OnError(Exception ex)
 		{
 			var handler = Error;
-			if (handler != null)
-			{
-				handler(this, new ErrorEventArgs(ex));
-			}
+			handler?.Invoke(this, new ErrorEventArgs(ex));
 			Close();
 		}
 
 		private void OnMessageReceived(IrcMessage message)
 		{
 			var handler = MessageReceived;
-			if (handler != null)
-			{
-				handler(this, new IrcEventArgs(message));
-			}
+			handler?.Invoke(this, new IrcEventArgs(message));
 		}
 
 		private void OnMessageSent(IrcMessage message)
 		{
 			var handler = MessageSent;
-			if (handler != null)
-			{
-				handler(this, new IrcEventArgs(message));
-			}
+			handler?.Invoke(this, new IrcEventArgs(message));
 		}
 	}
 }

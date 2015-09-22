@@ -734,10 +734,7 @@ namespace IrcSays.Communication.Irc
 
 		private void RaiseEvent<T>(EventHandler<T> evt, T e) where T : EventArgs
 		{
-			if (evt != null)
-			{
-				evt(this, e);
-			}
+			evt?.Invoke(this, e);
 		}
 
 		private void OnStateChanged()

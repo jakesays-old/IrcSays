@@ -18,7 +18,17 @@ namespace IrcSays.Ui
 
 		private void Session_SelfJoined(object sender, IrcJoinEventArgs e)
 		{
-			var page = new ChatControl(ChatPageType.Chat, (IrcSession) sender, e.Channel);
+			var session = (IrcSession) sender;
+			var id = ChatControl.CreateId(ChatPageType.Chat, session, e.Channel);
+
+			var existingPage = Items.FirstOrDefault(t => t.Page.Id == id);
+			if (existingPage != null)
+			{
+				((ChatControl) existingPage.Page).ReConnect(e.Channel);
+				return;
+			}
+
+			var page = new ChatControl(ChatPageType.Chat, session, e.Channel);
 			var state = App.Settings.Current.Windows.States[page.Id];
 			if (state.IsDetached)
 			{
