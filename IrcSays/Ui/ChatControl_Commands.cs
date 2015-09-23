@@ -458,7 +458,10 @@ namespace IrcSays.Ui
 					Session.SendCtcp(Target, new CtcpCommand("ERRMSG", "DCC", "CHAT", "declined"), true);
 					break;
 				case IrcCommands.PurgeMessages:
-					ExecutePurgeMessages(command, arguments);
+					ExecutePurgeMessages(command, arguments, false);
+					break;
+				case IrcCommands.PurgeAllMessages:
+					ExecutePurgeMessages(command, arguments, true);
 					break;
 				default:
 					Write("Error", $"Unrecognized command: {command}");
@@ -466,7 +469,8 @@ namespace IrcSays.Ui
 			}
 		}
 
-		private void ExecutePurgeMessages(string command, string arguments)
+		private void ExecutePurgeMessages(string command, string arguments,
+			bool purgeAll)
 		{
 			var args = Split(command, arguments, 1, 1);
 			if (args.Length < 1)
@@ -474,7 +478,7 @@ namespace IrcSays.Ui
 				return;
 			}
 
-			boxOutput.PurgeMessages(args[0]);
+			boxOutput.PurgeMessages(args[0], purgeAll);
 		}
 
 		private void ExecuteUnbanCommand(string command, string arguments)

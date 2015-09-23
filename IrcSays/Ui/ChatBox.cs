@@ -82,9 +82,9 @@ namespace IrcSays.Ui
 			Presenter.ClearSearch();
 		}
 
-		public void PurgeMessages(string nick)
+		public void PurgeMessages(string nick, bool removeAll)
 		{
-			Presenter.PurgeMessages(nick);
+			Presenter.PurgeMessages(nick, removeAll);
 		}
 	}
 }

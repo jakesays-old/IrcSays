@@ -48,5 +48,6 @@
 
 		//unofficial commands
 		public const string PurgeMessages = "PURGE";
+		public const string PurgeAllMessages = "PURGEALL";
 	}
 }
