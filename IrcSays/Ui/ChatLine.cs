@@ -18,7 +18,8 @@ namespace IrcSays.Ui
 		public ChatSpan[] Spans { get; private set; }
 		public ChatLink[] Links { get; private set; }
 
-		public ChatLine(string colorKey, DateTime time, int nickHashCode, string nick, string text, ChatMarker decoration)
+		public ChatLine(string colorKey, DateTime time, int nickHashCode, 
+			string nick, string text, ChatMarker decoration)
 		{
 			ColorKey = colorKey;
 			Time = time;

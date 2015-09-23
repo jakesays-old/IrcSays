@@ -130,8 +130,8 @@ namespace IrcSays.Ui
 				var nickPart = input.Substring(_currentNickStart, _currentNickEnd - _currentNickStart);
 				string nextNick = null;
 				if (_nickCandidates == null)
-				{
-					var filter = new Regex(nickPart, RegexOptions.Compiled | RegexOptions.CultureInvariant | RegexOptions.IgnoreCase);
+				{					
+					var filter = new Regex(Regex.Escape(nickPart), RegexOptions.Compiled | RegexOptions.CultureInvariant | RegexOptions.IgnoreCase);
 					_nickCandidates = _mostRecentTalkers
 						.Select(n => new NickMatch(n, filter.Match(n)))
 						.Where(m => m.Match.Success)
