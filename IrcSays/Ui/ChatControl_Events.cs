@@ -333,7 +333,8 @@ namespace IrcSays.Ui
 			var isIgnored = App.IsIgnoreMatch(e.Who, IgnoreActions.Join);
 
 			if (!IsServer &&
-				Target.Equals(e.Channel))
+				Target.Equals(e.Channel) &&
+				!_nickList.Contains(e.Who.Nickname))
 			{
 				if (!isIgnored)
 				{
