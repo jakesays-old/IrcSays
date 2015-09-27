@@ -10,6 +10,7 @@ using IrcSays.Application;
 using IrcSays.Communication;
 using IrcSays.Communication.Irc;
 using IrcSays.Services;
+using Std.Ui.Logging;
 
 namespace IrcSays.Ui
 {
@@ -478,7 +479,7 @@ namespace IrcSays.Ui
 				return;
 			}
 
-			boxOutput.PurgeMessages(args[0], purgeAll);
+			boxOutput.PurgeLogEntries(args[0], purgeAll);
 		}
 
 		private void ExecuteUnbanCommand(string command, string arguments)

@@ -6,6 +6,7 @@ using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Documents;
 using IrcSays.Utility;
+using Std.Ui.Logging;
 
 namespace IrcSays.Ui
 {
@@ -39,7 +40,7 @@ namespace IrcSays.Ui
  
 		private void ResetNickCompletion()
 		{
-			boxOutput.Presenter.ClearNicks(_highlightedNicks);
+			boxOutput.UnhighlightEntries(_highlightedNicks);
 			_nickListPosition = 0;
 			_tabKeyCount = 0;
 			if (_lastReferencedNick != null)
@@ -176,12 +177,12 @@ namespace IrcSays.Ui
 
 		private void InsertNick(string nextNick, string input)
 		{
-			boxOutput.Presenter.ClearNicks(_highlightedNicks);
+			boxOutput.UnhighlightEntries(_highlightedNicks);
 
 			if (nextNick != null)
 			{
 				_lastReferencedNick = nextNick;
-				_highlightedNicks = boxOutput.Presenter.HighlightNick(nextNick);
+				_highlightedNicks = boxOutput.HighlightEntriesByName(nextNick);
 				if (_currentNickStart <= 1)
 				{
 					nextNick += ": ";

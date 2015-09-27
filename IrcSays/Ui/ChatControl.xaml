@@ -8,6 +8,7 @@
                      xmlns:local="clr-namespace:IrcSays.Application"
                 xmlns:ircSays="clr-namespace:IrcSays"
                 xmlns:ui="clr-namespace:IrcSays.Ui"
+                xmlns:logging="clr-namespace:Std.Ui.Logging;assembly=Std.Ui.Logging.LogViewer"
                 mc:Ignorable="d"
              d:DesignHeight="400" d:DesignWidth="699" x:Name="chatControl" FocusManager.IsFocusScope="True" Background="Transparent"
 			 FontFamily="Segoe UI" FontSize="12">
@@ -222,7 +223,7 @@
 								  Width="0"
 								  MaxWidth="{Binding RelativeSource={RelativeSource AncestorType=Grid}, Path=ActualWidth}"/>
 			</Grid.ColumnDefinitions>
-			<ui:ChatBox x:Name="boxOutput"
+			<logging:LogView x:Name="boxOutput"
 					   BufferLines="{Binding Source={x:Static local:App.Settings}, Path=Current.Buffer.BufferLines, Mode=OneWay}"
 					   MinimumCopyLength="{Binding Source={x:Static local:App.Settings}, Path=Current.Buffer.MinimumCopyLength, Mode=OneWay}"
 					   Palette="{Binding Source={x:Static local:App.Settings}, Path=Current.Colors.Palette, Mode=OneWay}"
@@ -232,9 +233,9 @@
 					   FontWeight="{Binding Source={x:Static local:App.Settings}, Path=Current.Formatting.FontWeight, Mode=OneWay}"
 					   ShowTimestamp="{Binding Source={x:Static local:App.Settings}, Path=Current.Formatting.ShowTimestamp, Mode=OneWay}"
 					   TimestampFormat="{Binding Source={x:Static local:App.Settings}, Path=Current.Formatting.TimestampFormat, Mode=OneWay}"
-					   UseTabularView="{Binding Source={x:Static local:App.Settings}, Path=Current.Formatting.UseTabularView, Mode=OneWay}"
-					   ColorizeNicknames="{Binding Source={x:Static local:App.Settings}, Path=Current.Formatting.ColorizeNicknames, Mode=OneWay}"
-					   NicknameColorSeed="{Binding Source={x:Static local:App.Settings}, Path=Current.Formatting.NicknameColorSeed, Mode=OneWay}"
+					   JustifyNameColumn="{Binding Source={x:Static local:App.Settings}, Path=Current.Formatting.UseTabularView, Mode=OneWay}"
+					   ColorizeNames="{Binding Source={x:Static local:App.Settings}, Path=Current.Formatting.ColorizeNicknames, Mode=OneWay}"
+					   NameColorizerSeed="{Binding Source={x:Static local:App.Settings}, Path=Current.Formatting.NicknameColorSeed, Mode=OneWay}"
 					   NewMarkerColor="{Binding Source={x:Static local:App.Settings}, Path=Current.Colors.NewMarker, Mode=OneWay}"
 					   OldMarkerColor="{Binding Source={x:Static local:App.Settings}, Path=Current.Colors.OldMarker, Mode=OneWay}"
 					AttentionColor="{Binding Source={x:Static local:App.Settings}, Path=Current.Colors.Attention, Mode=OneWay}"
@@ -242,13 +243,13 @@
 					   DividerBrush="{Binding Source={x:Static local:App.Settings}, Path=Current.Colors.WindowForeground, Mode=OneWay}"
 						   AutoSizeColumn="{Binding Source={x:Static local:App.Settings}, Path=Current.Formatting.AutoSizeColumn, Mode=OneWay}"
 					   MouseDoubleClick="boxOutput_MouseDoubleClick">
-				<ui:ChatBox.Background>
+				<logging:LogView.Background>
 					<MultiBinding Converter="{StaticResource opacityConverter}">
 						<Binding Source="{StaticResource ctrlBG}"/>
 						<Binding Source="{x:Static local:App.Settings}" Path="Current.Windows.BackgroundOpacity"/>
 					</MultiBinding>
-				</ui:ChatBox.Background>
-			</ui:ChatBox>
+				</logging:LogView.Background>
+			</logging:LogView>
 			<ListBox Name="lstNicknames" Grid.Column="1" BorderBrush="{x:Null}" BorderThickness="0" SelectionMode="Extended"
 					   FontFamily="{Binding Source={x:Static local:App.Settings}, Path=Current.Formatting.FontFamily, Mode=OneWay}"
 					   FontSize="{Binding Source={x:Static local:App.Settings}, Path=Current.Formatting.FontSize, Mode=OneWay}"

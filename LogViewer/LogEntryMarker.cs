@@ -1,9 +1,9 @@
 ﻿using System;
 
-namespace IrcSays.Ui
+namespace Std.Ui.Logging
 {
 	[Flags]
-	public enum ChatMarker
+	public enum LogEntryMarker
 	{
 		None = 0,
 		NewMarker = 1,

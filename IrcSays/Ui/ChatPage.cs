@@ -85,7 +85,7 @@ namespace IrcSays.Ui
 		public ChatPage()
 		{
 			Header = Title = "";
-			Loaded += new RoutedEventHandler(ChatPage_Loaded);
+			Loaded += ChatPage_Loaded;
 		}
 
 		public ChatPage(ChatPageType type, IrcSession session, IrcTarget target, string id)

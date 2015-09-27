@@ -10,7 +10,7 @@
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <RootNamespace>IrcSays</RootNamespace>
     <AssemblyName>IrcSays</AssemblyName>
-    <TargetFrameworkVersion>v4.5.1</TargetFrameworkVersion>
+    <TargetFrameworkVersion>v4.6</TargetFrameworkVersion>
     <TargetFrameworkProfile>
     </TargetFrameworkProfile>
     <FileAlignment>512</FileAlignment>
@@ -22,7 +22,7 @@
     <DebugSymbols>true</DebugSymbols>
     <DebugType>full</DebugType>
     <Optimize>false</Optimize>
-    <OutputPath>bin\Debug\</OutputPath>
+    <OutputPath>bin\Debug2\</OutputPath>
     <DefineConstants>DEBUG;TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
@@ -79,6 +79,9 @@
     <Compile Include="Application\AppInfo.cs" />
     <Compile Include="Application\IgnoreActions.cs" />
     <Compile Include="Communication\Irc\IrcCommands.cs" />
+    <Compile Include="Logging\IrcDisplayBlockFormatter.cs" />
+    <Compile Include="Logging\IrcSearchProvider.cs" />
+    <Compile Include="Logging\IrcEntryFormatter.cs" />
     <Compile Include="Preferences\IPropertyService.cs" />
     <Compile Include="Preferences\Models\BufferPreferences.cs" />
     <Compile Include="Preferences\Models\ChannelState.cs" />
@@ -125,26 +128,9 @@
     </Compile>
     <Compile Include="Ui\ChannelWindow_Commands.cs" />
     <Compile Include="Ui\ChannelWindow_WndProc.cs" />
-    <Compile Include="Ui\ChatBox.cs" />
-    <Compile Include="Ui\ChatBoxBase.cs" />
-    <Compile Include="Ui\ChatMarker.cs" />
-    <Compile Include="Ui\ChatFormatter.cs" />
-    <Compile Include="Ui\ChatLine.cs" />
-    <Compile Include="Ui\ChatLink.cs" />
-    <Compile Include="Ui\ChatPresenter.cs" />
-    <Compile Include="Ui\ChatPresenter_Rendering.cs" />
-    <Compile Include="Ui\ChatPresenter_Scrolling.cs" />
-    <Compile Include="Ui\ChatPresenter_Searching.cs" />
-    <Compile Include="Ui\ChatPresenter_Selecting.cs" />
-    <Compile Include="Ui\ChatSpan.cs" />
-    <Compile Include="Ui\ChatSpanFlags.cs" />
     <Compile Include="Settings\ColorPickerEx.cs" />
     <Compile Include="Ui\Constants.cs" />
-    <Compile Include="Ui\DisplayBlock.cs" />
     <Compile Include="Ui\TextFormatCodes.cs" />
-    <Compile Include="Ui\SearchDirection.cs" />
-    <Compile Include="Ui\IChatSpanProvider.cs" />
-    <Compile Include="Ui\SearchOptions.cs" />
     <Compile Include="Ui\ChannelLevel.cs" />
     <Compile Include="Ui\ChatControl.xaml.cs">
       <DependentUpon>ChatControl.xaml</DependentUpon>
@@ -320,10 +306,6 @@
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
-    <Page Include="Themes\Generic.xaml">
-      <Generator>MSBuild:Compile</Generator>
-      <SubType>Designer</SubType>
-    </Page>
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Properties\AssemblyInfo.cs">
@@ -354,6 +336,10 @@
     <EmbeddedResource Include="Resources\Help.txt" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\LogViewer\LogViewer.csproj">
+      <Project>{b7d8978f-3dbe-412e-a47a-a4fa6172140c}</Project>
+      <Name>LogViewer</Name>
+    </ProjectReference>
     <ProjectReference Include="..\ThirdParty\Xceed.Wpf.Toolkit\Xceed.Wpf.Toolkit.csproj">
       <Project>{72e591d6-8f83-4d8c-8f67-9c325e623234}</Project>
       <Name>Xceed.Wpf.Toolkit</Name>
@@ -361,6 +347,9 @@
   </ItemGroup>
   <ItemGroup>
     <Resource Include="Resources\App.ico" />
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="Themes\" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

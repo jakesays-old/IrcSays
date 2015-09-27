@@ -9,6 +9,8 @@ using IrcSays.Application;
 using IrcSays.Communication.Irc;
 using IrcSays.Configuration;
 using IrcSays.Services;
+using IrcSays.Ui.Logging;
+using Std.Ui.Logging;
 
 namespace IrcSays.Ui
 {
@@ -26,9 +28,11 @@ namespace IrcSays.Ui
 
 		private readonly LinkedList<string> _history;
 		private LinkedListNode<string> _historyNode;
-		private ChatLine _markerLine;
+		private LogEntry _markerLine;
 		private Timer _delayTimer;
 
+		private IrcDisplayBlockFormatter _blockFormatter;
+		private IrcSearchProvider _searchProvider;
 		public void ReConnect(IrcTarget target)
 		{
 			Target = target;
@@ -42,6 +46,11 @@ namespace IrcSays.Ui
 			_nickList = new NicknameList();
 
 			InitializeComponent();
+
+			_blockFormatter = new IrcDisplayBlockFormatter();
+			_searchProvider = new IrcSearchProvider();
+
+			boxOutput.Initialize(_blockFormatter, _searchProvider);
 
 			var state = App.Settings.Current.Windows.States[Id];
 			if (Type == ChatPageType.Chat ||
@@ -115,7 +124,7 @@ namespace IrcSays.Ui
 				throw new ArgumentException("Page type is not supported.");
 			}
 
-			boxOutput.ColumnWidth = state.ColumnWidth;
+			boxOutput.NameColumnWidth = state.ColumnWidth;
 
 			Loaded += ChatControl_Loaded;
 			Unloaded += ChatControl_Unloaded;
@@ -183,22 +192,22 @@ namespace IrcSays.Ui
 
 		private void Write(string styleKey, int nickHashCode, string nick, string text, bool attn)
 		{
-			var cl = new ChatLine(styleKey, nickHashCode, nick, text, ChatMarker.None);
+			var cl = new LogEntry(styleKey, nickHashCode, nick, text, LogEntryMarker.None);
 
 			if (_hasDeactivated)
 			{
 				_hasDeactivated = false;
 				if (_markerLine != null)
 				{
-					_markerLine.Marker &= ~ChatMarker.NewMarker;
+					_markerLine.Marker &= ~LogEntryMarker.NewMarker;
 				}
 				_markerLine = cl;
-				cl.Marker = ChatMarker.NewMarker;
+				cl.Marker = LogEntryMarker.NewMarker;
 			}
 
 			if (attn)
 			{
-				cl.Marker |= ChatMarker.Attention;
+				cl.Marker |= LogEntryMarker.Attention;
 			}
 
 			if (VisualParent == null)
@@ -221,7 +230,7 @@ namespace IrcSays.Ui
 				}
 			}
 
-			boxOutput.AppendLine(cl);
+			boxOutput.Append(cl);
 		}
 
 		private void Write(string styleKey, IrcPeer peer, string text, bool attn)
@@ -318,7 +327,7 @@ namespace IrcSays.Ui
 		public override void Dispose()
 		{
 			var state = App.Settings.Current.Windows.States[Id];
-			state.ColumnWidth = boxOutput.ColumnWidth;
+			state.ColumnWidth = boxOutput.NameColumnWidth;
 
 			if (IsChannel)
 			{

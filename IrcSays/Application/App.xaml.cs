@@ -24,9 +24,7 @@ namespace IrcSays.Application
 			catch (ConfigurationException ex)
 			{
 				MessageBox.Show(
-					string.Format(
-						"Unable to load user configuration. You may want to delete the configuration file and try again. {0}",
-						ex.Message));
+					$"Unable to load user configuration. You may want to delete the configuration file and try again. {ex.Message}");
 				Environment.Exit(-1);
 			}
 

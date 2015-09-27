@@ -1,12 +1,11 @@
 ﻿using System;
 using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Controls.Primitives;
 using System.Windows.Media;
 
-namespace IrcSays.Ui
+namespace Std.Ui.Logging
 {
-	public partial class ChatPresenter : ChatBoxBase, IScrollInfo
+	public partial class LogView
 	{
 		private int _bufferLines;
 		private int _scrollPos;

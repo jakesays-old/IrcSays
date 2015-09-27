@@ -1,21 +1,44 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Linq;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Controls.Primitives;
 using System.Windows.Media;
 
-namespace IrcSays.Ui
+namespace Std.Ui.Logging
 {
-	public partial class ChatPresenter : ChatBoxBase, IScrollInfo
+	public partial class LogView : Control, IScrollInfo
 	{
 		private ScrollViewer _viewer;
 
-		public ChatPresenter()
+		private IDisplayBlockFormatter _blockFormatter;
+		private ISearchProvider _searchProvider;
+
+		private const int TextProcessingBatchSize = 50;
+
+		public IntrusiveLinkedList<DisplayBlock> Blocks { get; private set; }
+		private double _lineHeight;
+		public DisplayBlock BottomBlock { get; private set; }
+		private DisplayBlock _curBlock;
+		private int _curLine;
+		private bool _isProcessingText;
+		private Typeface _typeface;
+
+		public LogView()
 		{
+			_typeface = new Typeface(FontFamily, FontStyle, FontWeight, FontStretch);
+			Blocks = new IntrusiveLinkedList<DisplayBlock>();
+			DefaultStyleKey = typeof(LogView);
 			Loaded += HandleLoad;
 			Unloaded += HandleUnload;
+		}
+
+		public void Initialize(IDisplayBlockFormatter blockFormatter, ISearchProvider searchProvider)
+		{
+			_blockFormatter = blockFormatter;
+			_blockFormatter.Attach(this);
+			_searchProvider = searchProvider;
+			_searchProvider.Attach(this);
 		}
 
 		private void HandleUnload(object sender, RoutedEventArgs e)
@@ -30,6 +53,7 @@ namespace IrcSays.Ui
 			{
 				ScrollToEnd();
 			}
+
 			if (_selectBrush == null)
 			{
 				var c = HighlightColor;
@@ -40,7 +64,7 @@ namespace IrcSays.Ui
 
 		public void Clear()
 		{
-			_blocks = new LinkedList<DisplayBlock>();
+			Blocks = new IntrusiveLinkedList<DisplayBlock>();
 			_curBlock = null;
 			_bufferLines = 0;
 			_isAutoScrolling = true;
@@ -57,10 +81,10 @@ namespace IrcSays.Ui
 				e.Property == PaletteProperty ||
 				e.Property == ShowTimestampProperty ||
 				e.Property == TimestampFormatProperty ||
-				e.Property == UseTabularViewProperty ||
-				e.Property == ColorizeNicknamesProperty ||
+				e.Property == JustifyNameColumnProperty ||
+				e.Property == ColorizeNamesProperty ||
 				e.Property == NewMarkerColorProperty ||
-				e.Property == NicknameColorSeedProperty ||
+				e.Property == NameColorizerSeedProperty ||
 				e.Property == DividerBrushProperty ||
 				e.Property == BackgroundProperty ||
 				e.Property == HighlightColorProperty)
@@ -71,21 +95,21 @@ namespace IrcSays.Ui
 			base.OnPropertyChanged(e);
 		}
 
-		public void PurgeMessages(string nick, bool removeAll)
+		public void PurgeLogEntries(string entryName, bool removeAll)
 		{
-			foreach (var block in _blocks.Where(b => b.NickText == nick).ToArray())
+			foreach (var block in Blocks.Where(b => b.NameText == entryName).ToArray())
 			{
-				_blocks.Remove(block);
+				Blocks.Remove(block);
 			}
 
 			if (removeAll)
 			{
-				foreach (var block in _blocks
-					.Where(b => b.Source.IsDirectedMessage &&
-						b.Source.Text.StartsWith(nick,StringComparison.OrdinalIgnoreCase))
+				foreach (var block in Blocks
+					.Where(b => b.Entry.IsDirectedMessage &&
+						b.Entry.Text.StartsWith(entryName, StringComparison.OrdinalIgnoreCase))
 						.ToArray())
 				{
-					_blocks.Remove(block);
+					Blocks.Remove(block);
 				}
 			}
 
