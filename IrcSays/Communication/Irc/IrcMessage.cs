@@ -106,17 +106,16 @@ namespace IrcSays.Communication.Irc
 			var trailing = false;
 			while (pos < messageData.Length)
 			{
-				if (messageData[pos] == ':')
-				{
-					trailing = true;
-					pos++;
-				}
-
 				for (; pos < messageData.Length; pos++)
 				{
 					if (messageData[pos] == ' ' &&
 						!trailing)
 					{
+						if (messageData[pos + 1] == ':')
+						{
+							trailing = true;
+							pos++;
+						}
 						break;
 					}
 					sb.Append(messageData[pos]);
