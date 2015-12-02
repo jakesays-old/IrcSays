@@ -32,7 +32,8 @@ namespace IrcSays.Ui
 		public void ChangeNick(string oldNick, string newNick)
 		{
 			var item = this[oldNick];
-			if (item != null)
+			if (item != null &&
+				!Contains(newNick))
 			{
 				var idx = IndexOf(item);
 				ChangeItemKey(item, newNick);
