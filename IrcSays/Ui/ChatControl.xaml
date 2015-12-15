@@ -33,9 +33,6 @@
 		<CommandBinding Command="ui:ChatControl.SearchCommand" Executed="ExecuteSearch"/>
 		<CommandBinding Command="ui:ChatControl.SearchPreviousCommand" Executed="ExecuteSearchPrevious"/>
 		<CommandBinding Command="ui:ChatControl.SearchNextCommand" Executed="ExecuteSearchNext"/>
-		<CommandBinding Command="ui:ChatControl.DccChatCommand" Executed="ExecuteDccChat"/>
-		<CommandBinding Command="ui:ChatControl.DccXmitCommand" Executed="ExecuteDccXmit"/>
-		<CommandBinding Command="ui:ChatControl.DccSendCommand" Executed="ExecuteDccSend"/>
 		<CommandBinding Command="ui:ChatControl.ChannelPanelCommand" Executed="ExecuteChannelPanel"/>
 		<CommandBinding Command="ui:ChatControl.ListCommand" Executed="ExecuteList"/>
 		<CommandBinding Command="ui:ChatControl.JoinCommand" Executed="ExecuteJoin"/>
@@ -52,11 +49,6 @@
 		<ContextMenu x:Key="cmNickname">
 			<MenuItem CommandTarget="{Binding ElementName=chatControl}" Command="ui:ChatControl.WhoisCommand" CommandParameter="{Binding ElementName=chatControl, Path=SelectedLink}"/>
 			<MenuItem CommandTarget="{Binding ElementName=chatControl}" Command="ui:ChatWindow.ChatCommand" CommandParameter="{Binding ElementName=chatControl, Path=SelectedLink}"/>
-			<MenuItem Header="DCC">
-				<MenuItem CommandTarget="{Binding ElementName=chatControl}" Command="ui:ChatControl.DccChatCommand" CommandParameter="{Binding ElementName=chatControl, Path=SelectedLink}"/>
-				<MenuItem CommandTarget="{Binding ElementName=chatControl}" Command="ui:ChatControl.DccXmitCommand" CommandParameter="{Binding ElementName=chatControl, Path=SelectedLink}"/>
-				<MenuItem CommandTarget="{Binding ElementName=chatControl}" Command="ui:ChatControl.DccSendCommand" CommandParameter="{Binding ElementName=chatControl, Path=SelectedLink}"/>
-			</MenuItem>
 			<Separator/>
 			<MenuItem CommandTarget="{Binding ElementName=chatControl}" Command="ui:ChatControl.OpCommand" CommandParameter="{Binding ElementName=chatControl, Path=SelectedLink}"/>
 			<MenuItem CommandTarget="{Binding ElementName=chatControl}" Command="ui:ChatControl.DeopCommand" CommandParameter="{Binding ElementName=chatControl, Path=SelectedLink}"/>
@@ -70,11 +62,6 @@
 		<ContextMenu x:Key="cmNickList">
 			<MenuItem Command="ui:ChatControl.WhoisCommand" CommandParameter="{Binding ElementName=lstNicknames, Path=SelectedItem.Nickname}"/>
 			<MenuItem Command="ui:ChatWindow.ChatCommand" CommandParameter="{Binding ElementName=lstNicknames, Path=SelectedItem.Nickname}"/>
-			<MenuItem Header="DCC">
-				<MenuItem Command="ui:ChatControl.DccChatCommand" CommandParameter="{Binding ElementName=lstNicknames, Path=SelectedItem.Nickname}"/>
-				<MenuItem Command="ui:ChatControl.DccXmitCommand" CommandParameter="{Binding ElementName=lstNicknames, Path=SelectedItem.Nickname}"/>
-				<MenuItem Command="ui:ChatControl.DccSendCommand" CommandParameter="{Binding ElementName=lstNicknames, Path=SelectedItem.Nickname}"/>
-			</MenuItem>
 			<Separator/>
 			<MenuItem Command="ui:ChatControl.OpCommand" CommandParameter="{Binding ElementName=lstNicknames, Path=SelectedItems}"/>
 			<MenuItem Command="ui:ChatControl.DeopCommand" CommandParameter="{Binding ElementName=lstNicknames, Path=SelectedItems}"/>
@@ -136,6 +123,8 @@
 			</Setter>
 		</Style>
 		<ContextMenu x:Key="cmInputBox">
+            <MenuItem Header="(No Suggestions)" IsEnabled="False"/>
+            <Separator/>
 			<MenuItem Command="ApplicationCommands.Cut"/>
 			<MenuItem Command="ApplicationCommands.Copy"/>
 			<MenuItem Command="ApplicationCommands.Paste"/>
@@ -179,11 +168,6 @@
 	<DockPanel HorizontalAlignment="Stretch" Name="dockPanel1" VerticalAlignment="Stretch">
 		<Border DockPanel.Dock="Top" Background="{Binding ElementName=chatControl, Path=UIBackground, Mode=OneWay}">
 			<StackPanel Orientation="Vertical">
-				<WrapPanel Orientation="Horizontal" Visibility="Collapsed" x:Name="pnlDccChat" Margin="0,5,10,5" SnapsToDevicePixels="True">
-					<Label Style="{StaticResource uiLabelStyle}" x:Name="lblDccChat" FontWeight="Bold"/>
-					<Button x:Name="btnAccept" Padding="3,1,3,1" Content="Accept" Focusable="False" Style="{StaticResource uiButtonStyle}" Margin="10,0,3,0" Click="btnAccept_Click"/>
-					<Button x:Name="btnDecline" Padding="3,1,3,1" Content="Decline" Focusable="False" Style="{StaticResource uiButtonStyle}" Margin="0,0,10,0" Click="btnDecline_Click"/>
-				</WrapPanel>
 				<WrapPanel Orientation="Horizontal" Visibility="Collapsed" x:Name="pnlChannel" Margin="0,5,10,5" SnapsToDevicePixels="True">
 					<Button x:Name="btnCloseChannel" Command="ui:ChatControl.ChannelPanelCommand" Height="18" Width="18" Style="{StaticResource uiButtonStyle}" Margin="0,2,6,0">
 						<Path Style="{StaticResource uiCloseButtonPathStyle}"/>
@@ -193,8 +177,10 @@
 							<KeyBinding Key="Enter" Command="ui:ChatControl.JoinCommand" CommandParameter="{Binding ElementName=txtChannel, Path=Text}"/>
 						</TextBox.InputBindings>
 					</TextBox>
-					<Button x:Name="btnJoin" IsEnabled="{Binding ElementName=txtChannel, Path=Text.Length}" Padding="3,1,3,1" Content="Join" VerticalAlignment="Bottom" Focusable="False" Style="{StaticResource uiButtonStyle}" Margin="10,0,3,0" Command="ui:ChatControl.JoinCommand" CommandParameter="{Binding ElementName=txtChannel, Path=Text}"/>
-					<Button x:Name="btnList" Padding="3,1,3,1" Content="List Channels" VerticalAlignment="Bottom" Focusable="False" Style="{StaticResource uiButtonStyle}" Margin="0,0,10,0" Command="ui:ChatControl.ListCommand"/>
+					<Button x:Name="btnJoin" IsEnabled="{Binding ElementName=txtChannel, Path=Text.Length}" Padding="3,1,3,1" Content="Join" VerticalAlignment="Bottom"
+					        Style="{StaticResource uiButtonStyle}" Margin="10,0,3,0" Command="ui:ChatControl.JoinCommand" CommandParameter="{Binding ElementName=txtChannel, Path=Text}"/>
+					<Button x:Name="btnList" Padding="3,1,3,1" Content="List Channels" VerticalAlignment="Bottom"
+					        Style="{StaticResource uiButtonStyle}" Margin="0,0,10,0" Command="ui:ChatControl.ListCommand"/>
 				</WrapPanel>
 				<WrapPanel Orientation="Horizontal" Visibility="Collapsed" x:Name="pnlSearch" Margin="0,5,10,5" SnapsToDevicePixels="True">
 					<Button x:Name="btnCloseSearch" Command="ui:ChatControl.SearchCommand" Height="18" Width="18" Style="{StaticResource uiButtonStyle}" Margin="0,2,6,0">
@@ -217,7 +203,10 @@
 				 FontStyle="{Binding Source={x:Static local:App.Settings}, Path=Current.Formatting.FontStyle, Mode=OneWay}"
 				 FontWeight="{Binding Source={x:Static local:App.Settings}, Path=Current.Formatting.FontWeight, Mode=OneWay}"
 				 Padding="1,2,2,2" Margin="0" BorderThickness="0" Height="Auto" TextWrapping="Wrap" MaxLength="512"
-					 ContextMenu="{StaticResource cmInputBox}">
+					 ContextMenu="{StaticResource cmInputBox}"
+                     SpellCheck.IsEnabled="True"
+                     ContextMenuOpening="OnTxtInputContextMenuOpening"
+                     >
 				<TextBox.Background>
 					<MultiBinding Converter="{StaticResource opacityConverter}">
 						<Binding Source="{StaticResource editBG}"/>

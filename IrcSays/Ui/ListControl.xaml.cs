@@ -18,38 +18,39 @@ namespace IrcSays.Ui
 
 			public ChannelItem(string name, int count, string topic)
 			{
-				this.Name = name;
-				this.Count = count;
-				this.Topic = topic;
+				Name = name;
+				Count = count;
+				Topic = topic;
 			}
 
 			public int CompareTo(ChannelItem other)
 			{
-				return string.Compare(this.Name, other.Name);
+				return string.Compare(Name, other.Name);
 			}
 		}
 
 		public static readonly DependencyProperty CountProperty =
-			DependencyProperty.Register("Count", typeof(int), typeof(ListControl));
+			DependencyProperty.Register("Count", typeof (int), typeof (ListControl));
+
 		public int Count
 		{
-			get { return (int)this.GetValue(CountProperty); }
-			set { this.SetValue(CountProperty, value); }
+			get { return (int) GetValue(CountProperty); }
+			set { SetValue(CountProperty, value); }
 		}
 
-		private List<ChannelItem> _channels;
+		private readonly List<ChannelItem> _channels;
 
 		public ListControl(IrcSession session)
 			: base(ChatPageType.ChannelList, session, null, "chan-list")
 		{
 			_channels = new List<ChannelItem>();
 			InitializeComponent();
-			this.Header = "Channel List";
-			this.Title = string.Format("{0} - {1} - {2} Channel List", App.Product, this.Session.Nickname, this.Session.NetworkName);
-			this.IsCloseable = false;
-			this.Session.InfoReceived += new EventHandler<IrcInfoEventArgs>(Session_InfoReceived);
+			Header = "Channel List";
+			Title = string.Format("{0} - {1} - {2} Channel List", AppInfo.Product, Session.Nickname, Session.NetworkName);
+			IsCloseable = false;
+			Session.InfoReceived += Session_InfoReceived;
 
-			var menu = this.Resources["cmChannels"] as ContextMenu;
+			var menu = Resources["cmChannels"] as ContextMenu;
 			if (menu != null)
 			{
 				NameScope.SetNameScope(menu, NameScope.GetNameScope(this));
@@ -58,10 +59,10 @@ namespace IrcSays.Ui
 
 		public void ExecuteJoin(object sender, ExecutedRoutedEventArgs e)
 		{
-			string channel = e.Parameter as string;
+			var channel = e.Parameter as string;
 			if (!string.IsNullOrEmpty(channel))
 			{
-				this.Session.Join(channel);
+				Session.Join(channel);
 			}
 		}
 
@@ -75,12 +76,12 @@ namespace IrcSays.Ui
 						int.TryParse(e.Message.Parameters[2], out count))
 					{
 						_channels.Add(new ChannelItem(e.Message.Parameters[1], count, e.Message.Parameters[3]));
-						this.Count++;
+						Count++;
 					}
 					break;
 				case IrcCode.RplListEnd:
-					this.IsCloseable = true;
-					this.Session.InfoReceived -= new EventHandler<IrcInfoEventArgs>(Session_InfoReceived);
+					IsCloseable = true;
+					Session.InfoReceived -= Session_InfoReceived;
 					_channels.Sort();
 					foreach (var c in _channels)
 					{
@@ -92,7 +93,7 @@ namespace IrcSays.Ui
 
 		private void lstChannels_MouseDoubleClick(object sender, RoutedEventArgs e)
 		{
-			var chanItem = ((ListBoxItem)e.Source).Content as ChannelItem;
+			var chanItem = ((ListBoxItem) e.Source).Content as ChannelItem;
 			if (chanItem != null)
 			{
 				ChatControl.JoinCommand.Execute(chanItem.Name, this);

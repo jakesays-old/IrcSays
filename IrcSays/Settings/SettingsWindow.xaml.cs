@@ -20,7 +20,6 @@ namespace IrcSays.Settings
 			grdSettings.Children.Add(new ColorsSettingsControl());
 			grdSettings.Children.Add(new BufferSettingsControl());
 			grdSettings.Children.Add(new WindowSettingsControl());
-			grdSettings.Children.Add(new DccSettingsControl());
 			grdSettings.Children.Add(new SoundSettingsControl());
 			grdSettings.Children.Add(new NetworkSettingsControl());
 
@@ -29,26 +28,26 @@ namespace IrcSays.Settings
 				lstCategories.SelectedIndex = 0;
 			}
 
-			this.AddHandler(TextBox.PreviewMouseLeftButtonDownEvent, new MouseButtonEventHandler(SelectivelyIgnoreMouseButton));
-			this.AddHandler(TextBox.GotKeyboardFocusEvent, new RoutedEventHandler(SelectAllText));
-			this.AddHandler(TextBox.MouseDoubleClickEvent, new RoutedEventHandler(SelectAllText));
+			AddHandler(PreviewMouseLeftButtonDownEvent, new MouseButtonEventHandler(SelectivelyIgnoreMouseButton));
+			AddHandler(GotKeyboardFocusEvent, new RoutedEventHandler(SelectAllText));
+			AddHandler(MouseDoubleClickEvent, new RoutedEventHandler(SelectAllText));
 		}
 
 		private void btnApply_Click(object sender, RoutedEventArgs e)
 		{
 			App.Settings.Save();
-			this.Close();
+			Close();
 		}
 
 		private void btnCancel_Click(object sender, RoutedEventArgs e)
 		{
 			App.Settings.Load();
-			this.Close();
+			Close();
 		}
 
 		private void lstCategories_SelectionChanged(object sender, SelectionChangedEventArgs e)
 		{
-			for (int i = 0; i < grdSettings.Children.Count; i++)
+			for (var i = 0; i < grdSettings.Children.Count; i++)
 			{
 				grdSettings.Children[i].Visibility = i == lstCategories.SelectedIndex ? Visibility.Visible : Visibility.Collapsed;
 			}
@@ -57,15 +56,17 @@ namespace IrcSays.Settings
 		private void SelectivelyIgnoreMouseButton(object sender, MouseButtonEventArgs e)
 		{
 			DependencyObject parent = e.OriginalSource as UIElement;
-			while (parent != null && !(parent is TextBox))
+			while (parent != null &&
+					!(parent is TextBox))
 			{
 				parent = VisualTreeHelper.GetParent(parent);
 			}
 
 			if (parent != null)
 			{
-				var textBox = (TextBox)parent;
-				if (!textBox.IsKeyboardFocusWithin && !textBox.AcceptsReturn)
+				var textBox = (TextBox) parent;
+				if (!textBox.IsKeyboardFocusWithin &&
+					!textBox.AcceptsReturn)
 				{
 					textBox.Focus();
 					e.Handled = true;
@@ -76,7 +77,8 @@ namespace IrcSays.Settings
 		private void SelectAllText(object sender, RoutedEventArgs e)
 		{
 			var textBox = e.OriginalSource as TextBox;
-			if (textBox != null && !textBox.AcceptsReturn)
+			if (textBox != null &&
+				!textBox.AcceptsReturn)
 			{
 				textBox.SelectAll();
 			}

@@ -77,7 +77,7 @@
 					<GradientStop Color="#FFCAD2E5" Offset="1" />
 				</LinearGradientBrush>
 			</Grid.Background>
-			<Label Content="{Binding Source={x:Static local:App.Version}}" VerticalAlignment="Bottom"/>
+			<Label Content="{Binding Source={x:Static local:AppInfo.Version}}" VerticalAlignment="Bottom"/>
 			<Button Content="OK" Height="23" Name="btnApply" Width="75" Click="btnApply_Click" Margin="367,11,87,11" />
 			<Button Content="Cancel" Height="23" Name="btnCancel" Width="75" Click="btnCancel_Click" FlowDirection="LeftToRight" Margin="0,11,6,11" HorizontalAlignment="Right" />
 			</Grid>
@@ -89,7 +89,6 @@
 			<ListBoxItem Content="Colors"/>
 			<ListBoxItem Content="Buffer"/>
 			<ListBoxItem Content="Windows"/>
-			<ListBoxItem Content="DCC"/>
 			<ListBoxItem Content="Sounds"/>
 			<ListBoxItem Content="Network"/>
 		</ListBox>

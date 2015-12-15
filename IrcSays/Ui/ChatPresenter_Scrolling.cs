@@ -8,7 +8,8 @@ namespace IrcSays.Ui
 {
 	public partial class ChatPresenter : ChatBoxBase, IScrollInfo
 	{
-		private int _bufferLines, _scrollPos;
+		private int _bufferLines;
+		private int _scrollPos;
 		private bool _isAutoScrolling = true;
 
 		public bool IsAutoScrolling

@@ -6,7 +6,7 @@
         xmlns:local="clr-namespace:IrcSays.Application"
         xmlns:ui="clr-namespace:IrcSays.Ui"
         MinWidth="300"  MinHeight="250" WindowStyle="None" ResizeMode="CanResize" AllowsTransparency="True"
-		Background="Transparent" Icon="{Binding Source={x:Static local:App.ApplicationImage}}" x:Name="window">
+		Background="Transparent" x:Name="window" Icon="/IrcSays;component/Resources/App.ico">
 	<Window.InputBindings>
 		<KeyBinding Command="ui:ChatWindow.PreviousTabCommand" Gesture="Alt+Left"/>
 		<KeyBinding Command="ui:ChatWindow.NextTabCommand" Gesture="Alt+Right"/>
@@ -149,7 +149,7 @@
 						<ToolTip Content="Settings"/>
 					</Button.ToolTip>
 				</Button>
-				<Button x:Name="btnMinimize" VerticalAlignment="Top" Focusable="False" Height="18" Width="18" Style="{StaticResource uiButtonStyle}" Margin="0,2,2,0" Padding="0" Command="ui:ChatWindow.MinimizeCommand">
+				<Button x:Name="btnMinimize" VerticalAlignment="Top" Height="18" Width="18" Style="{StaticResource uiButtonStyle}" Margin="0,2,2,0" Padding="0" Command="ui:ChatWindow.MinimizeCommand">
 					<Path Margin="2,10,2,2" SnapsToDevicePixels="True"
 						Data="{StaticResource minimizeButtonGeometry}"
 						Stroke="{StaticResource winFG}"

@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
-using System.IO;
 using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
@@ -10,6 +9,7 @@ using System.Windows.Input;
 using IrcSays.Application;
 using IrcSays.Communication;
 using IrcSays.Communication.Irc;
+using IrcSays.Services;
 
 namespace IrcSays.Ui
 {
@@ -247,29 +247,6 @@ namespace IrcSays.Ui
 			}
 		}
 
-		private void ExecuteDccChat(object sender, ExecutedRoutedEventArgs e)
-		{
-			App.ChatWindow.DccChat(Session, new IrcTarget((string) e.Parameter));
-		}
-
-		private void ExecuteDccXmit(object sender, ExecutedRoutedEventArgs e)
-		{
-			var fileName = App.OpenFileDialog(_window, App.Settings.Current.Dcc.DownloadFolder);
-			if (!string.IsNullOrEmpty(fileName))
-			{
-				App.ChatWindow.DccXmit(Session, new IrcTarget((string) e.Parameter), new FileInfo(fileName));
-			}
-		}
-
-		private void ExecuteDccSend(object sender, ExecutedRoutedEventArgs e)
-		{
-			var fileName = App.OpenFileDialog(_window, App.Settings.Current.Dcc.DownloadFolder);
-			if (!string.IsNullOrEmpty(fileName))
-			{
-				App.ChatWindow.DccSend(Session, new IrcTarget((string) e.Parameter), new FileInfo(fileName));
-			}
-		}
-
 		private void ExecuteSearch(object sender, ExecutedRoutedEventArgs e)
 		{
 			ToggleSearch();
@@ -315,13 +292,26 @@ namespace IrcSays.Ui
 					chars[i] = (char) (chars[i] - 0x2500);
 				}
 			}
-			text = new string(chars);
+			text = new string(chars).Trim();
 
-			var command = text.Trim();
+			var command = text;
 
-			if (command.Length > 0 &&
-				command[0] == CommandChar &&
-				!literal)
+			var isCommand = false;
+			if (command.Length > 0)
+			{
+				if (command.Length >= 2 &&
+					command.StartsWith("//"))
+				{
+					text = text.Substring(1);
+				}
+				else if (command[0] == CommandChar &&
+					!literal)
+				{
+					isCommand = true;
+				}
+			}
+
+			if (isCommand)
 			{
 				var args = string.Empty;
 				command = command.Substring(1).TrimStart();
@@ -345,17 +335,12 @@ namespace IrcSays.Ui
 			}
 			else
 			{
-				if (text.Trim().Length > 0 && IsConnected)
+				if (text.Length > 0 && IsConnected)
 				{
 					if (Type == ChatPageType.Chat)
 					{
 						Session.PrivateMessage(Target, text);
 						Write("Own", 0, GetNickWithLevel(Session.Nickname), text, false);
-					}
-					else if (Type == ChatPageType.DccChat)
-					{
-						_dcc.QueueMessage(text);
-						Write("Own", 0, Session.Nickname, text, false);
 					}
 					else
 					{
@@ -364,7 +349,7 @@ namespace IrcSays.Ui
 				}
 				else
 				{
-					App.DoEvent("beep");
+					ServiceManager.Sound.PlaySound("beep");
 				}
 			}
 		}
@@ -470,12 +455,30 @@ namespace IrcSays.Ui
 					ExecuteUnignoreCommand(command, arguments);
 					break;
 				case IrcCommands.Dcc:
-					ExecuteDccCommand(command, arguments);
+					Session.SendCtcp(Target, new CtcpCommand("ERRMSG", "DCC", "CHAT", "declined"), true);
+					break;
+				case IrcCommands.PurgeMessages:
+					ExecutePurgeMessages(command, arguments, false);
+					break;
+				case IrcCommands.PurgeAllMessages:
+					ExecutePurgeMessages(command, arguments, true);
 					break;
 				default:
-					Write("Error", string.Format("Unrecognized command: {0}", command));
+					Write("Error", $"Unrecognized command: {command}");
 					break;
 			}
+		}
+
+		private void ExecutePurgeMessages(string command, string arguments,
+			bool purgeAll)
+		{
+			var args = Split(command, arguments, 1, 1);
+			if (args.Length < 1)
+			{
+				return;
+			}
+
+			boxOutput.PurgeMessages(args[0], purgeAll);
 		}
 
 		private void ExecuteUnbanCommand(string command, string arguments)
@@ -709,10 +712,6 @@ namespace IrcSays.Ui
 				{
 					Session.SendCtcp(Target, new CtcpCommand(IrcCommands.Action, args), false);
 				}
-				else if (Type == ChatPageType.DccChat)
-				{
-					_dcc.QueueMessage(string.Format("\u0001ACTION {0}\u0001", string.Join(" ", args)));
-				}
 			}
 		}
 
@@ -752,7 +751,7 @@ namespace IrcSays.Ui
 
 		private void ExecuteHelpCommand()
 		{
-			foreach (var s in App.HelpText.Split(Environment.NewLine.ToCharArray()))
+			foreach (var s in AppInfo.HelpText.Split(Environment.NewLine.ToCharArray()))
 			{
 				if (s.Length > 0)
 				{
@@ -843,63 +842,6 @@ namespace IrcSays.Ui
 			else
 			{
 				Write("Error", "Specified pattern was not on ignore list.");
-			}
-		}
-
-		private void ExecuteDccCommand(string command, string arguments)
-		{
-			{
-				if (!IsConnected)
-				{
-					return;
-				}
-				var args = Split(command, arguments, 2, 3);
-				var dccCmd = args[0].ToUpperInvariant();
-
-				switch (dccCmd)
-				{
-					case IrcCommands.Chat:
-						App.ChatWindow.DccChat(Session, new IrcTarget(args[1]));
-						break;
-					case IrcCommands.Send:
-					case IrcCommands.Xmit:
-						string path = null;
-						if (args.Length < 3)
-						{
-							Write("Error", "File name is required.");
-							break;
-						}
-						try
-						{
-							if (Path.IsPathRooted(args[2]) &&
-								File.Exists(args[2]))
-							{
-								path = args[2];
-							}
-							else if (!File.Exists(path = Path.Combine(App.Settings.Current.Dcc.DownloadFolder, args[2])))
-							{
-								Write("Error", "Could not find file " + args[2]);
-								break;
-							}
-						}
-						catch (ArgumentException)
-						{
-							Write("Error", String.Format((string) "Invalid pathname: {0}", (object) args[2]));
-							break;
-						}
-						if (dccCmd == IrcCommands.Xmit)
-						{
-							App.ChatWindow.DccXmit(Session, new IrcTarget(args[1]), new FileInfo(path));
-						}
-						else
-						{
-							App.ChatWindow.DccSend(Session, new IrcTarget(args[1]), new FileInfo(path));
-						}
-						break;
-					default:
-						Write("Error", "Unsupported DCC mode " + args[0]);
-						break;
-				}
 			}
 		}
 

@@ -17,8 +17,11 @@ namespace IrcSays.Ui
 		public ChatMarker Marker { get; set; }
 		public ChatSpan[] Spans { get; private set; }
 		public ChatLink[] Links { get; private set; }
+		
+		public bool IsDirectedMessage { get; private set; }
 
-		public ChatLine(string colorKey, DateTime time, int nickHashCode, string nick, string text, ChatMarker decoration)
+		public ChatLine(string colorKey, DateTime time, int nickHashCode, 
+			string nick, string text, ChatMarker decoration)
 		{
 			ColorKey = colorKey;
 			Time = time;
@@ -143,6 +146,12 @@ namespace IrcSays.Ui
 			spans.Add(currentSpan);
 		}
 
+		private static readonly Regex _directedMessageDetector =
+			new Regex(@"^[^\s:]+:\s+", 
+				RegexOptions.Compiled | 
+				RegexOptions.IgnoreCase | 
+				RegexOptions.CultureInvariant);
+
 		public void Process(string raw)
 		{
 			var text = new StringBuilder();
@@ -225,6 +234,9 @@ namespace IrcSays.Ui
 			span.End = idx;
 			spans.Add(span);
 			Text = text.ToString();
+
+			IsDirectedMessage = _directedMessageDetector.IsMatch(Text);
+
 			Spans = spans.Where(s => s.End > s.Start).ToArray();
 			Links = (from Match m in Constants.UrlRegex.Matches(Text)
 				select new ChatLink

@@ -2,12 +2,16 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text.RegularExpressions;
+using System.Windows;
+using System.Windows.Controls;
+using System.Windows.Documents;
+using IrcSays.Utility;
 
 namespace IrcSays.Ui
 {
 	public partial class ChatControl : ChatPage
 	{
-		private string[] _nickCandidates;
+		private List<string> _nickCandidates;
 		private readonly NicknameList _nickList;
 		private readonly List<string> _mostRecentTalkers = new List<string>();
 		private readonly LinkedList<string> _mostRecentlyReferenced = new LinkedList<string>();
@@ -53,11 +57,10 @@ namespace IrcSays.Ui
 		private bool CycleThroughNickCandidates()
 		{
 			if (_tabKeyCount > 1 &&
-				_nickCandidates != null &&
-				_nickCandidates.Length > 0)
+				_nickCandidates.NotNullOrEmpty())
 			{
 				_nickListPosition += 1;
-				if (_nickListPosition >= _nickCandidates.Length)
+				if (_nickListPosition >= _nickCandidates.Count)
 				{
 					_nickListPosition = 0;
 				}
@@ -79,6 +82,13 @@ namespace IrcSays.Ui
 				Nick = nick;
 				Match = match;
 			}
+		}
+
+		private void RemoveNickCandidate(string nick)
+		{
+			_mostRecentTalkers?.Remove(nick);
+			_nickCandidates?.Remove(nick);
+			_mostRecentlyReferenced?.Remove(nick);
 		}
 
 		private void DoNickCompletion()
@@ -120,8 +130,8 @@ namespace IrcSays.Ui
 				var nickPart = input.Substring(_currentNickStart, _currentNickEnd - _currentNickStart);
 				string nextNick = null;
 				if (_nickCandidates == null)
-				{
-					var filter = new Regex(nickPart, RegexOptions.Compiled | RegexOptions.CultureInvariant | RegexOptions.IgnoreCase);
+				{					
+					var filter = new Regex(Regex.Escape(nickPart), RegexOptions.Compiled | RegexOptions.CultureInvariant | RegexOptions.IgnoreCase);
 					_nickCandidates = _mostRecentTalkers
 						.Select(n => new NickMatch(n, filter.Match(n)))
 						.Where(m => m.Match.Success)
@@ -133,9 +143,9 @@ namespace IrcSays.Ui
 						)
 						.Select(m => m.Nick)
 						.Distinct()
-						.ToArray();
+						.ToList();
 
-					if (_nickCandidates.Length > 0)
+					if (_nickCandidates.NotNullOrEmpty())
 					{
 						nextNick = _nickCandidates[0];
 					}
@@ -145,7 +155,7 @@ namespace IrcSays.Ui
 					}
 				}
 
-				for (var i = 0; i < _nickCandidates.Length; i++)
+				for (var i = 0; i < _nickCandidates.Count; i++)
 				{
 					if (string.Compare(_nickCandidates[i], nickPart, StringComparison.InvariantCulture) == 0)
 					{
@@ -159,7 +169,7 @@ namespace IrcSays.Ui
 			}
 			else if (_mostRecentlyReferenced.Count > 0)
 			{
-				_nickCandidates = _mostRecentlyReferenced.ToArray();
+				_nickCandidates = _mostRecentlyReferenced.ToList();
 				InsertNick(_nickCandidates[0], "");
 			}
 		}
@@ -176,9 +186,69 @@ namespace IrcSays.Ui
 				{
 					nextNick += ": ";
 				}
-				txtInput.Text = input.Substring(0, _currentNickStart) + nextNick + input.Substring(_currentNickEnd);
+
+				var prefixText = "";
+				var suffixText = "";
+				if (input != null)
+				{
+					if (input.Length > _currentNickStart)
+					{
+						prefixText = input.Substring(0, _currentNickStart);
+					}
+					if (input.Length > _currentNickEnd)
+					{
+						suffixText = input.Substring(_currentNickEnd);
+					}
+				}
+
+				txtInput.Text = prefixText + nextNick + suffixText;
 				txtInput.CaretIndex = _currentNickStart + nextNick.Length;
 				_currentNickEnd = _currentNickStart + nextNick.Length;
+			}
+		}
+
+		private void OnTxtInputContextMenuOpening(object sender, ContextMenuEventArgs e)
+		{
+			var charIndex = txtInput.CaretIndex;
+			var spellingMenu = (MenuItem) txtInput.ContextMenu.Items[0];
+			spellingMenu.Items.Clear();
+
+			var error = txtInput.GetSpellingError(charIndex);
+			if (error != null &&
+				error.Suggestions.Any())
+			{
+				spellingMenu.Header = "Suggestions";
+				spellingMenu.IsEnabled = true;
+				var first = true;
+				foreach (var suggestion in error.Suggestions)
+				{
+					var item = new MenuItem
+					{
+						Header = suggestion,
+						Command = EditingCommands.CorrectSpellingError,
+						CommandParameter = suggestion,
+						CommandTarget = txtInput
+					};
+					if (first)
+					{
+						first = false;
+						item.FontWeight = FontWeights.Bold;
+					}
+					spellingMenu.Items.Add(item);
+				}
+				spellingMenu.Items.Add(new Separator());
+				spellingMenu.Items.Add(new MenuItem
+				{
+					Header = "Ignore All",
+					Command = EditingCommands.IgnoreSpellingError,
+					CommandTarget = txtInput,
+					FontWeight = FontWeights.Bold
+				});
+			}
+			else
+			{
+				spellingMenu.Header = "(No Suggestions)";
+				spellingMenu.IsEnabled = false;
 			}
 		}
 	}

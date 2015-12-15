@@ -52,7 +52,7 @@ namespace IrcSays.Ui
 				}
 				else
 				{
-					nick = string.Format("<{0}> ", nick);
+					nick = $"<{nick}> ";
 				}
 			}
 			return nick ?? "*";
@@ -125,9 +125,11 @@ namespace IrcSays.Ui
 			newBlock.TimeString = FormatTime(newBlock.Source.Time);
 			newBlock.FormattedNick = FormatNick(newBlock.Source.Nick);
 
-			var offset = _blocks.Last != null ? _blocks.Last.Value.CharEnd : 0;
+			var offset = _blocks.Last?.Value.CharEnd ?? 0;
 			newBlock.CharStart = offset;
-			offset += newBlock.TimeString.Length + newBlock.FormattedNick.Length + newBlock.Source.Text.Length;
+			offset += newBlock.TimeString.Length + 
+				newBlock.FormattedNick.Length + 
+				newBlock.Source.Text.Length;
 			newBlock.CharEnd = offset;
 
 			_blocks.AddLast(newBlock);
@@ -237,7 +239,7 @@ namespace IrcSays.Ui
 			while (_curBlock != null &&
 					count < TextProcessingBatchSize)
 			{
-				var oldLineCount = _curBlock.Value.Text != null ? _curBlock.Value.Text.Length : 0;
+				var oldLineCount = _curBlock.Value.Text?.Length ?? 0;
 				FormatOne(_curBlock.Value, false);
 				_curLine += _curBlock.Value.Text.Length;
 				var deltaLines = _curBlock.Value.Text.Length - oldLineCount;

@@ -8,6 +8,7 @@ using IrcSays.Communication;
 using IrcSays.Communication.Irc;
 using IrcSays.Configuration;
 using IrcSays.Interop;
+using IrcSays.Services;
 
 namespace IrcSays.Ui
 {
@@ -17,7 +18,17 @@ namespace IrcSays.Ui
 
 		private void Session_SelfJoined(object sender, IrcJoinEventArgs e)
 		{
-			var page = new ChatControl(ChatPageType.Chat, (IrcSession) sender, e.Channel);
+			var session = (IrcSession) sender;
+			var id = ChatControl.CreateId(ChatPageType.Chat, session, e.Channel);
+
+			var existingPage = Items.FirstOrDefault(t => t.Page.Id == id);
+			if (existingPage != null)
+			{
+				((ChatControl) existingPage.Page).ReConnect(e.Channel);
+				return;
+			}
+
+			var page = new ChatControl(ChatPageType.Chat, session, e.Channel);
 			var state = App.Settings.Current.Windows.States[page.Id];
 			if (state.IsDetached)
 			{
@@ -64,7 +75,7 @@ namespace IrcSays.Ui
 				case IrcSessionState.Disconnected:
 					if (!_isShuttingDown)
 					{
-						App.DoEvent("disconnect");
+						ServiceManager.Sound.PlaySound("disconnect");
 					}
 					break;
 			}
@@ -86,8 +97,8 @@ namespace IrcSays.Ui
 					case "VERSION":
 						session.SendCtcp(new IrcTarget(e.From), new CtcpCommand(
 							"VERSION",
-							App.Product,
-							App.Version), true);
+							AppInfo.Product,
+							AppInfo.Version), true);
 						break;
 					case "PING":
 						session.SendCtcp(new IrcTarget(e.From), new CtcpCommand(
@@ -101,7 +112,8 @@ namespace IrcSays.Ui
 						break;
 					case "DCC":
 						var args = e.Command.Arguments;
-						e.Handled = HandleDcc(session, new IrcTarget(e.From), args);
+						e.Handled = true;
+							//HandleDcc(session, new IrcTarget(e.From), args);
 						break;
 				}
 			}

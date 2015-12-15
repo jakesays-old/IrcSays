@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Drawing;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
@@ -6,6 +7,7 @@ using System.Windows.Interop;
 using System.Windows.Media;
 using IrcSays.Application;
 using IrcSays.Interop;
+using Point = System.Windows.Point;
 
 namespace IrcSays.Ui
 {
@@ -155,6 +157,15 @@ namespace IrcSays.Ui
 			base.OnDeactivated(e);
 		}
 
+		private static readonly Lazy<Icon> _appIcon = new Lazy<Icon>(() =>
+		{
+			using (var stream = typeof(App).Assembly.GetManifestResourceStream(
+				"IrcSays.Resources.App.ico"))
+			{
+				return new Icon(stream);
+			}
+		});
+
 		protected override void OnStateChanged(EventArgs e)
 		{
 			if (WindowState == WindowState.Minimized &&
@@ -162,7 +173,7 @@ namespace IrcSays.Ui
 			{
 				if (_notifyIcon == null)
 				{
-					_notifyIcon = new NotifyIcon(this, App.ApplicationIcon);
+					_notifyIcon = new NotifyIcon(this, _appIcon.Value);
 					_notifyIcon.DoubleClicked += (sender, args) =>
 					{
 						Show();

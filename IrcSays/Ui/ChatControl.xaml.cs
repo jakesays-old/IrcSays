@@ -8,13 +8,12 @@ using System.Windows.Input;
 using IrcSays.Application;
 using IrcSays.Communication.Irc;
 using IrcSays.Configuration;
+using IrcSays.Services;
 
 namespace IrcSays.Ui
 {
 	public partial class ChatControl : ChatPage
 	{
-		#region Nested types
-
 		private class CommandException : Exception
 		{
 			public CommandException(string message)
@@ -23,22 +22,21 @@ namespace IrcSays.Ui
 			}
 		}
 
-		#endregion
-
 		private const double MinNickListWidth = 50.0;
 
 		private readonly LinkedList<string> _history;
 		private LinkedListNode<string> _historyNode;
-		private readonly LogFileHandle _logFile;
 		private ChatLine _markerLine;
 		private Timer _delayTimer;
 
+		public void ReConnect(IrcTarget target)
+		{
+			Target = target;
+			Id = CreateId(Type, Session, target);
+		}
+
 		public ChatControl(ChatPageType type, IrcSession session, IrcTarget target)
-			: base(type, session, target, type == ChatPageType.Server
-				? "server"
-				: (type == ChatPageType.DccChat
-					? "dcc-chat"
-					: string.Format("{0}.{1}", session.NetworkName, target.Name).ToLowerInvariant()))
+			: base(type, session, target, CreateId(type, session, target))
 		{
 			_history = new LinkedList<string>();
 			_nickList = new NicknameList();
@@ -46,35 +44,31 @@ namespace IrcSays.Ui
 			InitializeComponent();
 
 			var state = App.Settings.Current.Windows.States[Id];
-			if (Type == ChatPageType.DccChat)
-			{
-				Header = string.Format("[CHAT] {0}", Target.Name);
-			}
-			else if (Type == ChatPageType.Chat ||
+			if (Type == ChatPageType.Chat ||
 					Type == ChatPageType.Server)
 			{
-				Header = Target == null ? "Server" : Target.ToString();
+				Header = Target?.ToString() ?? "Server";
 				SubscribeEvents();
 
-				if (!IsServer)
-				{
-					_logFile = App.OpenLogFile(Id);
-					var logLines = new List<ChatLine>();
-					while (_logFile.Buffer.Count > 0)
-					{
-						var cl = _logFile.Buffer.Dequeue();
-						cl.Marker = _logFile.Buffer.Count == 0 ? ChatMarker.OldMarker : ChatMarker.None;
-						logLines.Add(cl);
-					}
-					boxOutput.AppendBulkLines(logLines);
-				}
+				//if (!IsServer)
+				//{
+				//	_logFile = App.OpenLogFile(Id);
+				//	var logLines = new List<ChatLine>();
+				//	while (_logFile.Buffer.Count > 0)
+				//	{
+				//		var cl = _logFile.Buffer.Dequeue();
+				//		cl.Marker = _logFile.Buffer.Count == 0 ? ChatMarker.OldMarker : ChatMarker.None;
+				//		logLines.Add(cl);
+				//	}
+				//	boxOutput.AppendBulkLines(logLines);
+				//}
 
 				if (IsChannel)
 				{
 					colNickList.MinWidth = MinNickListWidth;
 					colNickList.Width = new GridLength(state.NickListWidth);
 
-					Write("Join", string.Format("Now talking on {0}", Target.Name));
+					Write("Join", $"Now talking on {Target.Name}");
 					Session.AddHandler(new IrcCodeHandler(e =>
 					{
 						if (e.Message.Parameters.Count > 2 &&
@@ -129,15 +123,16 @@ namespace IrcSays.Ui
 			boxOutput.ContextMenu = GetDefaultContextMenu();
 		}
 
-		public bool IsChannel
+		public static string CreateId(ChatPageType type, IrcSession session, IrcTarget target)
 		{
-			get { return Type == ChatPageType.Chat && Target.IsChannel; }
+			return type == ChatPageType.Server
+				? "server"
+				: $"{session.NetworkName}.{target.Name}".ToLowerInvariant();
 		}
 
-		public bool IsNickname
-		{
-			get { return Type == ChatPageType.Chat && !Target.IsChannel; }
-		}
+		public bool IsChannel => Type == ChatPageType.Chat && Target.IsChannel;
+
+		public bool IsNickname => Type == ChatPageType.Chat && !Target.IsChannel;
 
 		public string Perform { get; set; }
 
@@ -208,7 +203,7 @@ namespace IrcSays.Ui
 
 			if (VisualParent == null)
 			{
-				if (IsNickname || Type == ChatPageType.DccChat)
+				if (IsNickname)
 				{
 					// Activity in PM window
 					NotifyState = NotifyState.Alert;
@@ -227,19 +222,15 @@ namespace IrcSays.Ui
 			}
 
 			boxOutput.AppendLine(cl);
-			if (_logFile != null)
-			{
-				_logFile.WriteLine(cl);
-			}
 		}
 
 		private void Write(string styleKey, IrcPeer peer, string text, bool attn)
 		{
-			Write(styleKey, string.Format("{0}@{1}", peer.Username, peer.Hostname).GetHashCode(),
+			Write(styleKey, $"{peer.Username}@{peer.Hostname}".GetHashCode(),
 				GetNickWithLevel(peer.Nickname), text, attn);
 			if (!boxOutput.IsAutoScrolling)
 			{
-				App.DoEvent("beep");
+				ServiceManager.Sound.PlaySound("beep");
 			}
 		}
 
@@ -258,40 +249,34 @@ namespace IrcSays.Ui
 		private void SetTitle()
 		{
 			var userModes = Session.UserModes.Length > 0
-				? string.Format("+{0}", string.Join("", (from c in Session.UserModes select c.ToString()).ToArray()))
+				? $"+{string.Join("", (from c in Session.UserModes select c.ToString()).ToArray())}"
 				: "";
 			var channelModes = _channelModes.Length > 0
-				? string.Format("+{0}", string.Join("", (from c in _channelModes select c.ToString()).ToArray()))
+				? $"+{string.Join("", (from c in _channelModes select c.ToString()).ToArray())}"
 				: "";
 
 			switch (Type)
 			{
-				case ChatPageType.DccChat:
-					Title = string.Format("{0} - {1} - DCC chat with {2}", App.Product, Session.Nickname, Target.Name);
-					break;
-
 				case ChatPageType.Server:
 					if (Session.State == IrcSessionState.Disconnected)
 					{
-						Title = string.Format("{0} - Not Connected", App.Product);
+						Title = $"{AppInfo.Product} - Not Connected";
 					}
 					else
 					{
-						Title = string.Format("{0} - {1} ({2}) on {3}", App.Product, Session.Nickname,
-							userModes, Session.NetworkName);
+						Title = $"{AppInfo.Product} - {Session.Nickname} ({userModes}) on {Session.NetworkName}";
 					}
 					break;
 
 				default:
 					if (Target.IsChannel)
 					{
-						Title = string.Format("{0} - {1} ({2}) on {3} - {4} ({5}) - {6}", App.Product, Session.Nickname,
-							userModes, Session.NetworkName, Target, channelModes, _topic);
+						Title =
+							$"{AppInfo.Product} - {Session.Nickname} ({userModes}) on {Session.NetworkName} - {Target} ({channelModes}) - {_topic}";
 					}
 					else
 					{
-						Title = string.Format("{0} - {1} ({2}) on {3} - {4}", App.Product, Session.Nickname,
-							userModes, Session.NetworkName, _prefix);
+						Title = $"{AppInfo.Product} - {Session.Nickname} ({userModes}) on {Session.NetworkName} - {_prefix}";
 					}
 					break;
 			}
@@ -335,24 +320,11 @@ namespace IrcSays.Ui
 			var state = App.Settings.Current.Windows.States[Id];
 			state.ColumnWidth = boxOutput.ColumnWidth;
 
-			if (Type == ChatPageType.DccChat &&
-				_dcc != null)
+			if (IsChannel)
 			{
-				_dcc.Dispose();
-				DeletePortForwarding();
+				state.NickListWidth = colNickList.ActualWidth;
 			}
-			else
-			{
-				if (IsChannel)
-				{
-					state.NickListWidth = colNickList.ActualWidth;
-				}
-				UnsubscribeEvents();
-				if (_logFile != null)
-				{
-					_logFile.Dispose();
-				}
-			}
+			UnsubscribeEvents();
 		}
 
 		private void DoPerform(int startIndex)
