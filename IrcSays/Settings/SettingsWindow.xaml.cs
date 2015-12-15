@@ -3,25 +3,19 @@ using System.Windows.Controls;
 using System.Windows.Input;
 using System.Windows.Media;
 using IrcSays.Application;
+using IrcSays.Services;
 
 namespace IrcSays.Settings
 {
 	public partial class SettingsWindow : Window
 	{
+		private IPreferenceService context = new PreferenceService();
 		public SettingsWindow()
 		{
 			InitializeComponent();
+			this.DataContext = context;
+			
 
-			App.Settings.Save();
-
-			grdSettings.Children.Add(new UserSettingsControl());
-			grdSettings.Children.Add(new ServerSettingsControl());
-			grdSettings.Children.Add(new FormattingSettingsControl());
-			grdSettings.Children.Add(new ColorsSettingsControl());
-			grdSettings.Children.Add(new BufferSettingsControl());
-			grdSettings.Children.Add(new WindowSettingsControl());
-			grdSettings.Children.Add(new SoundSettingsControl());
-			grdSettings.Children.Add(new NetworkSettingsControl());
 
 			if (lstCategories.SelectedIndex < 0)
 			{

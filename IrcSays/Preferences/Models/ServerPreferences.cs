@@ -1,109 +1,36 @@
+using System.Collections.Generic;
+using System.Collections.ObjectModel;
+using System.Windows.Input;
+using IrcSays.Utility;
+
 namespace IrcSays.Preferences.Models
 {
 	public class ServerPreferences : PreferenceBase
 	{
-		private string _name;
-		private string _hostname;
-		private int _port;
-		private string _password;
-		private bool _isSecure;
-		private bool _connectOnStartup;
-		private bool _autoReconnect;
-		private string _onConnect;
+		private ObservableCollection<ServerPreference> _servers;
 
 		public ServerPreferences()
 		{
-			_name = null;
-			_hostname = null;
-			_port = 6667;
-			_password = null;
-			_isSecure = false;
-			_connectOnStartup = false;
-			_autoReconnect = true;
-			_onConnect = "";
-
-		}
-		
-		public string Name
-		{
-			get { return _name; }
-			set
+			_servers = new ObservableCollection<ServerPreference>();
+			AddNewCommand = new RelayCommand((o) =>
 			{
-				_name = value;
-				OnPropertyChanged();
-			}
+				Servers.Add(new ServerPreference()
+					{
+						Name = "New Server",
+						Port = 6667,
+					});
+			});
+
+			RemoveServerCommand = new RelayCommand(o =>
+			{
+				Servers.Remove(SelectedServer);
+			},  o => SelectedServer != null);
 		}
 
-		public string Hostname
-		{
-			get { return _hostname; }
-			set
-			{
-				_hostname = value;
-				OnPropertyChanged();
-			}
-		}
-
-		public int Port
-		{
-			get { return _port; }
-			set
-			{
-				ValidateRange(value, 0, 65535);
-				_port = value;
-				OnPropertyChanged();
-			}
-		}
-
-		public string Password
-		{
-			get { return _password; }
-			set
-			{
-				_password = value;
-				OnPropertyChanged();
-			}
-		}
-
-		public bool IsSecure
-		{
-			get { return _isSecure; }
-			set
-			{
-				_isSecure = value;
-				OnPropertyChanged();
-			}
-		}
-
-		public bool ConnectOnStartup
-		{
-			get { return _connectOnStartup; }
-			set
-			{
-				_connectOnStartup = value;
-				OnPropertyChanged();
-			}
-		}
-
-		public bool AutoReconnect
-		{
-			get { return _autoReconnect; }
-			set
-			{
-				_autoReconnect = value;
-				OnPropertyChanged();
-			}
-		}
-
-		public string OnConnect
-		{
-			get { return _onConnect; }
-			set
-			{
-				_onConnect = value;
-				OnPropertyChanged();
-			}
-		}
+		public ICommand AddNewCommand { get; set; }
+		public ICommand RemoveServerCommand { get; set; }
+		public ObservableCollection<ServerPreference> Servers { get; set; }
+		public ServerPreference SelectedServer { get; set; }
 
 	}
 }

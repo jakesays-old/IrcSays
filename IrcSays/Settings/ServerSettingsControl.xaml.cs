@@ -11,14 +11,6 @@ namespace IrcSays.Settings
 	{
 		public ServerSettingsControl()
 		{
-			if (App.Settings.Current.Servers.Count == 0)
-			{
-				var server = new ServerElement();
-				server.Name = "New Server";
-				server.Port = 6667;
-				App.Settings.Current.Servers.Add(server);
-			}
-
 			InitializeComponent();
 
 			lstServers.SelectedIndex = 0;

@@ -1,3 +1,5 @@
+using System.Windows.Markup;
+
 namespace IrcSays.Preferences.Models
 {
 	public class ColorsPreferences : PreferenceBase
@@ -47,7 +49,8 @@ namespace IrcSays.Preferences.Models
 		private string _color15;
 		private string _transmit;
 		private ChatPalette _palette;
-
+		private bool _colorizeNicknames;
+		private int _nicknameColorSeed;
 		public ColorsPreferences()
 		{
 			_background = "Black";
@@ -95,7 +98,8 @@ namespace IrcSays.Preferences.Models
 			_color15 = "#D2D2D2";
 			_transmit = "#00FF00";
 			_palette = default(ChatPalette);
-
+			_colorizeNicknames = true;
+			_nicknameColorSeed = 20;
 		}
 		
 		public string Background
@@ -548,5 +552,24 @@ namespace IrcSays.Preferences.Models
 			}
 		}
 
+		public bool ColorizeNicknames
+		{
+			get { return _colorizeNicknames; }
+			set
+			{
+				_colorizeNicknames = value;
+				OnPropertyChanged();
+			}
+		}
+
+		public int NicknameColorSeed
+		{
+			get { return _nicknameColorSeed; }
+			set
+			{
+				_nicknameColorSeed = value;
+				OnPropertyChanged();
+			}
+		}
 	}
 }

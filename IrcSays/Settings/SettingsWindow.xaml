@@ -1,9 +1,15 @@
 ﻿<Window x:Class="IrcSays.Settings.SettingsWindow"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+		xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+		xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:IrcSays.Application"
-        Title="Settings" Height="374" Width="551" WindowStyle="SingleBorderWindow" ShowInTaskbar="False" ResizeMode="NoResize"
-		WindowStartupLocation="CenterOwner">
+		xmlns:service="clr-namespace:IrcSays.Services"
+		xmlns:settings="clr-namespace:IrcSays.Settings"
+		Title="Settings" Height="374" Width="551" WindowStyle="SingleBorderWindow" ShowInTaskbar="False" ResizeMode="NoResize"
+		WindowStartupLocation="CenterOwner"
+		mc:Ignorable="d"
+		d:DataContext="{d:DesignInstance Type=service:PreferenceService}">
 	<Window.Resources>
 		<Style x:Key="styleBigListBox" TargetType="ListBox">
 			<Setter Property="ItemContainerStyle">
@@ -36,37 +42,8 @@
 				</Setter.Value>
 			</Setter>
 		</Style>
-		<Style x:Key="styleSmallListBox" TargetType="ListBox">
-			<Setter Property="ItemContainerStyle">
-				<Setter.Value>
-					<Style TargetType="ListBoxItem">
-						<Setter Property="FocusVisualStyle" Value="{x:Null}" />
-						<Setter Property="Template">
-							<Setter.Value>
-								<ControlTemplate TargetType="ListBoxItem">
-									<Border Name="Border" Padding="5,0,5,0" SnapsToDevicePixels="True" BorderThickness="1,1,1,1">
-										<ContentPresenter />
-									</Border>
-									<ControlTemplate.Triggers>
-										<Trigger Property="IsSelected" Value="True">
-											<Setter TargetName="Border" Property="Background">
-												<Setter.Value>
-													<LinearGradientBrush EndPoint="0.5,1" StartPoint="0.5,0">
-														<GradientStop Color="#FEFAF6" Offset="0" />
-														<GradientStop Color="#EEA24F" Offset="1" />
-													</LinearGradientBrush>
-												</Setter.Value>
-											</Setter>
-											<Setter TargetName="Border" Property="BorderBrush" Value="#FF9B7C1E"/>
-										</Trigger>
-									</ControlTemplate.Triggers>
-								</ControlTemplate>
-							</Setter.Value>
-						</Setter>
-					</Style>
-				</Setter.Value>
-			</Setter>
-		</Style>
+		
+		
 	</Window.Resources>
 	<DockPanel HorizontalAlignment="Stretch" Name="dockPanel1" VerticalAlignment="Stretch">
 		<Border DockPanel.Dock="Bottom" BorderThickness="0,1,0,0" BorderBrush="#FF828790">
@@ -83,9 +60,9 @@
 			</Grid>
 		</Border>
 		<ListBox Name="lstCategories" Style="{StaticResource styleBigListBox}" Width="150" Padding="0" FontSize="14" AlternationCount="0" OverridesDefaultStyle="False" SnapsToDevicePixels="True" IsTextSearchEnabled="False" BorderThickness="0,0,1,0" SelectionChanged="lstCategories_SelectionChanged">
-			<ListBoxItem Content="User Information" />
-			<ListBoxItem Content="Servers" />
-			<ListBoxItem Content="Formatting"/>
+			<ListBoxItem Content="User Information"/>
+			<ListBoxItem Content="Servers"/>
+			<ListBoxItem Content="Formatting(WIP)"/>
 			<ListBoxItem Content="Colors"/>
 			<ListBoxItem Content="Buffer"/>
 			<ListBoxItem Content="Windows"/>
@@ -93,6 +70,14 @@
 			<ListBoxItem Content="Network"/>
 		</ListBox>
 		<Grid Name="grdSettings" DockPanel.Dock="Right" Background="#FFEEEEEE">
+			<settings:UserSettingsControl		DataContext="{Binding User}" Visibility="Collapsed"/>
+			<settings:ServerSettingsControl		DataContext="{Binding Servers}" Visibility="Collapsed"/>
+			<settings:FormattingSettingsControl DataContext="{Binding Formatting}" Visibility="Collapsed"/>
+			<settings:ColorsSettingsControl		DataContext="{Binding Color}" Visibility="Collapsed"/>
+			<settings:BufferSettingsControl		DataContext="{Binding Buffer}" Visibility="Collapsed"/>
+			<settings:WindowSettingsControl		DataContext="{Binding Window}" Visibility="Collapsed"/>
+			<settings:SoundSettingsControl		DataContext="{Binding Sound}" Visibility="Collapsed"/>
+			<settings:NetworkSettingsControl	DataContext="{Binding Network}" Visibility="Collapsed"/>
 		</Grid>
 	</DockPanel>
 </Window>

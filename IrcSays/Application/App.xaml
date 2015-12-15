@@ -60,7 +60,39 @@
 				</Setter.Value>
 			</Setter>
 		</Style>
-
+		
+		<Style x:Key="styleSmallListBox" TargetType="ListBox">
+			<Setter Property="ItemContainerStyle">
+				<Setter.Value>
+					<Style TargetType="ListBoxItem">
+						<Setter Property="FocusVisualStyle" Value="{x:Null}" />
+						<Setter Property="Template">
+							<Setter.Value>
+								<ControlTemplate TargetType="ListBoxItem">
+									<Border Name="Border" Padding="5,0,5,0" SnapsToDevicePixels="True" BorderThickness="1,1,1,1">
+										<ContentPresenter />
+									</Border>
+									<ControlTemplate.Triggers>
+										<Trigger Property="IsSelected" Value="True">
+											<Setter TargetName="Border" Property="Background">
+												<Setter.Value>
+													<LinearGradientBrush EndPoint="0.5,1" StartPoint="0.5,0">
+														<GradientStop Color="#FEFAF6" Offset="0" />
+														<GradientStop Color="#EEA24F" Offset="1" />
+													</LinearGradientBrush>
+												</Setter.Value>
+											</Setter>
+											<Setter TargetName="Border" Property="BorderBrush" Value="#FF9B7C1E"/>
+										</Trigger>
+									</ControlTemplate.Triggers>
+								</ControlTemplate>
+							</Setter.Value>
+						</Setter>
+					</Style>
+				</Setter.Value>
+			</Setter>
+		</Style>
+		
 		<Style x:Key="uiRepeatButtonStyle" TargetType="RepeatButton">
 			<Setter Property="Foreground" Value="{StaticResource winFG}"/>
 			<Setter Property="Background" Value="Transparent"/>

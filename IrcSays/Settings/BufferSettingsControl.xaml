@@ -4,7 +4,9 @@
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:local="clr-namespace:IrcSays.Application"
+             xmlns:models="clr-namespace:IrcSays.Preferences.Models"
              mc:Ignorable="d"
+			 d:DataContext="{d:DesignInstance Type=models:BufferPreferences}"
              d:DesignHeight="300" d:DesignWidth="384">
 	<UserControl.Resources>
 		<ToolTip x:Key="ttOutputLines">The number of lines to keep in the scroll buffer.</ToolTip>
@@ -19,7 +21,7 @@
 				<Label ToolTip="{StaticResource ttInputHistory}" Canvas.Left="201" Canvas.Top="4" Content="Input History" Height="24" Name="label3" />
 				<TextBox ToolTip="{StaticResource ttOutputLines}" Canvas.Left="118" Canvas.Top="4" Height="23" Name="txtOutputLines" Width="56">
 					<TextBox.Text>
-						<Binding Source="{x:Static local:App.Settings}" Path="Current.Buffer.BufferLines" Mode="TwoWay">
+						<Binding Path="BufferLines" Mode="TwoWay">
 							<Binding.ValidationRules>
 								<ExceptionValidationRule/>
 							</Binding.ValidationRules>
@@ -28,7 +30,7 @@
 				</TextBox>
 				<TextBox ToolTip="ttInputHistory" Canvas.Left="286" Canvas.Top="4" Height="23" Name="txtInputHistory" Width="56">
 					<TextBox.Text>
-						<Binding Source="{x:Static local:App.Settings}" Path="Current.Buffer.InputHistory" Mode="TwoWay">
+						<Binding  Path="InputHistory" Mode="TwoWay">
 							<Binding.ValidationRules>
 								<ExceptionValidationRule/>
 							</Binding.ValidationRules>
@@ -38,7 +40,7 @@
 				<Label ToolTip="{StaticResource ttAutoCopyLength}" Canvas.Left="6" Canvas.Top="30" Content="Auto Copy Length" Height="27" Name="label2" />
 				<TextBox ToolTip="{StaticResource ttAutoCopyLength}" Canvas.Left="118" Canvas.Top="30" Height="23" Name="txtMinimumCopyLength" Width="56">
 					<TextBox.Text>
-						<Binding Source="{x:Static local:App.Settings}" Path="Current.Buffer.MinimumCopyLength" Mode="TwoWay">
+						<Binding Path="MinimumCopyLength" Mode="TwoWay">
 							<Binding.ValidationRules>
 								<ExceptionValidationRule/>
 							</Binding.ValidationRules>
@@ -47,7 +49,7 @@
 				</TextBox>
 				<Label ToolTip="{StaticResource ttMaxPasteLines}" Canvas.Left="186" Canvas.Top="30" Content="Max Paste Lines" Height="28" Name="label4" />
 				<TextBox ToolTip="{StaticResource ttMaxPasteLines}" Canvas.Left="286" Canvas.Top="32" Height="23" Name="txtMaxPasteLines" Width="56">
-					<Binding Mode="TwoWay" Path="Current.Buffer.MaximumPasteLines" Source="{x:Static local:App.Settings}">
+					<Binding Mode="TwoWay" Path="MaximumPasteLines">
 						<Binding.ValidationRules>
 							<ExceptionValidationRule />
 						</Binding.ValidationRules>

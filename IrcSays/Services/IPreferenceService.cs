@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using IrcSays.Preferences.Models;
 
 namespace IrcSays.Services
@@ -10,13 +11,15 @@ namespace IrcSays.Services
 
 		NetworkPreferences Network { get; }
 
-		ServerPreferences Server { get; }
+		ServerPreferences Servers { get; }
 
 		SoundsPreferences Sound { get; }
 
 		UserPreferences User { get; }
 
 		WindowsPreferences Window { get; }
+
+		FormattingPreferences Formatting { get; }
 
 	}
 }
