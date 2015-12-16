@@ -463,13 +463,21 @@ namespace IrcSays.Ui
 				case IrcCommands.PurgeAllMessages:
 					ExecutePurgeMessages(command, arguments, true);
 					break;
+                case IrcCommands.ZncMessages:
+                    ExecuteZncMessages(command, arguments);
+                    break;
 				default:
 					Write("Error", $"Unrecognized command: {command}");
 					break;
 			}
 		}
 
-		private void ExecutePurgeMessages(string command, string arguments,
+        private void ExecuteZncMessages(string command, string arguments)
+        {
+            Session.Znc(arguments);
+        }
+
+        private void ExecutePurgeMessages(string command, string arguments,
 			bool purgeAll)
 		{
 			var args = Split(command, arguments, 1, 1);

@@ -49,5 +49,6 @@
 		//unofficial commands
 		public const string PurgeMessages = "PURGE";
 		public const string PurgeAllMessages = "PURGEALL";
+        public const string ZncMessages = "ZNC";
 	}
 }

@@ -529,6 +529,12 @@ namespace IrcSays.Communication.Irc
 			Send("WHO", mask);
 		}
 
+        public void Znc(string arguments)
+        {
+            var msg = new IrcMessage("ZNC", excludeSeparator: true, parameters: arguments);
+            Send(msg);
+        }
+
 		/// <summary>
 		///     Retrieve information about a user.
 		/// </summary>

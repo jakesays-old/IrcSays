@@ -23,12 +23,20 @@ namespace IrcSays.Communication.Irc
 		/// </summary>
 		public IReadOnlyList<string> Parameters { get; private set; }
 
+        public bool ExcludeSeparator { get; }
+
 		internal IrcMessage(string command, params string[] parameters)
 			: this(null, command, parameters)
 		{
 		}
 
-		internal IrcMessage(IrcPrefix prefix, string command, params string[] parameters)
+        internal IrcMessage(string command, bool excludeSeparator, params string[] parameters)
+            : this(null, command, parameters)
+        {
+            ExcludeSeparator = excludeSeparator;
+        }
+
+        internal IrcMessage(IrcPrefix prefix, string command, params string[] parameters)
 		{
 			From = prefix;
 			Command = command;
@@ -55,7 +63,7 @@ namespace IrcSays.Communication.Irc
 				}
 
 				sb.Append(' ');
-				if (i == Parameters.Count - 1)
+				if (i == Parameters.Count - 1 && !ExcludeSeparator)
 				{
 					sb.Append(':');
 				}
